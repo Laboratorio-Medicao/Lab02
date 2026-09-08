@@ -1,0 +1,1 @@
+"""Kata 05: rodizio de equipes."""

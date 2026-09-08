@@ -4,7 +4,8 @@ Experimento controlado comparando o uso de assistente de IA generativa contra
 codificação manual na resolução de katas, avaliando tempo de resolução
 (RQ1), defeitos (RQ2) e estrutura do código produzido (RQ3). Enunciado
 completo em [`docs/enunciado/lab02.md`](docs/enunciado/lab02.md); desenho do
-experimento em [`docs/experiment_design.md`](docs/experiment_design.md).
+experimento em [`docs/experiment_design.md`](docs/experiment_design.md); seleção
+e validação dos exercícios em [`docs/katas.md`](docs/katas.md).
 
 ## Ambiente de execução
 
@@ -39,6 +40,13 @@ pip install -r requirements.txt
 ```bash
 source .venv/bin/activate
 python -m pytest
+```
+
+Os seis katas e seus testes de aceitação estão em [`katas/`](katas/). Para
+executar apenas essa validação:
+
+```bash
+python -m pytest katas -q
 ```
 
 ## Scripts de preparação (S01)

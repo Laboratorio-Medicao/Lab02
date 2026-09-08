@@ -1,0 +1,1 @@
+"""Kata 01: faixas de sinal."""
