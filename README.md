@@ -33,7 +33,12 @@ source .venv/bin/activate   # Windows: .venv\Scripts\activate
 
 # 3. Instalar as dependências
 pip install -r requirements.txt
+
+# 4. Instalar o jscpd usado na métrica de duplicação
+npm ci
 ```
+
+O comando `npm ci` requer Node.js e npm instalados.
 
 ## Rodando os testes
 
@@ -57,12 +62,17 @@ python -m pytest katas -q
 python -m experiment.collection.timer <participante> <kata_id> <with_ai|without_ai> [--output data/trials.csv]
 ```
 
-**Métricas estáticas via Radon** (complexidade ciclomática, índice de
-manutenibilidade e LOC — [Issue #5](../../issues/5)):
+**Métricas estáticas via Radon + jscpd** (complexidade ciclomática, índice de
+manutenibilidade, LOC e duplicação — [Issue #5](../../issues/5)):
 
 ```bash
-python -m experiment.collection.static_metrics <caminho-do-kata> [--json] [--include-tests]
+python -m experiment.collection.static_metrics <caminho-do-trial> --json
+python -m experiment.collection.static_metrics <caminho-do-trial> --participant Arthur --kata-id kata-01 --treatment with_ai --output data/static_metrics.csv
 ```
+
+Por padrão, testes de aceitação não entram nas métricas. O CSV de métricas por
+trial pode ser unido a `data/trials.csv` pelas colunas `participant`, `kata_id`
+e `treatment`.
 
 **Relatório do desenho do experimento** ([Issue #3](../../issues/3)):
 
@@ -73,6 +83,8 @@ python generate_design_report.py
 ## Reprodutibilidade
 
 - As dependências e versões exatas estão fixadas em [`requirements.txt`](requirements.txt).
+- A versão do jscpd está fixada em [`package-lock.json`](package-lock.json); use
+  `npm ci` para reproduzir a instalação.
 - O assistente de IA e sua versão (Claude Sonnet 5) são registrados aqui para
   permitir reprodução/replicação do experimento, conforme exigido na
   metodologia do Relatório Final.

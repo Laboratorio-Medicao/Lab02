@@ -203,6 +203,11 @@ cython_debug/
 # Temporary file for partial code execution
 tempCodeRunnerFile.py
 
+# Node and temporary jscpd reports
+node_modules/
+.jscpd-report/
+npm-debug.log*
+
 # Ruff stuff:
 .ruff_cache/
 

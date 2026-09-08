@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from experiment.collection.static_metrics import collect_static_metrics
+from experiment.collection.duplication_metrics import collect_duplication_metrics
+from experiment.collection.static_metrics import append_trial_metrics, collect_static_metrics
 
 SAMPLE_KATA = Path(__file__).parent / "fixtures" / "sample_kata"
 
@@ -20,6 +21,7 @@ class TestCollectStaticMetrics:
         with_tests = collect_static_metrics(SAMPLE_KATA, include_tests=True)
 
         assert with_tests.loc > without_tests.loc
+        assert with_tests.duplication.total_lines > without_tests.duplication.total_lines
 
     def test_accepts_a_single_file(self):
         metrics = collect_static_metrics(SAMPLE_KATA / "fizzbuzz.py")
@@ -38,5 +40,47 @@ class TestCollectStaticMetrics:
 
         as_dict = metrics.to_dict()
 
-        assert set(as_dict) == {"path", "loc", "cyclomatic_complexity_avg", "maintainability_index"}
+        assert set(as_dict) == {
+            "path",
+            "loc",
+            "cyclomatic_complexity_avg",
+            "maintainability_index",
+            "duplicated_lines",
+            "duplicated_lines_percent",
+            "duplicate_blocks",
+            "total_lines",
+            "tool",
+            "tool_version",
+        }
         assert as_dict["loc"] == metrics.loc
+
+    def test_appends_trial_metrics_to_csv(self, tmp_path):
+        metrics = collect_static_metrics(SAMPLE_KATA)
+        output = tmp_path / "static_metrics.csv"
+
+        append_trial_metrics(metrics, "Arthur", "kata-01", "with_ai", output)
+
+        rows = output.read_text(encoding="utf-8").splitlines()
+        assert rows[0].startswith("participant,kata_id,treatment")
+        assert "Arthur,kata-01,with_ai" in rows[1]
+        assert ",0.0," in rows[1]
+
+    def test_detects_duplicate_lines_between_source_files(self, tmp_path):
+        source = """def repeated(value):
+    first = value + 1
+    second = first + 2
+    third = second + 3
+    fourth = third + 4
+    fifth = fourth + 5
+    sixth = fifth + 6
+    seventh = sixth + 7
+    return seventh
+"""
+        (tmp_path / "first.py").write_text(source, encoding="utf-8")
+        (tmp_path / "second.py").write_text(source, encoding="utf-8")
+
+        metrics = collect_duplication_metrics(tmp_path)
+
+        assert metrics.duplicated_lines > 0
+        assert metrics.duplicated_lines_percent > 0
+        assert metrics.duplicate_blocks > 0
