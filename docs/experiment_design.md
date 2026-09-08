@@ -34,6 +34,11 @@ Analisar o uso de assistentes de IA generativa na resolução de tarefas de prog
 - **Índice de Manutenibilidade (MI)** (0–100) — Métrica composta via Radon mi: combina complexidade ciclomática, LOC e volume de Halstead. Escala 0–100. `[RQ3]`
 - **Duplicação de código** (%) — Percentual de linhas duplicadas via jscpd. `[RQ3]`
 
+	A coleta usa jscpd 4.0.5, considera os arquivos Python do diretório do
+	trial e aplica limiar mínimo de 5 linhas e 20 tokens para reconhecer um bloco
+	duplicado. Arquivos `test_*.py` e `*_test.py` são excluídos; o diretório do
+	trial deve conter somente o código produzido pelo participante.
+
 **Variáveis de controle:**
 
 - **LOC (linhas de código)** (linhas) — Total de linhas de código. Usado para normalizar complexidade e duplicação — código gerado com IA pode ser mais verboso. `[RQ3]`
