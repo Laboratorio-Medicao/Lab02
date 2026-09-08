@@ -46,28 +46,21 @@ Analisar o uso de assistentes de IA generativa na resolução de tarefas de prog
 - **Time-box por trial:** 35 min
 - **Medições totais:** 18 trials (6 katas × 3 participantes)
 
+Os objetos experimentais são os seis exercícios autorais documentados em
+[`docs/katas.md`](katas.md): Faixas de sinal, Inventário de bolsos, Grade de
+entregas, Marcadores de texto, Rodízio de equipes e Pontuação por vizinhança.
+Cada um possui testes automatizados de aceitação em [`katas/`](../katas/).
+
 ### Atribuição de tratamentos
 
 | Participante | Kata | Tratamento |
 |---|---|---|
-| Guilherme | Kata 1 | Com IA |
-| Guilherme | Kata 2 | Com IA |
-| Guilherme | Kata 3 | Com IA |
-| Guilherme | Kata 4 | Sem IA |
-| Guilherme | Kata 5 | Sem IA |
-| Guilherme | Kata 6 | Sem IA |
-| Arthur | Kata 1 | Sem IA |
-| Arthur | Kata 2 | Sem IA |
-| Arthur | Kata 3 | Sem IA |
-| Arthur | Kata 4 | Com IA |
-| Arthur | Kata 5 | Com IA |
-| Arthur | Kata 6 | Com IA |
-| Marcos | Kata 1 | Com IA |
-| Marcos | Kata 2 | Com IA |
-| Marcos | Kata 3 | Com IA |
-| Marcos | Kata 4 | Sem IA |
-| Marcos | Kata 5 | Sem IA |
-| Marcos | Kata 6 | Sem IA |
+| Guilherme | kata-01 a kata-03 | Com IA |
+| Guilherme | kata-04 a kata-06 | Sem IA |
+| Arthur | kata-01 a kata-03 | Sem IA |
+| Arthur | kata-04 a kata-06 | Com IA |
+| Marcos | kata-01 a kata-03 | Com IA |
+| Marcos | kata-04 a kata-06 | Sem IA |
 
 ## Ameaças à Validade
 

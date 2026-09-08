@@ -1,0 +1,1 @@
+"""Kata 03: grade de entregas."""

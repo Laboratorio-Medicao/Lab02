@@ -1,0 +1,1 @@
+"""Kata 02: inventario de bolsos."""
