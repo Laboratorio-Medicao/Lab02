@@ -2,6 +2,7 @@ from experiment.config.counterbalancing import CounterbalancingStrategy
 from experiment.config.experiment_design import ExperimentDesign
 from experiment.domain.enums import ResearchQuestion
 from experiment.domain.hypothesis import Hypothesis
+from experiment.domain.kata import Kata
 from experiment.domain.protocol import CrossoverProtocol
 from experiment.domain.threat import Threat
 from experiment.domain.variable import Variable
@@ -16,6 +17,7 @@ class ExperimentDesignBuilder:
         self._control_variables: list[Variable] = []
         self._threats: list[Threat] = []
         self._protocol: CrossoverProtocol | None = None
+        self._katas: tuple[Kata, ...] = ()
 
     def with_goal(self, goal: str) -> "ExperimentDesignBuilder":
         self._goal = goal
@@ -43,6 +45,10 @@ class ExperimentDesignBuilder:
         self._threats.append(threat)
         return self
 
+    def with_katas(self, katas: tuple[Kata, ...]) -> "ExperimentDesignBuilder":
+        self._katas = katas
+        return self
+
     def with_protocol(
         self,
         participants: tuple[str, ...],
@@ -66,6 +72,11 @@ class ExperimentDesignBuilder:
             raise ValueError("A variável independente é obrigatória")
         if self._protocol is None:
             raise ValueError("O protocolo é obrigatório")
+        if self._katas and len(self._katas) != self._protocol.n_katas:
+            raise ValueError(
+                f"Número de katas ({len(self._katas)}) não corresponde a "
+                f"n_katas do protocolo ({self._protocol.n_katas})"
+            )
 
         return ExperimentDesign(
             goal=self._goal,
@@ -75,4 +86,5 @@ class ExperimentDesignBuilder:
             control_variables=tuple(self._control_variables),
             protocol=self._protocol,
             threats=tuple(self._threats),
+            katas=self._katas,
         )

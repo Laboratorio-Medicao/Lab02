@@ -8,12 +8,24 @@ from experiment.domain.enums import (
     VariableType,
 )
 from experiment.domain.hypothesis import Hypothesis
+from experiment.domain.kata import Kata
 from experiment.domain.threat import Threat
 from experiment.domain.variable import Variable
 
 PARTICIPANTS = ("Guilherme", "Arthur", "Marcos")
 N_KATAS = 6
 TIME_BOX_MINUTES = 35
+
+# Objetos experimentais (item E do desenho) — ver justificativa completa,
+# critério de dificuldade comparável e baixa indexação em docs/katas.md.
+KATAS = (
+    Kata(id="kata-01", name="Faixas de sinal"),
+    Kata(id="kata-02", name="Inventário de bolsos"),
+    Kata(id="kata-03", name="Grade de entregas"),
+    Kata(id="kata-04", name="Marcadores de texto"),
+    Kata(id="kata-05", name="Rodízio de equipes"),
+    Kata(id="kata-06", name="Pontuação por vizinhança"),
+)
 
 
 def create_lab02_design() -> ExperimentDesign:
@@ -146,7 +158,11 @@ def create_lab02_design() -> ExperimentDesign:
                 name="Índice de Manutenibilidade (MI)",
                 description=(
                     "Métrica composta via Radon mi: combina complexidade ciclomática, "
-                    "LOC e volume de Halstead. Escala 0–100."
+                    "LOC e volume de Halstead. Escala 0–100. Métrica opcional de "
+                    "aprofundamento (linha 55 do enunciado): o grupo optou por incluí-la "
+                    "porque combina CC, LOC e volume de Halstead em um único índice, "
+                    "permitindo comparar a manutenibilidade geral do código com e sem IA "
+                    "de forma mais robusta do que olhar CC e duplicação isoladamente."
                 ),
                 type=VariableType.DEPENDENT,
                 unit="0–100",
@@ -160,6 +176,16 @@ def create_lab02_design() -> ExperimentDesign:
                 type=VariableType.DEPENDENT,
                 unit="%",
                 research_questions=(ResearchQuestion.RQ3,),
+                notes=(
+                    "A coleta usa jscpd (versão efetivamente instalada, "
+                    "reportada em `tool_version` a cada execução — ver "
+                    "`experiment/collection/duplication_metrics.py`), "
+                    "considera os arquivos Python do diretório do trial e "
+                    "aplica limiar mínimo de 5 linhas e 20 tokens para "
+                    "reconhecer um bloco duplicado. Arquivos `test_*.py` e "
+                    "`*_test.py` são excluídos; o diretório do trial deve "
+                    "conter somente o código produzido pelo participante."
+                ),
             )
         )
         .add_control_variable(
@@ -205,15 +231,36 @@ def create_lab02_design() -> ExperimentDesign:
         .add_threat(
             Threat(
                 category=ThreatCategory.INTERNAL_VALIDITY,
-                name="Memorização e vazamento de solução",
+                name="Memorização pelo assistente de IA",
                 description=(
                     "Em katas muito conhecidos, o assistente de IA pode reproduzir uma "
-                    "solução memorizada em vez de efetivamente auxiliar na resolução, "
-                    "inflando artificialmente o desempenho do tratamento WITH_AI."
+                    "solução memorizada do seu próprio treinamento em vez de efetivamente "
+                    "auxiliar na resolução, inflando artificialmente o desempenho do "
+                    "tratamento WITH_AI."
                 ),
                 mitigation=(
                     "Selecionar katas de baixa indexação, preferencialmente autorais ou "
                     "pouco divulgados, evitando exercícios clássicos do LeetCode/HackerRank."
+                ),
+            )
+        )
+        .add_threat(
+            Threat(
+                category=ThreatCategory.INTERNAL_VALIDITY,
+                name="Vazamento de solução já vista entre participantes",
+                description=(
+                    "Como os três participantes resolvem os mesmos seis katas no "
+                    "repositório compartilhado do grupo, um participante pode ver a "
+                    "solução de um kata já resolvido por um colega (commit, histórico "
+                    "do Git, conversa) antes do seu próprio trial daquele kata, "
+                    "contaminando a comparação entre tratamentos independentemente do "
+                    "uso de IA."
+                ),
+                mitigation=(
+                    "Evitar consultar ou discutir o código de um kata já resolvido por "
+                    "outro participante antes de concluir o próprio trial daquele kata; "
+                    "considerar isolar a solução de cada trial (branch ou diretório "
+                    "próprio) até que todos os participantes tenham resolvido o kata."
                 ),
             )
         )
@@ -252,5 +299,6 @@ def create_lab02_design() -> ExperimentDesign:
             time_box_minutes=TIME_BOX_MINUTES,
             strategy=BlockCounterbalancingStrategy(),
         )
+        .with_katas(KATAS)
         .build()
     )

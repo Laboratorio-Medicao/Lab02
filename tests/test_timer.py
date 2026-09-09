@@ -1,4 +1,5 @@
 import csv
+from pathlib import Path
 
 import pytest
 
@@ -7,9 +8,13 @@ from experiment.collection.timer import (
     TrialRecord,
     TrialTimer,
     append_record,
+    make_pytest_checker,
+    pytest_passes,
     run_trial,
 )
 from experiment.domain.enums import Treatment
+
+SAMPLE_KATA = Path(__file__).parent / "fixtures" / "sample_kata"
 
 
 class FakeClock:
@@ -103,6 +108,72 @@ class TestRunTrial:
 
         assert record.censored is True
         assert record.elapsed_seconds == time_box_seconds
+
+
+class TestPytestPasses:
+    def test_true_for_a_real_passing_suite(self):
+        assert pytest_passes(SAMPLE_KATA) is True
+
+    def test_false_for_a_real_failing_suite(self, tmp_path):
+        (tmp_path / "test_broken.py").write_text(
+            "def test_this_fails():\n    assert 1 == 2\n", encoding="utf-8"
+        )
+
+        assert pytest_passes(tmp_path) is False
+
+
+class TestMakePytestChecker:
+    def test_returns_true_once_passes_reports_green(self):
+        clock = FakeClock([0.0, 1.0])
+        sleeps: list[float] = []
+        passes_sequence = iter([False, True])
+
+        checker = make_pytest_checker(
+            Path("irrelevant"),
+            poll_interval_seconds=5.0,
+            clock=clock,
+            sleep=sleeps.append,
+            passes=lambda _path: next(passes_sequence),
+        )
+
+        assert checker(30.0) is True
+        assert sleeps == [5.0]
+
+    def test_returns_false_when_time_runs_out_before_passing(self):
+        clock = FakeClock([0.0, 40.0])
+        sleeps: list[float] = []
+
+        checker = make_pytest_checker(
+            Path("irrelevant"),
+            poll_interval_seconds=5.0,
+            clock=clock,
+            sleep=sleeps.append,
+            passes=lambda _path: False,
+        )
+
+        assert checker(30.0) is False
+        assert sleeps == []
+
+    def test_integrates_with_run_trial_using_a_real_kata(self):
+        clock = FakeClock([0.0, 0.0, 0.0, 3.0])
+
+        checker = make_pytest_checker(
+            SAMPLE_KATA,
+            poll_interval_seconds=5.0,
+            clock=clock,
+            sleep=lambda _seconds: None,
+        )
+        record = run_trial(
+            participant="Marcos",
+            kata_id="sample",
+            treatment=Treatment.WITH_AI,
+            time_box_minutes=35,
+            clock=clock,
+            wait_for_input=checker,
+        )
+
+        assert record.censored is False
+        assert record.elapsed_seconds == 3.0
 
 
 class TestAppendRecord:

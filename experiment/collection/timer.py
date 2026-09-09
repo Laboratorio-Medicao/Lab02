@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import csv
 import select
+import subprocess
 import sys
 import time
 from dataclasses import dataclass
@@ -121,6 +122,49 @@ def default_wait_for_input(timeout: float) -> bool:
     return False
 
 
+def pytest_passes(kata_path: Path) -> bool:
+    """Roda `pytest` de fato sobre `kata_path` e indica se todos os testes passam.
+
+    Usado para confirmar programaticamente o "green" de um trial, em vez de
+    depender apenas da autodeclaração do participante (ver `make_pytest_checker`).
+    """
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", str(kata_path), "-q"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    return result.returncode == 0
+
+
+def make_pytest_checker(
+    kata_path: Path,
+    poll_interval_seconds: float = 5.0,
+    clock: Callable[[], float] = time.monotonic,
+    sleep: Callable[[float], None] = time.sleep,
+    passes: Callable[[Path], bool] = pytest_passes,
+) -> Callable[[float], bool]:
+    """Cria um `wait_for_input` que verifica o "green" rodando os testes de
+    aceitação do kata a cada `poll_interval_seconds`, em vez de esperar ENTER.
+
+    Compatível com a assinatura esperada por `run_trial`: bloqueia até
+    `remaining` segundos, retornando True assim que `pytest` passar (código de
+    saída 0) para `kata_path`, ou False se o tempo acabar antes disso.
+    """
+
+    def checker(remaining: float) -> bool:
+        deadline = clock() + remaining
+        while True:
+            if passes(kata_path):
+                return True
+            time_left = deadline - clock()
+            if time_left <= 0:
+                return False
+            sleep(min(poll_interval_seconds, time_left))
+
+    return checker
+
+
 def run_trial(
     participant: str,
     kata_id: str,
@@ -168,15 +212,47 @@ def _cli() -> None:
     parser.add_argument(
         "--output", type=Path, default=Path("data/trials.csv"), help="CSV de saída"
     )
+    parser.add_argument(
+        "--kata-path",
+        type=Path,
+        default=None,
+        help=(
+            "Diretório do kata sendo resolvido. Se informado, o 'green' é "
+            "confirmado rodando 'pytest' de verdade a cada --poll-seconds, em "
+            "vez de depender de o participante pressionar ENTER."
+        ),
+    )
+    parser.add_argument(
+        "--poll-seconds",
+        type=float,
+        default=5.0,
+        help="Intervalo entre execuções de pytest quando --kata-path é usado (padrão: 5s)",
+    )
     args = parser.parse_args()
 
     print(
         f"Trial iniciado: participant={args.participant} kata={args.kata_id} "
         f"treatment={args.treatment} (time-box: {TIME_BOX_MINUTES} min)"
     )
-    print("Pressione ENTER quando todos os testes de aceitação passarem...")
 
-    record = run_trial(args.participant, args.kata_id, Treatment(args.treatment))
+    if args.kata_path is not None:
+        print(
+            f"Verificando automaticamente 'pytest {args.kata_path}' a cada "
+            f"{args.poll_seconds:.0f}s até todos os testes passarem..."
+        )
+        wait_for_input = make_pytest_checker(
+            args.kata_path, poll_interval_seconds=args.poll_seconds
+        )
+    else:
+        print("Pressione ENTER quando todos os testes de aceitação passarem...")
+        wait_for_input = default_wait_for_input
+
+    record = run_trial(
+        args.participant,
+        args.kata_id,
+        Treatment(args.treatment),
+        wait_for_input=wait_for_input,
+    )
     append_record(record, args.output)
 
     status = "CENSURADO (time-box atingido)" if record.censored else "GREEN"
