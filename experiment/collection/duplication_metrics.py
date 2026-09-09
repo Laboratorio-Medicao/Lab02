@@ -20,7 +20,7 @@ class DuplicationMetrics:
     duplicate_blocks: int
     total_lines: int
     tool: str = "jscpd"
-    tool_version: str = "4.0.5"
+    tool_version: str = ""
 
     def to_dict(self) -> dict[str, int | float | str]:
         return {
@@ -50,6 +50,45 @@ def _jscpd_executable() -> str:
     )
 
 
+def _jscpd_version(executable: str) -> str:
+    """Consulta a versão do jscpd realmente instalado, sem assumir um valor fixo."""
+    try:
+        result = subprocess.run(
+            [executable, "--version"], capture_output=True, text=True, check=False
+        )
+    except OSError:
+        return _jscpd_version_from_lockfile()
+
+    version = result.stdout.strip() or result.stderr.strip()
+    if result.returncode == 0 and version:
+        return version
+    return _jscpd_version_from_lockfile()
+
+
+def _jscpd_version_from_lockfile() -> str:
+    project_root = Path(__file__).resolve().parents[2]
+    lockfile = project_root / "package-lock.json"
+    try:
+        data = json.loads(lockfile.read_text(encoding="utf-8"))
+        return data["packages"]["node_modules/jscpd"]["version"]
+    except (OSError, json.JSONDecodeError, KeyError):
+        return "desconhecida"
+
+
+def is_jscpd_available() -> bool:
+    """Indica se o executável do jscpd pode ser localizado sem lançar exceção.
+
+    Usado pelos testes para pular a suíte de duplicação com uma mensagem clara
+    quando `npm ci` ainda não foi executado, em vez de falhar com um erro
+    genérico de dependência ausente.
+    """
+    try:
+        _jscpd_executable()
+        return True
+    except DuplicationMetricsError:
+        return False
+
+
 def _python_files(path: Path, include_tests: bool) -> list[Path]:
     if path.is_file():
         candidates = [path] if path.suffix == ".py" else []
@@ -70,6 +109,9 @@ def collect_duplication_metrics(path: Path, include_tests: bool = False) -> Dupl
     if not files:
         raise ValueError(f"Nenhum arquivo .py encontrado em {path}")
 
+    executable = _jscpd_executable()
+    tool_version = _jscpd_version(executable)
+
     with tempfile.TemporaryDirectory(prefix="lab02-jscpd-") as temporary_dir:
         source_root = Path(temporary_dir) / "source"
         source_root.mkdir()
@@ -78,7 +120,7 @@ def collect_duplication_metrics(path: Path, include_tests: bool = False) -> Dupl
 
         report_dir = Path(temporary_dir) / "report"
         command = [
-            _jscpd_executable(),
+            executable,
             "--format",
             "python",
             "--reporters",
@@ -115,6 +157,7 @@ def collect_duplication_metrics(path: Path, include_tests: bool = False) -> Dupl
             duplicated_lines_percent=float(statistics["percentage"]),
             duplicate_blocks=int(statistics["clones"]),
             total_lines=int(statistics["lines"]),
+            tool_version=tool_version,
         )
     except (KeyError, TypeError, ValueError) as error:
         raise DuplicationMetricsError("Campos ausentes no relatório do jscpd.") from error

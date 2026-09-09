@@ -4,6 +4,72 @@ from experiment.config.experiment_design import ExperimentDesign
 from experiment.domain.enums import ResearchQuestion, Treatment
 
 
+def _kata_label(design: ExperimentDesign, kata_index: int) -> str:
+    if kata_index < len(design.katas):
+        return design.katas[kata_index].id
+    return f"Kata {kata_index + 1}"
+
+
+def _katas_paragraph(design: ExperimentDesign) -> list[str]:
+    if not design.katas:
+        return []
+
+    names = [kata.name for kata in design.katas]
+    names_text = names[0] if len(names) == 1 else ", ".join(names[:-1]) + f" e {names[-1]}"
+
+    return [
+        f"Os objetos experimentais são os {len(design.katas)} exercícios autorais "
+        "documentados em [`docs/katas.md`](katas.md): "
+        f"{names_text}. Cada um possui testes automatizados de aceitação em "
+        "[`katas/`](../katas/).",
+        "",
+    ]
+
+
+def _treatment_rows(design: ExperimentDesign) -> list[str]:
+    rows: list[str] = []
+    protocol = design.protocol
+
+    for participant in protocol.participants:
+        assignments = sorted(
+            (a for a in protocol.assignments if a.participant == participant),
+            key=lambda a: a.kata_index,
+        )
+
+        run_start = run_end = None
+        run_treatment = None
+        for assignment in assignments:
+            if (
+                run_treatment is not None
+                and assignment.treatment == run_treatment
+                and assignment.kata_index == run_end + 1
+            ):
+                run_end = assignment.kata_index
+                continue
+
+            if run_treatment is not None:
+                rows.append(_treatment_row(design, participant, run_start, run_end, run_treatment))
+            run_start = run_end = assignment.kata_index
+            run_treatment = assignment.treatment
+
+        if run_treatment is not None:
+            rows.append(_treatment_row(design, participant, run_start, run_end, run_treatment))
+
+    return rows
+
+
+def _treatment_row(
+    design: ExperimentDesign, participant: str, start: int, end: int, treatment: Treatment
+) -> str:
+    label = (
+        _kata_label(design, start)
+        if start == end
+        else f"{_kata_label(design, start)} a {_kata_label(design, end)}"
+    )
+    treatment_label = "Com IA" if treatment == Treatment.WITH_AI else "Sem IA"
+    return f"| {participant} | {label} | {treatment_label} |"
+
+
 def generate_markdown(design: ExperimentDesign) -> str:
     lines: list[str] = []
 
@@ -39,6 +105,8 @@ def generate_markdown(design: ExperimentDesign) -> str:
     for var in design.dependent_variables:
         rqs = ", ".join(rq.value for rq in var.research_questions)
         lines.append(f"- **{var.name}** ({var.unit}) — {var.description} `[{rqs}]`")
+        if var.notes:
+            lines += ["", f"\t{var.notes}"]
 
     lines += [
         "",
@@ -48,6 +116,8 @@ def generate_markdown(design: ExperimentDesign) -> str:
     for var in design.control_variables:
         rqs = ", ".join(rq.value for rq in var.research_questions)
         lines.append(f"- **{var.name}** ({var.unit}) — {var.description} `[{rqs}]`")
+        if var.notes:
+            lines += ["", f"\t{var.notes}"]
 
     protocol = design.protocol
     lines += [
@@ -61,16 +131,13 @@ def generate_markdown(design: ExperimentDesign) -> str:
         f"- **Medições totais:** {len(protocol.assignments)} trials "
         f"({protocol.n_katas} katas × {len(protocol.participants)} participantes)",
         "",
+        *_katas_paragraph(design),
         "### Atribuição de tratamentos",
         "",
         "| Participante | Kata | Tratamento |",
         "|---|---|---|",
+        *_treatment_rows(design),
     ]
-    for assignment in protocol.assignments:
-        treatment_label = "Com IA" if assignment.treatment == Treatment.WITH_AI else "Sem IA"
-        lines.append(
-            f"| {assignment.participant} | Kata {assignment.kata_index + 1} | {treatment_label} |"
-        )
 
     lines += [
         "",

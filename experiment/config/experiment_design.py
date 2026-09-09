@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from experiment.domain.enums import ResearchQuestion
 from experiment.domain.hypothesis import Hypothesis
+from experiment.domain.kata import Kata
 from experiment.domain.protocol import CrossoverProtocol
 from experiment.domain.threat import Threat
 from experiment.domain.variable import Variable
@@ -16,6 +17,7 @@ class ExperimentDesign:
     control_variables: tuple[Variable, ...]
     protocol: CrossoverProtocol
     threats: tuple[Threat, ...]
+    katas: tuple[Kata, ...] = ()
 
     def get_hypotheses(self, rq: ResearchQuestion) -> tuple[Hypothesis, Hypothesis]:
         return self.hypotheses[rq]

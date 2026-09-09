@@ -4,6 +4,12 @@ Métricas: complexidade ciclomática média (`radon cc`), índice de
 manutenibilidade (`radon mi`) e LOC — obrigatória como controle sempre que
 complexidade for reportada. Preparado na S01 (Issue #5); a execução sobre o
 código final de cada trial real é escopo da S02.
+
+O MI (`radon mi`) é uma métrica opcional de aprofundamento (linha 55 do
+enunciado) — o grupo decidiu deliberadamente sempre coletá-la junto de CC e
+LOC (ver justificativa em `docs/experiment_design.md`), em vez de torná-la
+condicional a uma flag, porque seu custo de cálculo é o mesmo de CC/LOC e ela
+enriquece a análise de RQ3 sem exigir uma execução separada.
 """
 from __future__ import annotations
 

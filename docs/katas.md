@@ -18,9 +18,9 @@ mas os identificadores experimentais permanecem `kata-01` a `kata-06`.
 |---|---|---|---|---:|---|
 | kata-01 | Faixas de sinal | Autoral, grupo Lab02 | Média | 5 | Ordenação, remoção de duplicatas, agrupamento de consecutivos e erro de entrada vazia. |
 | kata-02 | Inventário de bolsos | Autoral, grupo Lab02 | Média | 6 | Atualização de estado, duas operações, cópia defensiva, remoção de zero e validações. |
-| kata-03 | Grade de entregas | Autoral, grupo Lab02 | Média | 5 | Agrupamento por chave, ordenação dos grupos, preservação de ordem e validação de registros. |
-| kata-04 | Marcadores de texto | Autoral, grupo Lab02 | Média | 5 | Percurso de string, marcadores multi-caractere, sobreposição e descarte de espaços. |
-| kata-05 | Rodízio de equipes | Autoral, grupo Lab02 | Média | 5 | Particionamento, resto de divisão, rotação e preservação da entrada. |
+| kata-03 | Grade de entregas | Autoral, grupo Lab02 | Média | 7 | Agrupamento por chave, ordenação dos grupos, preservação de ordem e validação de registros (3 casos parametrizados). |
+| kata-04 | Marcadores de texto | Autoral, grupo Lab02 | Média | 6 | Percurso de string, marcadores multi-caractere, sobreposição e descarte de espaços (2 casos parametrizados). |
+| kata-05 | Rodízio de equipes | Autoral, grupo Lab02 | Média | 7 | Particionamento, resto de divisão, rotação e preservação da entrada (3 casos parametrizados). |
 | kata-06 | Pontuação por vizinhança | Autoral, grupo Lab02 | Média | 5 | Percurso indexado, tratamento das bordas, valores negativos e cópia do resultado. |
 
 ## Equivalência estimada

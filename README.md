@@ -18,7 +18,7 @@ dentro do experimento:
 | IDE | Visual Studio Code |
 | Assistente de IA | Claude Code — modelo Claude Sonnet 5 (`claude-sonnet-5`) |
 | Ferramenta de métricas estáticas | [Radon](https://radon.readthedocs.io/) 6.x (`cc`, `mi`, LOC) |
-| Testes | pytest 8.x |
+| Testes | pytest 9.1.1 (pinado em `requirements.txt`) |
 
 ## Instalação e reprodução local
 
@@ -60,6 +60,18 @@ python -m pytest katas -q
 
 ```bash
 python -m experiment.collection.timer <participante> <kata_id> <with_ai|without_ai> [--output data/trials.csv]
+```
+
+Por padrão, o "green" depende do participante pressionar ENTER quando achar
+que os testes passam (autodeclaração). Para confirmar programaticamente que
+os testes de aceitação realmente passam — em vez de confiar apenas no
+participante —, informe `--kata-path`: o cronômetro roda `pytest` de verdade
+sobre esse diretório a cada `--poll-seconds` (padrão: 5s) até obter sucesso ou
+o time-box acabar.
+
+```bash
+python -m experiment.collection.timer <participante> <kata_id> <with_ai|without_ai> \
+  --kata-path katas/kata_01 --poll-seconds 5 --output data/trials.csv
 ```
 
 **Métricas estáticas via Radon + jscpd** (complexidade ciclomática, índice de

@@ -10,3 +10,4 @@ class Variable:
     type: VariableType
     unit: str
     research_questions: tuple[ResearchQuestion, ...]
+    notes: str = ""
