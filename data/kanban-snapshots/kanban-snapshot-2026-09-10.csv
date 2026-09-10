@@ -1,0 +1,35 @@
+number,title,status,assignees,labels
+25,[S6] Sprint S01 — Snapshot do Kanban (Sprint 1),Done,GuilhermeVieira05,tarefa|sprint-s01|lab02
+1,[FEAT] Sprint S01 — Desenho e Preparação do Experimento,Done,ALuiz19|GuilhermeVieira05|marcosffp,feat|sprint-s01|lab02
+6,[S4] Sprint S01 — (Bônus) Script de detecção de duplicação de código via jscpd/PMD CPD,Done,ALuiz19,tarefa|sprint-s01|lab02
+4,"[S2] Sprint S01 — Seleção e validação dos katas (6 exercícios, baixa indexação)",Done,ALuiz19,tarefa|sprint-s01|lab02
+3,"[S1] Sprint S01 — Desenho do experimento: hipóteses, variáveis e protocolo crossover",Done,GuilhermeVieira05,tarefa|sprint-s01|lab02
+2,[REFINAMENTO] S0 - Sprint S01,Done,GuilhermeVieira05,refinamento|sprint-s01|lab02
+24,"[S5] Sprint S01 — Preparação do ambiente de execução (linguagem, IDE, assistente de IA)",Done,marcosffp,tarefa|sprint-s01|lab02
+5,[S3] Sprint S01 — Script de cronometragem e coleta de métricas estáticas (Radon),Done,marcosffp,tarefa|sprint-s01|lab02
+7,[FEAT] Sprint S02 — Execução do Experimento,Backlog,ALuiz19|GuilhermeVieira05|marcosffp,feat|sprint-s02|lab02
+8,[REFINAMENTO] S0 - Sprint S02,Backlog,GuilhermeVieira05,refinamento|sprint-s02|lab02
+9,"[S1] Sprint S02 — Trials de execução: Guilherme (katas 1–6, ordem contrabalanceada)",Done,GuilhermeVieira05,tarefa|sprint-s02|lab02
+10,"[S2] Sprint S02 — Trials de execução: Arthur (katas 1–6, ordem contrabalanceada)",Done,ALuiz19,tarefa|sprint-s02|lab02
+11,"[S3] Sprint S02 — Trials de execução: Marcos (katas 1–6, ordem contrabalanceada)",Done,marcosffp,tarefa|sprint-s02|lab02
+12,[S4] Sprint S02 — (Bônus) Consolidação dos dados de prompts e registro de dificuldades qualitativas,Backlog,GuilhermeVieira05,tarefa|sprint-s02|lab02
+13,[FEAT] Sprint S03 — Análise de Resultados e Dashboard,Backlog,ALuiz19|GuilhermeVieira05|marcosffp,feat|sprint-s03|lab02
+14,[REFINAMENTO] S0 - Sprint S03,Backlog,GuilhermeVieira05,refinamento|sprint-s03|lab02
+15,[S1] Sprint S03 — Testes estatísticos (Wilcoxon) e análise descritiva RQ1 e RQ2,Backlog,GuilhermeVieira05,tarefa|sprint-s03|lab02
+16,"[S2] Sprint S03 — Análise de métricas estáticas RQ3 (complexidade ciclomática, MI, LOC, duplicação)",Backlog,marcosffp,tarefa|sprint-s03|lab02
+17,[S3] Sprint S03 — Dashboard de visualização (Pandas + Matplotlib/Seaborn),Backlog,ALuiz19,tarefa|sprint-s03|lab02
+18,[S4] Sprint S03 — (Bônus) Análise do Índice de Manutenibilidade e correlação com nº de prompts,Backlog,marcosffp,tarefa|sprint-s03|lab02
+19,[FEAT] Relatório Final — Documento completo Lab02,Backlog,ALuiz19|GuilhermeVieira05|marcosffp,feat|relatorio|lab02
+20,"[S1] Relatório — Introdução, hipóteses e metodologia detalhada",Backlog,ALuiz19,tarefa|relatorio|lab02
+21,"[S2] Relatório — Resultados e discussão RQ1, RQ2 e RQ3",Backlog,marcosffp,tarefa|relatorio|lab02
+23,"[S4] Relatório — Revisão final, snapshot do Kanban e exportação PDF",Backlog,ALuiz19|GuilhermeVieira05|marcosffp,tarefa|relatorio|lab02
+22,"[S3] Relatório — Discussão final, ameaças à validade e conclusão",Backlog,GuilhermeVieira05,tarefa|relatorio|lab02
+26,[S5] Sprint S02 — Snapshot do Kanban (Sprint 2),Backlog,ALuiz19,tarefa|sprint-s02|lab02
+27,[S5] Sprint S03 — Snapshot do Kanban (Sprint 3),Backlog,marcosffp,tarefa|sprint-s03|lab02
+28,[S1] Sprint S02 — Trial Kata 1: Guilherme,Done,GuilhermeVieira05,tarefa|sprint-s02|lab02
+29,[S2] Sprint S02 — Trial Kata 2: Guilherme,Done,GuilhermeVieira05,tarefa|sprint-s02|lab02
+30,[S3] Sprint S02 — Trial Kata 3: Arthur,Done,ALuiz19,tarefa|sprint-s02|lab02
+31,[S4] Sprint S02 — Trial Kata 4: Arthur,Done,ALuiz19,tarefa|sprint-s02|lab02
+32,[S6] Sprint S02 — Trial Kata 5: Marcos,Done,marcosffp,tarefa|sprint-s02|lab02
+33,[S7] Sprint S02 — Trial Kata 6: Marcos,Done,marcosffp,tarefa|sprint-s02|lab02
+35,"[S7] Sprint S01 — Sincroniza gerador do desenho e da coleta (métricas, katas, cronômetro)",Done,marcosffp,sprint-s01|lab02|chore
