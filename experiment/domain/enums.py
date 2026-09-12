@@ -23,6 +23,14 @@ class VariableType(Enum):
     CONTROL = "control"
 
 
+class HelpType(Enum):
+    CODE_GENERATION = "geração de código"
+    EXPLANATION = "explicação de conceito"
+    DEBUGGING = "debugging"
+    APPROACH_SUGGESTION = "sugestão de abordagem"
+    OTHER = "outro"
+
+
 class ThreatCategory(Enum):
     INTERNAL_VALIDITY = "internal_validity"
     EXTERNAL_VALIDITY = "external_validity"
