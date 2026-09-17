@@ -18,9 +18,15 @@ N_KATAS = 6
 TIME_BOX_MINUTES = 35
 
 # Ordem de tratamento efetivamente seguida por cada integrante (item F do
-# desenho). Arthur segue a sequência alternada definida para seus trials;
-# Guilherme e Marcos seguem a atribuição em blocos registrada no desenho
-# original.
+# desenho). Guilherme mantém a atribuição em blocos fechada no desenho
+# original da S01 (commit e9478c3): kata-01 a kata-03 com IA, kata-04 a
+# kata-06 sem IA. Arthur e Marcos divergem do que foi fechado na S01: Arthur
+# passou de atribuição em bloco (1-3 sem IA / 4-6 com IA) para alternada
+# (1,3,5 com IA / 2,4,6 sem IA); Marcos teve o bloco original (1-3 com IA /
+# 4-6 sem IA) invertido para o oposto (1-3 sem IA / 4-6 com IA), que é a
+# sequência efetivamente codificada abaixo. Esse desvio de protocolo está
+# registrado, com a lacuna sobre seu motivo, em
+# docs/experiment_design.md (seção "Registro de desvio de protocolo").
 TREATMENTS_BY_PARTICIPANT = {
     "Guilherme": (
         Treatment.WITH_AI,
@@ -210,8 +216,8 @@ def create_lab02_design() -> ExperimentDesign:
                 research_questions=(ResearchQuestion.RQ3,),
                 notes=(
                     "A coleta usa jscpd (versão efetivamente instalada, "
-                    "reportada em `tool_version` a cada execução — ver "
-                    "`experiment/collection/duplication_metrics.py`), "
+                    "reportada em `duplication_tool_version` a cada execução — "
+                    "ver `experiment/collection/duplication_metrics.py`), "
                     "considera os arquivos Python do diretório do trial e "
                     "aplica limiar mínimo de 5 linhas e 20 tokens para "
                     "reconhecer um bloco duplicado. Arquivos `test_*.py` e "

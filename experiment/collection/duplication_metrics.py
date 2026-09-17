@@ -15,12 +15,22 @@ class DuplicationMetricsError(RuntimeError):
 
 @dataclass(frozen=True)
 class DuplicationMetrics:
+    """Resultado da detecção de duplicação.
+
+    `duplication_tool`/`duplication_tool_version` identificam especificamente
+    a ferramenta de duplicação (jscpd) — não a ferramenta usada para
+    complexidade ciclomática/MI (Radon, ver `static_metrics.py`). O nome do
+    campo é deliberadamente explícito para não ser confundido com uma
+    "ferramenta de métricas estáticas" genérica ao ser lido isoladamente no
+    CSV final (ver `docs/experiment_design.md`, nota sobre `static_metrics.csv`).
+    """
+
     duplicated_lines: int
     duplicated_lines_percent: float
     duplicate_blocks: int
     total_lines: int
-    tool: str = "jscpd"
-    tool_version: str = ""
+    duplication_tool: str = "jscpd"
+    duplication_tool_version: str = ""
 
     def to_dict(self) -> dict[str, int | float | str]:
         return {
@@ -28,8 +38,8 @@ class DuplicationMetrics:
             "duplicated_lines_percent": round(self.duplicated_lines_percent, 2),
             "duplicate_blocks": self.duplicate_blocks,
             "total_lines": self.total_lines,
-            "tool": self.tool,
-            "tool_version": self.tool_version,
+            "duplication_tool": self.duplication_tool,
+            "duplication_tool_version": self.duplication_tool_version,
         }
 
 
@@ -110,7 +120,7 @@ def collect_duplication_metrics(path: Path, include_tests: bool = False) -> Dupl
         raise ValueError(f"Nenhum arquivo .py encontrado em {path}")
 
     executable = _jscpd_executable()
-    tool_version = _jscpd_version(executable)
+    duplication_tool_version = _jscpd_version(executable)
 
     with tempfile.TemporaryDirectory(prefix="lab02-jscpd-") as temporary_dir:
         source_root = Path(temporary_dir) / "source"
@@ -157,7 +167,7 @@ def collect_duplication_metrics(path: Path, include_tests: bool = False) -> Dupl
             duplicated_lines_percent=float(statistics["percentage"]),
             duplicate_blocks=int(statistics["clones"]),
             total_lines=int(statistics["lines"]),
-            tool_version=tool_version,
+            duplication_tool_version=duplication_tool_version,
         )
     except (KeyError, TypeError, ValueError) as error:
         raise DuplicationMetricsError("Campos ausentes no relatório do jscpd.") from error

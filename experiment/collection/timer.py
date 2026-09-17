@@ -1,10 +1,16 @@
 """Cronômetro de trial (time-to-green) respeitando o time-box de 35 min.
 
 Preparado na S01 (Issue #5). A execução real dos trials é escopo da S02.
+
+Registra também, quando o "green" é confirmado via `--kata-path` (execução
+real do pytest, não autodeclaração), o nº de testes de aceitação passando e
+falhando ao final do trial — variável dependente de RQ2 (taxa de sucesso /
+nº de testes falhando, ver `docs/experiment_design.md`).
 """
 from __future__ import annotations
 
 import csv
+import re
 import select
 import subprocess
 import sys
@@ -16,7 +22,20 @@ from typing import Callable
 from experiment.config.lab02_design import TIME_BOX_MINUTES
 from experiment.domain.enums import Treatment
 
-CSV_FIELDNAMES = ["participant", "kata_id", "treatment", "elapsed_seconds", "censored"]
+CSV_FIELDNAMES = [
+    "participant",
+    "kata_id",
+    "treatment",
+    "elapsed_seconds",
+    "censored",
+    "tests_total",
+    "tests_passing",
+    "tests_failing",
+    "success_rate_percent",
+]
+
+_PASSED_RE = re.compile(r"(\d+) passed")
+_FAILED_RE = re.compile(r"(\d+) failed")
 
 
 class TimerError(Exception):
@@ -30,16 +49,59 @@ class TimingResult:
 
 
 @dataclass(frozen=True)
+class AcceptanceTestResult:
+    """Resultado dos testes de aceitação ao final de um trial (RQ2)."""
+
+    passing: int
+    total: int
+
+    @property
+    def failing(self) -> int:
+        return self.total - self.passing
+
+    @property
+    def success_rate_percent(self) -> float:
+        return round(100 * self.passing / self.total, 2) if self.total else 0.0
+
+
+def count_test_results(kata_path: Path) -> AcceptanceTestResult:
+    """Roda `pytest` sobre `kata_path` e conta testes passando/falhando.
+
+    Usado para preencher, com o resultado real da execução (não uma
+    suposição), o nº de testes de aceitação passando ao final do time-box —
+    exigido pelo enunciado para cada trial.
+    """
+    result = subprocess.run(
+        [sys.executable, "-m", "pytest", str(kata_path), "-q"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    output = result.stdout
+    passed_match = _PASSED_RE.search(output)
+    failed_match = _FAILED_RE.search(output)
+    passing = int(passed_match.group(1)) if passed_match else 0
+    failing = int(failed_match.group(1)) if failed_match else 0
+    return AcceptanceTestResult(passing=passing, total=passing + failing)
+
+
+@dataclass(frozen=True)
 class TrialRecord:
     participant: str
     kata_id: str
     treatment: Treatment
     elapsed_seconds: float
     censored: bool
+    test_result: AcceptanceTestResult | None = None
 
     @classmethod
     def from_timing(
-        cls, participant: str, kata_id: str, treatment: Treatment, timing: TimingResult
+        cls,
+        participant: str,
+        kata_id: str,
+        treatment: Treatment,
+        timing: TimingResult,
+        test_result: AcceptanceTestResult | None = None,
     ) -> "TrialRecord":
         return cls(
             participant=participant,
@@ -47,16 +109,27 @@ class TrialRecord:
             treatment=treatment,
             elapsed_seconds=timing.elapsed_seconds,
             censored=timing.censored,
+            test_result=test_result,
         )
 
     def to_row(self) -> dict[str, str]:
-        return {
+        row = {
             "participant": self.participant,
             "kata_id": self.kata_id,
             "treatment": self.treatment.value,
             "elapsed_seconds": f"{self.elapsed_seconds:.3f}",
             "censored": str(self.censored),
+            "tests_total": "",
+            "tests_passing": "",
+            "tests_failing": "",
+            "success_rate_percent": "",
         }
+        if self.test_result is not None:
+            row["tests_total"] = str(self.test_result.total)
+            row["tests_passing"] = str(self.test_result.passing)
+            row["tests_failing"] = str(self.test_result.failing)
+            row["success_rate_percent"] = f"{self.test_result.success_rate_percent:.2f}"
+        return row
 
 
 class TrialTimer:
@@ -172,8 +245,15 @@ def run_trial(
     time_box_minutes: float = TIME_BOX_MINUTES,
     clock: Callable[[], float] = time.monotonic,
     wait_for_input: Callable[[float], bool] = default_wait_for_input,
+    kata_path: Path | None = None,
+    count_tests: Callable[[Path], AcceptanceTestResult] = count_test_results,
 ) -> TrialRecord:
-    """Cronometra um trial até o participante sinalizar green ou o time-box estourar."""
+    """Cronometra um trial até o participante sinalizar green ou o time-box estourar.
+
+    Se `kata_path` for informado, roda os testes de aceitação reais sobre ele
+    ao final do trial (censurado ou não) e registra o resultado (nº de testes
+    passando/falhando) no `TrialRecord`, em vez de deixar esse campo vazio.
+    """
     timer = TrialTimer(time_box_minutes=time_box_minutes, clock=clock)
     timer.start()
     while True:
@@ -183,7 +263,8 @@ def run_trial(
         if wait_for_input(remaining):
             break
     timing = timer.stop()
-    return TrialRecord.from_timing(participant, kata_id, treatment, timing)
+    test_result = count_tests(kata_path) if kata_path is not None else None
+    return TrialRecord.from_timing(participant, kata_id, treatment, timing, test_result)
 
 
 def append_record(record: TrialRecord, output: Path) -> None:
@@ -252,11 +333,20 @@ def _cli() -> None:
         args.kata_id,
         Treatment(args.treatment),
         wait_for_input=wait_for_input,
+        kata_path=args.kata_path,
     )
     append_record(record, args.output)
 
     status = "CENSURADO (time-box atingido)" if record.censored else "GREEN"
-    print(f"[{status}] elapsed={record.elapsed_seconds:.1f}s -> registrado em {args.output}")
+    tests_info = ""
+    if record.test_result is not None:
+        tests_info = (
+            f" | testes: {record.test_result.passing}/{record.test_result.total} passando"
+        )
+    print(
+        f"[{status}] elapsed={record.elapsed_seconds:.1f}s{tests_info} -> "
+        f"registrado em {args.output}"
+    )
 
 
 if __name__ == "__main__":
