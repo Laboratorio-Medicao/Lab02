@@ -1,0 +1,4 @@
+participant,kata_id,treatment,path,loc,cyclomatic_complexity_avg,maintainability_index,duplicated_lines,duplicated_lines_percent,duplicate_blocks,total_lines,tool,tool_version
+Guilherme,kata-04,without_ai,katas/participants/guilherme/kata_04/solution.py,24,14.0,54.19,0,0.0,0,23,jscpd,4.0.5
+Guilherme,kata-05,without_ai,katas/participants/guilherme/kata_05/solution.py,9,4.0,64.74,0,0.0,0,8,jscpd,4.0.5
+Guilherme,kata-06,without_ai,katas/participants/guilherme/kata_06/solution.py,17,8.0,56.99,0,0.0,0,16,jscpd,4.0.5
