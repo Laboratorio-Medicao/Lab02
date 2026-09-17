@@ -2,6 +2,9 @@ participant,kata_id,treatment,path,loc,cyclomatic_complexity_avg,cc_mi_tool,cc_m
 Guilherme,kata-04,without_ai,katas/participants/guilherme/kata_04,24,14.0,radon,6.0.1,54.19,0,0.0,0,23,jscpd,4.0.5
 Guilherme,kata-05,without_ai,katas/participants/guilherme/kata_05,9,4.0,radon,6.0.1,64.74,0,0.0,0,8,jscpd,4.0.5
 Guilherme,kata-06,without_ai,katas/participants/guilherme/kata_06,17,8.0,radon,6.0.1,56.99,0,0.0,0,16,jscpd,4.0.5
+Guilherme,kata-01,with_ai,katas/participants/guilherme/kata_01,14,4.0,radon,6.0.1,64.80,0,0.0,0,13,jscpd,4.0.5
+Guilherme,kata-02,with_ai,katas/participants/guilherme/kata_02,14,8.0,radon,6.0.1,59.13,0,0.0,0,13,jscpd,4.0.5
+Guilherme,kata-03,with_ai,katas/participants/guilherme/kata_03,7,6.0,radon,6.0.1,67.92,0,0.0,0,6,jscpd,4.0.5
 Marcos,kata-01,without_ai,katas/participants/marcos/kata_01,21,4.0,radon,6.0.1,81.77,0,0.0,0,20,jscpd,4.0.5
 Marcos,kata-02,without_ai,katas/participants/marcos/kata_02,32,9.0,radon,6.0.1,77.93,0,0.0,0,31,jscpd,4.0.5
 Marcos,kata-03,without_ai,katas/participants/marcos/kata_03,34,7.0,radon,6.0.1,79.44,0,0.0,0,33,jscpd,4.0.5
