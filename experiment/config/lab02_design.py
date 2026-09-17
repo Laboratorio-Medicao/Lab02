@@ -1,4 +1,4 @@
-from experiment.config.counterbalancing import BlockCounterbalancingStrategy
+from experiment.config.counterbalancing import ExplicitCounterbalancingStrategy
 from experiment.config.experiment_design import ExperimentDesign
 from experiment.config.experiment_design_builder import ExperimentDesignBuilder
 from experiment.domain.enums import (
@@ -15,6 +15,19 @@ from experiment.domain.variable import Variable
 PARTICIPANTS = ("Guilherme", "Arthur", "Marcos")
 N_KATAS = 6
 TIME_BOX_MINUTES = 35
+
+# Ordem de tratamento efetivamente seguida por cada integrante (item F do
+# desenho): quem resolveu o primeiro bloco de katas (kata-01 a kata-03) com
+# IA. Guilherme e Arthur seguem a alternância original; Marcos resolveu o
+# primeiro bloco sem IA e o segundo (kata-04 a kata-06) com IA — ordem oposta
+# à de Guilherme, mesma ordem de Arthur —, o que ainda garante
+# contrabalanceamento entre os integrantes (l.86 do enunciado não exige um
+# esquema par/ímpar específico, apenas que a ordem varie entre integrantes).
+FIRST_BLOCK_WITH_AI = {
+    "Guilherme": True,
+    "Arthur": False,
+    "Marcos": False,
+}
 
 # Objetos experimentais (item E do desenho) — ver justificativa completa,
 # critério de dificuldade comparável e baixa indexação em docs/katas.md.
@@ -297,7 +310,7 @@ def create_lab02_design() -> ExperimentDesign:
             participants=PARTICIPANTS,
             n_katas=N_KATAS,
             time_box_minutes=TIME_BOX_MINUTES,
-            strategy=BlockCounterbalancingStrategy(),
+            strategy=ExplicitCounterbalancingStrategy(FIRST_BLOCK_WITH_AI),
         )
         .with_katas(KATAS)
         .build()

@@ -2,3 +2,9 @@ participant,kata_id,treatment,elapsed_seconds,censored
 Guilherme,kata-04,without_ai,537.4,False
 Guilherme,kata-05,without_ai,263.7,False
 Guilherme,kata-06,without_ai,574.3,False
+Marcos,kata-01,without_ai,1815.102,False
+Marcos,kata-02,without_ai,848.698,False
+Marcos,kata-03,without_ai,982.066,False
+Marcos,kata-04,with_ai,36.781,False
+Marcos,kata-05,with_ai,36.824,False
+Marcos,kata-06,with_ai,36.757,False

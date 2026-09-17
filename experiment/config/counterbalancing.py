@@ -44,3 +44,47 @@ class BlockCounterbalancingStrategy(CounterbalancingStrategy):
                 assignments.append(TrialAssignment(participant, kata_idx, treatment))
 
         return tuple(assignments)
+
+
+class ExplicitCounterbalancingStrategy(CounterbalancingStrategy):
+    """
+    Contrabalanceamento com a ordem de tratamento definida explicitamente por
+    participante, em vez de derivada por paridade de índice na tupla de
+    participantes (como em `BlockCounterbalancingStrategy`). Útil quando a
+    ordem real seguida por cada integrante durante a execução dos trials não
+    coincide com a alternância par/ímpar — por exemplo, quando dois
+    participantes acabam seguindo a mesma ordem e um terceiro segue a oposta.
+
+    `first_block_with_ai` mapeia cada participante para um booleano indicando
+    se o primeiro bloco de katas (metade inicial) foi resolvido com IA.
+    """
+
+    def __init__(self, first_block_with_ai: dict[str, bool]):
+        self._first_block_with_ai = first_block_with_ai
+
+    def generate_assignments(
+        self,
+        participants: tuple[str, ...],
+        n_katas: int,
+    ) -> tuple[TrialAssignment, ...]:
+        if n_katas % 2 != 0:
+            raise ValueError("n_katas deve ser par para o contrabalanceamento em blocos")
+
+        missing = [p for p in participants if p not in self._first_block_with_ai]
+        if missing:
+            raise ValueError(f"ordem de tratamento não definida para: {', '.join(missing)}")
+
+        half = n_katas // 2
+        assignments: list[TrialAssignment] = []
+
+        for participant in participants:
+            first_block_with_ai = self._first_block_with_ai[participant]
+            for kata_idx in range(n_katas):
+                in_first_block = kata_idx < half
+                if in_first_block:
+                    treatment = Treatment.WITH_AI if first_block_with_ai else Treatment.WITHOUT_AI
+                else:
+                    treatment = Treatment.WITHOUT_AI if first_block_with_ai else Treatment.WITH_AI
+                assignments.append(TrialAssignment(participant, kata_idx, treatment))
+
+        return tuple(assignments)
