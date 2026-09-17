@@ -88,3 +88,32 @@ class ExplicitCounterbalancingStrategy(CounterbalancingStrategy):
                 assignments.append(TrialAssignment(participant, kata_idx, treatment))
 
         return tuple(assignments)
+
+
+class ExplicitTreatmentStrategy(CounterbalancingStrategy):
+    """Usa a sequência de tratamentos definida para cada participante."""
+
+    def __init__(self, treatments_by_participant: dict[str, tuple[Treatment, ...]]):
+        self._treatments_by_participant = treatments_by_participant
+
+    def generate_assignments(
+        self,
+        participants: tuple[str, ...],
+        n_katas: int,
+    ) -> tuple[TrialAssignment, ...]:
+        missing = [p for p in participants if p not in self._treatments_by_participant]
+        if missing:
+            raise ValueError(f"tratamento não definido para: {', '.join(missing)}")
+
+        assignments: list[TrialAssignment] = []
+        for participant in participants:
+            treatments = self._treatments_by_participant[participant]
+            if len(treatments) != n_katas:
+                raise ValueError(
+                    f"a sequência de {participant} deve conter {n_katas} tratamentos"
+                )
+            assignments.extend(
+                TrialAssignment(participant, kata_idx, treatment)
+                for kata_idx, treatment in enumerate(treatments)
+            )
+        return tuple(assignments)

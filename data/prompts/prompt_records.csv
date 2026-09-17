@@ -1,0 +1,7 @@
+participant,kata_id,treatment,n_prompts,help_types,productivity_perception,notes
+Arthur,kata-01,with_ai,1,geração de código,5,
+Arthur,kata-03,with_ai,1,geração de código,5,
+Arthur,kata-05,with_ai,1,geração de código,5,
+Arthur,kata-02,without_ai,0,,3,Lembrar como codar em python atrapalhou um pouco.
+Arthur,kata-04,without_ai,0,,3,Tive que pesquisar algumas funções específicas de Python para resolver.
+Arthur,kata-06,without_ai,0,,4,
