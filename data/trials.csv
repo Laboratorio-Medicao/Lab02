@@ -1,0 +1,4 @@
+participant,kata_id,treatment,elapsed_seconds,censored
+Guilherme,kata-04,without_ai,537.4,False
+Guilherme,kata-05,without_ai,263.7,False
+Guilherme,kata-06,without_ai,574.3,False
