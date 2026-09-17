@@ -5,3 +5,6 @@ Arthur,kata-05,with_ai,1,geração de código,5,
 Arthur,kata-02,without_ai,0,,3,Lembrar como codar em python atrapalhou um pouco.
 Arthur,kata-04,without_ai,0,,3,Tive que pesquisar algumas funções específicas de Python para resolver.
 Arthur,kata-06,without_ai,0,,4,
+Marcos,kata-04,with_ai,2,"geração de código, correção de erros de teste",4,"Prompt inicial detalhando as regras de negócio do kata; código gerado ainda falhava em alguns testes; segundo prompt enviando os erros de teste, IA corrigiu e passou em todos os testes. Mesmo cenário nos 3 katas com IA (autorrelato de Marcos, 2026-09-17)."
+Marcos,kata-05,with_ai,2,"geração de código, correção de erros de teste",4,"Mesmo cenário do kata-04: prompt inicial detalhando as regras de negócio, segundo prompt corrigindo erros de teste apontados. Autorrelato de Marcos, 2026-09-17."
+Marcos,kata-06,with_ai,2,"geração de código, correção de erros de teste",4,"Mesmo cenário do kata-04: prompt inicial detalhando as regras de negócio, segundo prompt corrigindo erros de teste apontados. Autorrelato de Marcos, 2026-09-17."

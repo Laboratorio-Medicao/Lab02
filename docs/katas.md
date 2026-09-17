@@ -35,6 +35,74 @@ A classificação "Média" é uma estimativa de planejamento, não uma medição
 participantes. Ela deverá ser revisada após um piloto com pelo menos um
 participante que não tenha visto as soluções.
 
+## Evidência empírica observada (atualizado em 2026-09-17, após S02)
+
+A estimativa acima permanece uma estimativa de planejamento — nenhum piloto
+formal com participante isento foi executado. Porém, a execução real da S02
+já produz duas fontes de evidência complementares, registradas aqui por
+transparência (não substituem um piloto formal, mas dão um primeiro sinal
+empírico):
+
+**(a) Estrutura da solução de referência** (`katas/kata_0N/solution.py`, via Radon):
+
+| Kata | LOC | Complexidade ciclomática | Testes |
+|---|---:|---:|---:|
+| kata-01 | 14 | 4.0 | 5 |
+| kata-02 | 17 | 10.0 | 6 |
+| kata-03 | 8 | 6.0 | 7 |
+| kata-04 | 22 | 10.0 | 6 |
+| kata-05 | 6 | 4.0 | 5 |
+| kata-06 | 13 | 5.0 | 6 |
+
+LOC varia de 6 a 22 e complexidade de 4 a 10 entre as soluções de referência —
+uma variação relevante, que qualifica "dificuldade comparável" como
+aproximada, não uniforme.
+
+**(b) Tempo real observado no tratamento "sem IA"** (`data/trials.csv`,
+mediana por kata, N = nº de participantes com trial "sem IA" registrado para
+aquele kata até o momento):
+
+| Kata | Tempo mediano sem IA | N | Participantes |
+|---|---:|---:|---|
+| kata-01 | 1815,1 s (30 min 15 s) | 1 | Marcos |
+| kata-02 | 821,6 s | 2 | Marcos, Arthur |
+| kata-03 | 982,1 s | 1 | Marcos |
+| kata-04 | 629,5 s | 2 | Guilherme, Arthur |
+| kata-05 | 263,7 s | 1 | Guilherme |
+| kata-06 | 410,6 s | 2 | Guilherme, Arthur |
+
+**Leitura honesta desses números, sem tirar conclusão de RQ (isso é tarefa da
+S03):** a amostra por kata é muito pequena (1 ou 2 participantes, nunca os 3,
+porque o contrabalanceamento faz cada participante resolver cada kata em só
+um dos dois tratamentos) para validar formalmente a equivalência de
+dificuldade. Ainda assim, o dado chama atenção: kata-01 levou 1815 s (quase o
+time-box inteiro) contra 264–982 s nos demais — a maior discrepância
+observada entre os seis katas.
+
+**Hipótese mais provável para a discrepância de kata-01 (registrada aqui, não
+confirmada):** kata-01 **não** é a solução de referência mais complexa — pelo
+contrário, tem a segunda menor complexidade ciclomática (4.0) e o segundo
+menor LOC (14) das seis, empatada com kata-05, que levou só 263,7 s. Ou seja,
+a estrutura do enunciado não explica o tempo alto. A explicação mais
+parcimoniosa está na ordem de execução: kata-01 foi o **primeiro** trial do
+único participante que o resolveu sem IA (Marcos, que fez kata-01 → kata-02 →
+kata-03 sem IA, nessa ordem, segundo `data/trials.csv`). Isso é exatamente o
+padrão descrito na ameaça "Efeito de aprendizado entre katas" já documentada
+em [`docs/experiment_design.md`](experiment_design.md) — o participante
+melhora ao longo dos trials pela prática repetida, independentemente do
+tratamento. Sob essa hipótese, o tempo alto de kata-01 reflete o custo de ser
+o primeiro trial (familiarização com o ambiente, com o formato dos testes,
+com o próprio ato de cronometrar), não uma dificuldade estrutural maior do
+kata em si.
+
+Esta é uma leitura, não um fato comprovado — não há timestamp de início por
+trial que permita confirmar a ordem cronológica real (ver também o "Registro
+de desvio de protocolo" em `docs/experiment_design.md`). A recomendação
+permanece: registrar essa discrepância e a hipótese acima no Relatório Final,
+junto com a mediana e IQR completos que a S03 vai calcular, em vez de tratar
+"dificuldade comparável" como validada só porque os enunciados têm estrutura
+e contagem de testes parecidas.
+
 ## Baixa indexação
 
 Como os seis enunciados, títulos, nomes de funções e exemplos foram criados
@@ -51,12 +119,28 @@ Cada diretório em [`katas/`](../katas/) contém `test_solution.py` e uma
 oráculo; os participantes devem iniciar o trial com a implementação removida,
 mantendo os testes inalterados.
 
-Validação executada:
+Validação executada (S01, antes da execução dos trials):
 
 ```text
-python -m pytest katas -q
+python -m pytest katas/kata_01 katas/kata_02 katas/kata_03 katas/kata_04 katas/kata_05 katas/kata_06 -q
 36 passed
 ```
+
+Os 36 testes correspondem exclusivamente às seis soluções de referência
+(`katas/kata_0N/`), usadas apenas para validar o oráculo de cada kata.
+
+**Nota (atualizada em 2026-09-17, após a S02):** a partir da execução dos
+trials, `katas/participants/` passou a conter as soluções de cada
+participante para cada kata, cada uma com sua própria cópia de
+`test_solution.py`. Isso significa que `python -m pytest katas -q` — o
+comando literal documentado acima até esta atualização — hoje recolhe
+também esses testes e retorna **144 passed** (36 das soluções de referência
++ 108 das soluções dos três participantes, 6 katas × 3 participantes × testes
+por kata), não mais 36. O número 36 continua correto para o que ele sempre
+mediu (as soluções de referência), mas deixou de ser reproduzível
+executando o comando `python -m pytest katas -q` tal como estava escrito.
+Para reproduzir especificamente a validação original das soluções de
+referência, use o comando acima, restrito aos seis diretórios `katas/kata_0N`.
 
 Os testes cobrem o comportamento funcional e não devem ser considerados parte
 do código produzido pelo participante nas métricas de RQ3.

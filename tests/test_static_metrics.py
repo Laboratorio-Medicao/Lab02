@@ -56,13 +56,15 @@ class TestCollectStaticMetrics:
             "path",
             "loc",
             "cyclomatic_complexity_avg",
+            "cc_mi_tool",
+            "cc_mi_tool_version",
             "maintainability_index",
             "duplicated_lines",
             "duplicated_lines_percent",
             "duplicate_blocks",
             "total_lines",
-            "tool",
-            "tool_version",
+            "duplication_tool",
+            "duplication_tool_version",
         }
         assert as_dict["loc"] == metrics.loc
 

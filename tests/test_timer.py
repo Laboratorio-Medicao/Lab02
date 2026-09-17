@@ -4,10 +4,12 @@ from pathlib import Path
 import pytest
 
 from experiment.collection.timer import (
+    AcceptanceTestResult,
     TimerError,
     TrialRecord,
     TrialTimer,
     append_record,
+    count_test_results,
     make_pytest_checker,
     pytest_passes,
     run_trial,
@@ -176,6 +178,59 @@ class TestMakePytestChecker:
         assert record.elapsed_seconds == 3.0
 
 
+class TestCountTestResults:
+    def test_counts_passing_tests_for_a_real_passing_suite(self):
+        result = count_test_results(SAMPLE_KATA)
+
+        assert result == AcceptanceTestResult(passing=5, total=5)
+        assert result.failing == 0
+        assert result.success_rate_percent == 100.0
+
+    def test_counts_failing_tests_for_a_real_failing_suite(self, tmp_path):
+        (tmp_path / "test_broken.py").write_text(
+            "def test_ok():\n    assert True\n\n"
+            "def test_fails():\n    assert 1 == 2\n",
+            encoding="utf-8",
+        )
+
+        result = count_test_results(tmp_path)
+
+        assert result == AcceptanceTestResult(passing=1, total=2)
+        assert result.failing == 1
+        assert result.success_rate_percent == 50.0
+
+
+class TestRunTrialWithKataPath:
+    def test_records_test_result_when_kata_path_is_given(self):
+        clock = FakeClock([0.0, 0.0, 12.0])
+
+        record = run_trial(
+            participant="Marcos",
+            kata_id="sample",
+            treatment=Treatment.WITH_AI,
+            time_box_minutes=35,
+            clock=clock,
+            wait_for_input=lambda remaining: True,
+            kata_path=SAMPLE_KATA,
+        )
+
+        assert record.test_result == AcceptanceTestResult(passing=5, total=5)
+
+    def test_test_result_is_none_without_kata_path(self):
+        clock = FakeClock([0.0, 0.0, 12.0])
+
+        record = run_trial(
+            participant="Marcos",
+            kata_id="sample",
+            treatment=Treatment.WITH_AI,
+            time_box_minutes=35,
+            clock=clock,
+            wait_for_input=lambda remaining: True,
+        )
+
+        assert record.test_result is None
+
+
 class TestAppendRecord:
     def test_writes_header_once_and_appends_rows(self, tmp_path):
         output = tmp_path / "trials.csv"
@@ -191,5 +246,27 @@ class TestAppendRecord:
         assert len(rows) == 2
         assert rows[0]["participant"] == "Marcos"
         assert rows[0]["censored"] == "False"
+        assert rows[0]["tests_total"] == ""
         assert rows[1]["kata_id"] == "kata-02"
         assert rows[1]["censored"] == "True"
+
+    def test_writes_test_result_columns_when_present(self, tmp_path):
+        output = tmp_path / "trials.csv"
+        record = TrialRecord(
+            "Marcos",
+            "kata-01",
+            Treatment.WITH_AI,
+            12.5,
+            False,
+            test_result=AcceptanceTestResult(passing=5, total=5),
+        )
+
+        append_record(record, output)
+
+        with output.open(newline="", encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+
+        assert rows[0]["tests_total"] == "5"
+        assert rows[0]["tests_passing"] == "5"
+        assert rows[0]["tests_failing"] == "0"
+        assert rows[0]["success_rate_percent"] == "100.00"

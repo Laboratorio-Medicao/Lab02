@@ -61,6 +61,114 @@ Os objetos experimentais são os 6 exercícios autorais documentados em [`docs/k
 | Marcos | kata-01 a kata-03 | Sem IA |
 | Marcos | kata-04 a kata-06 | Com IA |
 
+### Registro de desvio de protocolo (adicionado em 2026-09-17)
+
+A tabela acima é a atribuição **efetivamente executada** na S02. Ela difere
+da atribuição originalmente fechada no desenho da S01 (Issue #3, commit
+`e9478c3`, 2026-09-04), que era:
+
+| Participante | Kata | Tratamento original (S01) |
+|---|---|---|
+| Guilherme | kata-01 a kata-03 | Com IA *(sem alteração)* |
+| Guilherme | kata-04 a kata-06 | Sem IA *(sem alteração)* |
+| Arthur | kata-01 a kata-03 | Sem IA *(alterado — ver abaixo)* |
+| Arthur | kata-04 a kata-06 | Com IA *(alterado — ver abaixo)* |
+| Marcos | kata-01 a kata-03 | Com IA *(alterado — ver abaixo)* |
+| Marcos | kata-04 a kata-06 | Sem IA *(alterado — ver abaixo)* |
+
+**O que mudou:**
+- **Arthur** passou de atribuição em bloco (katas 1–3 sem IA / 4–6 com IA)
+  para atribuição alternada (katas 1, 3, 5 com IA / 2, 4, 6 sem IA). A
+  mudança foi commitada junto com os dados de Arthur (commit `c826baa`,
+  2026-09-17).
+- **Marcos** teve o bloco invertido (de "1–3 com IA / 4–6 sem IA" para "1–3
+  sem IA / 4–6 com IA"). A mudança foi commitada junto com os dados de Marcos
+  (commit `805bb72`, 2026-09-17); o corpo da Issue #11 já refletia a nova
+  ordem desde 2026-09-15.
+- **Guilherme** não teve sua atribuição alterada.
+
+**Motivo do desvio (registrado em 2026-09-17):** segundo relato de Marcos
+nesta data, a ordem de tratamentos fechada na S01 se mostrou inviável na
+prática durante a execução dos trials, o que levou à mudança de ordem de
+Arthur (de bloco para alternada) e de Marcos (bloco invertido). **Ressalva
+de rastreabilidade:** este relato foi prestado por Marcos, em nome dos dois,
+nesta conversa — não há, até o momento, uma confirmação independente e por
+escrito do próprio Arthur sobre o motivo específico de sua mudança de ordem,
+nem detalhamento de qual inviabilidade prática foi encontrada por cada um.
+Recomenda-se que o Relatório Final traga essa explicação detalhada
+diretamente na voz de Arthur e de Marcos (o que, especificamente, tornou a
+ordem original inviável — ex.: disponibilidade de horário para os trials,
+ordem que não era mais compatível com a agenda de cada um, ou outro fator
+concreto), em vez de manter apenas esta descrição genérica de segunda mão.
+
+**Por que isso é registrado:** o desenho crossover contrabalanceado depende
+de a ordem de tratamentos ser definida *antes* da execução, para que a
+comparação entre participantes não seja enviesada por decisões tomadas
+durante a coleta. A ordem final ainda varia entre os três participantes
+(o que atende à recomendação de contrabalanceamento), mas o desvio em
+relação ao que foi fechado na S01 precisa constar explicitamente no
+Relatório Final como uma ameaça adicional à validade interna, já que não é
+possível reconstruir, com os artefatos disponíveis, se a mudança ocorreu
+antes ou depois da execução real dos trials de cada participante.
+
+### Confirmação de execução — trials "com IA" de Marcos (autorrelato, 2026-09-17)
+
+Os três trials "com IA" de Marcos (kata-04, kata-05, kata-06) têm tempos
+muito próximos entre si (36,781 s / 36,824 s / 36,757 s — variação menor que
+0,1 s), o que a auditoria de 2026-09-17 registrou como uma anomalia a
+confirmar (nenhum log ou timestamp de início de trial existe para verificar
+independentemente). Marcos confirmou, em conversa registrada nesta data, que:
+
+- Os três trials foram de fato executados com o assistente de IA (não houve
+  qualquer forma de simulação ou preenchimento indireto do tempo).
+- O mesmo assistente de IA foi usado nos três — consistente com o ambiente
+  fixado em [`README.md`](../README.md) (Claude Code, modelo Claude Sonnet 5).
+- O procedimento seguido foi o mesmo nos três trials, o que é a explicação
+  dada para a proximidade dos tempos: dado o tamanho pequeno dos katas e um
+  fluxo de trabalho repetível com o assistente, o tempo até o "green" variou
+  pouco de um kata para o outro.
+
+Esta confirmação é um autorrelato de Marcos, não uma verificação por log
+independente (não existe log de sessão do assistente nem timestamp de início
+de trial no repositório) — é registrada aqui com essa ressalva, para
+complementar (não substituir) a ameaça "Familiaridade prévia com o assistente
+de IA" e a observação de anomalia estatística já levantada pela auditoria.
+
+### Justificativa do modelo de Issues por participante (adicionado em 2026-09-17)
+
+O enunciado do LAB02 pede que os trials sejam registrados "como Issues
+individuais (uma por kata/tratamento)". O grupo optou, para a S02, por um
+modelo diferente: uma Issue por participante (#9 — Guilherme, #10 — Arthur,
+#11 — Marcos), cada uma cobrindo os 6 katas desse participante em uma tabela
+de atribuição de tratamentos dentro do próprio corpo da Issue (ver seção
+"Atribuição de tratamentos" acima, replicada em cada Issue). Um modelo
+anterior, com uma Issue por kata por participante (Issues #28–#33), foi
+testado e depois explicitamente descartado ("Substituída — voltando ao
+design original: cada integrante faz todos os katas.").
+
+**Justificativa da escolha pelo modelo agregado:**
+
+- Cada trial individual (kata × participante × tratamento) continua
+  rastreável — a tabela dentro da Issue do participante identifica o
+  tratamento de cada um dos 6 katas, e os commits que registram os dados
+  (`c826baa`, `805bb72`, `485bc09`/`faff5d4`/`f79eb52`/`991cf83`) referenciam
+  a Issue correspondente, mantendo a regra de "commit deve referenciar a
+  Issue" do enunciado.
+- A execução da S02 é, por desenho, organizada por participante: cada
+  integrante resolve os 6 katas em sequência, sob o mesmo time-box e o mesmo
+  protocolo — a granularidade de acompanhamento no Kanban que reflete esse
+  fluxo real de trabalho é "uma pessoa resolvendo seus 6 trials", não "um
+  card por combinação kata/tratamento" isolada.
+- O modelo por kata/participante (Issues #28–#33) foi tentado primeiro e
+  descartado por gerar mais sobrecarga de gestão do quadro (18 cards
+  possíveis) sem adicionar rastreabilidade que a tabela dentro da Issue
+  agregada já não oferecesse.
+
+Esta nota documenta a decisão deliberada do grupo; não é uma reinterpretação
+do enunciado — a leitura literal ("uma Issue por kata/tratamento") continua
+divergente do modelo adotado, e isso deve ser declarado como tal no Relatório
+Final, com esta justificativa como a razão da escolha.
+
 ## Ameaças à Validade
 
 ### Efeito de aprendizado `[Validade Interna]`
@@ -73,7 +181,9 @@ Os objetos experimentais são os 6 exercícios autorais documentados em [`docs/k
 
 **Descrição:** Participantes com mais experiência com ferramentas de IA podem obter ganhos maiores no tratamento WITH_AI, introduzindo viés.
 
-**Mitigação:** Registrar nível de familiaridade prévia de cada participante e tratar como variável de confusão na discussão qualitativa.
+**Mitigação:** Registrar nível de familiaridade prévia de cada participante em [`data/participant_ai_familiarity.csv`](../data/participant_ai_familiarity.csv) e tratar como variável de confusão na discussão qualitativa.
+
+**Status da mitigação (atualizado em 2026-09-17):** [`data/participant_ai_familiarity.csv`](../data/participant_ai_familiarity.csv) está preenchido — todos os três relatam uso de assistentes de IA em estágio profissional (familiaridade "Intermediária" para Guilherme e Arthur, "Avançada" para Marcos, por autoavaliação relativa dentro do trio). **Ressalva:** este autorrelato foi coletado por Marcos em nome do grupo. Marcos reconfirmou nesta mesma data o nível de Arthur — mas essa reconfirmação continua sendo prestada por Marcos, não é uma autodeclaração direta e por escrito do próprio Arthur. Guilherme ainda não confirmou individualmente e por escrito seu próprio nível. O CSV registra essa origem no campo `notes` de cada linha. Recomenda-se a confirmação individual e por escrito de Guilherme (e, idealmente, também de Arthur diretamente) antes do Relatório Final, para que a autodeclaração não dependa só do relato de um colega.
 
 ### Memorização pelo assistente de IA `[Validade Interna]`
 
@@ -98,3 +208,9 @@ Os objetos experimentais são os 6 exercícios autorais documentados em [`docs/k
 **Descrição:** Os resultados podem não se generalizar para profissionais experientes, outras linguagens, ou contextos de desenvolvimento de produção.
 
 **Mitigação:** Declarar explicitamente o escopo: estudantes de graduação, Python, katas de complexidade equivalente, assistente de IA específico.
+
+### Desvio de protocolo de contrabalanceamento `[Validade Interna]` (adicionado em 2026-09-17)
+
+**Descrição:** A ordem de tratamentos efetivamente executada por Arthur e por Marcos diverge da ordem fechada no desenho original da S01 (ver "Registro de desvio de protocolo" acima). Não há, nos artefatos do projeto, registro do motivo da mudança nem confirmação de que ela foi decidida antes da execução dos trials — o que introduz um risco à validade interna: não é possível descartar, com os dados disponíveis, que a ordem tenha sido ajustada a posteriori para coincidir com o que já havia sido executado.
+
+**Mitigação:** Nenhuma mitigação foi aplicada no momento da mudança (o desvio não foi documentado quando ocorreu). Mitigação corretiva: Arthur e Marcos devem registrar, no Relatório Final, o motivo real da mudança e, se possível, evidência independente de quando cada trial foi de fato executado (ex.: histórico do editor, timestamps de arquivos locais antes do commit), para permitir avaliar se o desvio compromete a comparabilidade dos resultados desses dois participantes.

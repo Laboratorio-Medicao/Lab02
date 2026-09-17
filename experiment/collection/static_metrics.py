@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import csv
 from dataclasses import dataclass
+from importlib.metadata import PackageNotFoundError, version as _pkg_version
 from pathlib import Path
 
 from radon.complexity import cc_visit
@@ -34,29 +35,52 @@ TRIAL_METRICS_FIELDNAMES = [
     "path",
     "loc",
     "cyclomatic_complexity_avg",
+    "cc_mi_tool",
+    "cc_mi_tool_version",
     "maintainability_index",
     "duplicated_lines",
     "duplicated_lines_percent",
     "duplicate_blocks",
     "total_lines",
-    "tool",
-    "tool_version",
+    "duplication_tool",
+    "duplication_tool_version",
 ]
+
+
+def _radon_version() -> str:
+    """Versão do Radon realmente instalada, sem assumir um valor fixo."""
+    try:
+        return _pkg_version("radon")
+    except PackageNotFoundError:
+        return "desconhecida"
 
 
 @dataclass(frozen=True)
 class StaticMetrics:
+    """LOC, complexidade ciclomática e MI (via Radon) + duplicação (via jscpd).
+
+    `cc_mi_tool`/`cc_mi_tool_version` identificam explicitamente a ferramenta
+    usada para complexidade ciclomática e MI (Radon), para que o CSV final
+    (`data/static_metrics.csv`) não deixe essas duas colunas sem atribuição
+    clara ao lado das colunas de duplicação (`duplication_tool`), que vêm de
+    uma ferramenta diferente (jscpd) — ver `docs/experiment_design.md`.
+    """
+
     path: str
     loc: int
     cyclomatic_complexity_avg: float
     maintainability_index: float
     duplication: DuplicationMetrics
+    cc_mi_tool: str = "radon"
+    cc_mi_tool_version: str = ""
 
     def to_dict(self) -> dict:
         return {
             "path": self.path,
             "loc": self.loc,
             "cyclomatic_complexity_avg": round(self.cyclomatic_complexity_avg, 2),
+            "cc_mi_tool": self.cc_mi_tool,
+            "cc_mi_tool_version": self.cc_mi_tool_version,
             "maintainability_index": round(self.maintainability_index, 2),
             **self.duplication.to_dict(),
         }
@@ -104,6 +128,7 @@ def collect_static_metrics(path: Path, include_tests: bool = False) -> StaticMet
         cyclomatic_complexity_avg=cc_avg,
         maintainability_index=mi_avg,
         duplication=collect_duplication_metrics(path, include_tests=include_tests),
+        cc_mi_tool_version=_radon_version(),
     )
 
 
