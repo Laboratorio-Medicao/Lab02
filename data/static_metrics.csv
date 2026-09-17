@@ -2,3 +2,9 @@ participant,kata_id,treatment,path,loc,cyclomatic_complexity_avg,maintainability
 Guilherme,kata-04,without_ai,katas/participants/guilherme/kata_04/solution.py,24,14.0,54.19,0,0.0,0,23,jscpd,4.0.5
 Guilherme,kata-05,without_ai,katas/participants/guilherme/kata_05/solution.py,9,4.0,64.74,0,0.0,0,8,jscpd,4.0.5
 Guilherme,kata-06,without_ai,katas/participants/guilherme/kata_06/solution.py,17,8.0,56.99,0,0.0,0,16,jscpd,4.0.5
+Marcos,kata-01,without_ai,katas/participants/marcos/kata_01,21,4.0,81.77,0,0.0,0,20,jscpd,4.0.5
+Marcos,kata-02,without_ai,katas/participants/marcos/kata_02,32,9.0,77.93,0,0.0,0,31,jscpd,4.0.5
+Marcos,kata-03,without_ai,katas/participants/marcos/kata_03,34,7.0,79.44,0,0.0,0,33,jscpd,4.0.5
+Marcos,kata-04,with_ai,katas/participants/marcos/kata_04,25,10.0,77.88,0,0.0,0,24,jscpd,4.0.5
+Marcos,kata-05,with_ai,katas/participants/marcos/kata_05,9,4.0,84.45,0,0.0,0,8,jscpd,4.0.5
+Marcos,kata-06,with_ai,katas/participants/marcos/kata_06,15,5.0,80.71,0,0.0,0,14,jscpd,4.0.5

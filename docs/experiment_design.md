@@ -58,8 +58,8 @@ Os objetos experimentais são os 6 exercícios autorais documentados em [`docs/k
 | Guilherme | kata-04 a kata-06 | Sem IA |
 | Arthur | kata-01 a kata-03 | Sem IA |
 | Arthur | kata-04 a kata-06 | Com IA |
-| Marcos | kata-01 a kata-03 | Com IA |
-| Marcos | kata-04 a kata-06 | Sem IA |
+| Marcos | kata-01 a kata-03 | Sem IA |
+| Marcos | kata-04 a kata-06 | Com IA |
 
 ## Ameaças à Validade
 
