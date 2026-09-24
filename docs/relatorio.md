@@ -347,7 +347,9 @@ O grupo usou um **GitHub Projects** no formato Kanban. As colunas registradas no
 
 **Print do board:**
 
-**[PRINT DO KANBAN A INSERIR APÓS A FINALIZAÇÃO DAS TAREFAS PENDENTES E ATUALIZAÇÃO DO QUADRO]**
+![Kanban — Sprint 3 (estado final)](figures/kanban-sprint3.png)
+
+*Figura — Board do GitHub Projects filtrado por `label:lab02` ao final da Sprint 3. Todas as 34 issues estão na coluna Done.*
 
 ### 3.4 Ferramentas
 
