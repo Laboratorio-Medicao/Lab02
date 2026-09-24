@@ -19,9 +19,9 @@ O uso de assistentes de inteligência artificial generativa no desenvolvimento d
 
 Este laboratório conduz um experimento controlado para investigar se o uso de um assistente de IA generativa altera o desempenho de estudantes de graduação na resolução de exercícios de programação (*katas*). O experimento adota um desenho *crossover within-subject* contrabalanceado: cada participante resolve todos os katas, metade com o assistente de IA habilitado e metade sem, de modo que cada pessoa sirva como seu próprio controle. Foram realizados **18 trials** (3 participantes × 6 katas). O estudo responde às seguintes questões de pesquisa:
 
-- **RQ1.** O uso de assistente de IA reduz o tempo necessário para resolver uma tarefa de programação? *(métrica: tempo até passar nos testes — *time-to-green* — em segundos, censurado no time-box de 35 min)*
-- **RQ2.** O uso de assistente de IA reduz a quantidade de defeitos (testes que falham) no código produzido? *(métricas: taxa de sucesso nos testes de aceitação e número de testes falhando ao final do trial)*
-- **RQ3.** O uso de assistente de IA altera a complexidade ciclomática ou a duplicação do código produzido? *(métricas: complexidade ciclomática média — CC — e percentual de linhas duplicadas, com LOC como métrica de controle e índice de manutenibilidade — MI — como aprofundamento)*
+- **RQ1.** Qual o impacto do uso de assistente de IA no tempo necessário para resolver uma tarefa de programação? *(métrica: tempo até passar nos testes — *time-to-green* — em segundos, censurado no time-box de 35 min)*
+- **RQ2.** Como o uso de assistente de IA afeta a taxa de sucesso nos testes de aceitação do código produzido? *(métricas: taxa de sucesso nos testes de aceitação e número de testes falhando ao final do trial)*
+- **RQ3.** Como o uso de assistente de IA afeta a estrutura do código produzido? *(métricas: complexidade ciclomática média — CC — e percentual de linhas duplicadas, com LOC como métrica de controle e índice de manutenibilidade — MI — como aprofundamento)*
 
 Como aprofundamento opcional, o grupo também registrou o número de prompts usados nos trials com IA e decompôs o MI nos componentes da sua fórmula (seções 3.6 e 4.6).
 
