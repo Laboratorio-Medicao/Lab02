@@ -1,5 +1,5 @@
 """
-Figuras do relatório final (RQ1, RQ2, RQ3) — Issues #17/#21, plano em AUDITORIA_VISUALIZACAO.md.
+Figuras do relatório final (RQ1, RQ2, RQ3) — Issues #17/#21.
 Uso: python3 generate_figures.py
 """
 

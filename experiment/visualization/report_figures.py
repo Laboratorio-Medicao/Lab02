@@ -1,4 +1,4 @@
-"""Figuras do relatório final (RQ1, RQ2, RQ3) — plano em `AUDITORIA_VISUALIZACAO.md`.
+"""Figuras do relatório final (RQ1, RQ2, RQ3) — Issues #17/#21.
 
 Cada figura responde a uma única pergunta. Os números vêm das análises já
 validadas (#15: `rq1_rq2`; #16: `rq3`); nada é digitado à mão, nenhum dado
@@ -33,10 +33,10 @@ MUTED = "#5b5a56"
 GRID = "#e4e3df"
 
 PARTICIPANT_ORDER = ("Arthur", "Guilherme", "Marcos")
-#: Ressalvas de proveniência dos tempos (Seção 2.4 do relatório).
+#: Ressalvas de proveniência dos tempos (Seção 3.3.4 do relatório).
 TIME_CAVEATS = {
-    "Arthur": "tempos registrados pelo cronômetro",
-    "Guilherme": "ressalva: tempos fora do formato do cronômetro",
+    "Arthur": "tempos no formato gravado pelo cronômetro",
+    "Guilherme": "ressalva: tempos registrados manualmente",
     "Marcos": "ressalva: tempos com IA só por autorrelato",
 }
 TIME_TICKS = {
@@ -400,7 +400,7 @@ def rq3_mi_two_series(results: Rq3Results) -> Figure:
     )
     _footer(
         fig,
-        "Os níveis das duas séries diferem pela convenção de cálculo (Seção 3.4): compare a direção dentro de cada "
+        "Os níveis das duas séries diferem pela convenção de cálculo (Seção 4.4): compare a direção dentro de cada "
         "painel, não os valores entre painéis.",
     )
     fig.tight_layout(rect=(0, 0.04, 1, 1))
@@ -485,12 +485,20 @@ def bonus_mi_components(components: pd.DataFrame) -> Figure:
     )
     fig, axes = plt.subplots(1, 3, figsize=(12, 4.6), sharey=True)
     for ax, (column, xlabel) in zip(axes, panels):
+        # Pontos coincidentes (ex.: Arthur kata-06 sem IA e Marcos kata-06 com IA)
+        # são deslocados na horizontal para que nenhum fique escondido.
+        step = 0.035 * (components[column].max() - components[column].min())
+        seen: dict[tuple[float, float], int] = {}
         for treatment in TREATMENTS:
             side = components[components["treatment"] == treatment]
-            ax.scatter(
-                side[column], side["maintainability_index_harmonized"], s=46,
-                color=COLORS[treatment], edgecolor="white", zorder=3,
-            )
+            for _, trial in side.iterrows():
+                key = (trial[column], round(trial["maintainability_index_harmonized"], 6))
+                nudge = step * seen.get(key, 0)
+                seen[key] = seen.get(key, 0) + 1
+                ax.scatter(
+                    trial[column] + nudge, trial["maintainability_index_harmonized"], s=46,
+                    color=COLORS[treatment], edgecolor="white", zorder=3,
+                )
         rho = components[column].corr(components["maintainability_index_harmonized"], method="spearman")
         ax.text(0.97, 0.96, f"ρ = {_br(rho, 2)}", transform=ax.transAxes, ha="right", va="top")
         ax.grid(axis="x", visible=True)
@@ -507,9 +515,10 @@ def bonus_mi_components(components: pd.DataFrame) -> Figure:
     _footer(
         fig,
         "Exploratório · ρ de Spearman descritivo · comentários = 0% em todos os trials (termo constante) · "
-        "parte da associação é mecânica: os componentes entram na fórmula do MI",
+        "parte da associação é mecânica: os componentes entram na fórmula do MI\n"
+        "Pontos coincidentes deslocados levemente na horizontal",
     )
-    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
     return fig
 
 

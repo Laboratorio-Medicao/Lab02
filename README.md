@@ -14,9 +14,9 @@ dentro do experimento:
 
 | Item | Escolha |
 |---|---|
-| Linguagem | Python 3.10+ (compatível com Radon, a ferramenta de métricas estáticas escolhida) |
+| Linguagem | Python — mínimo suportado 3.10 (compatível com Radon); análise da S03 validada com Python 3.14.5. A versão usada por cada participante nos trials não foi registrada |
 | IDE | Visual Studio Code |
-| Assistente de IA | Claude Code — modelo Claude Sonnet 5 (`claude-sonnet-5`) |
+| Assistente de IA | Claude Code — modelo Claude Sonnet 5 (`claude-sonnet-5`); versão do Claude Code não registrada |
 | Ferramenta de métricas estáticas | [Radon](https://radon.readthedocs.io/) 6.x (`cc`, `mi`, LOC) |
 | Testes | pytest 9.1.1 (pinado em `requirements.txt`) |
 
@@ -92,6 +92,13 @@ e `treatment`.
 python generate_design_report.py
 ```
 
+Gera `docs/experiment_design.md` a partir de `experiment/config/lab02_design.py`.
+Os trechos escritos à mão (registro de desvio de protocolo, status de
+mitigações etc.) ficam entre `<!-- manual:start <nome> -->` e
+`<!-- manual:end <nome> -->` e são preservados. Se a regeneração fosse apagar
+qualquer outra linha do arquivo atual, o script para sem gravar nada; `--force`
+grava mesmo assim.
+
 ## Análise de resultados (S03)
 
 **RQ1 e RQ2 — mediana/IQR e Wilcoxon pareado** ([Issue #15](../../issues/15)):
@@ -130,7 +137,7 @@ altera os dados brutos.
 | `task_allocation_balance.csv` | Dificuldade aparente dos katas de cada lado do par, por participante (confundimento tratamento × tarefa) |
 | `source_integrity_check.csv` | CSV coletado na S02 × recomputação via Radon, trial a trial |
 | `outliers.csv` | Observações fora de 1,5 × IQR (sinalizadas, não removidas) |
-| `figures/*.png` | As cinco figuras de RQ3 (distribuição, comparação pareada, por kata, CC × LOC e complexidade normalizada) |
+| `figures/*.png` | As cinco figuras de RQ3 (distribuição, comparação pareada, por kata, CC × LOC e complexidade normalizada) — figuras auxiliares da análise; as figuras do relatório são as de `docs/figures/` |
 
 **Bônus — MI em profundidade e nº de prompts** ([Issue #18](../../issues/18)):
 

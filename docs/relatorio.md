@@ -9,29 +9,208 @@
 | **Laboratório** | Lab02 — Impacto do Uso de Assistentes de IA na Resolução de Katas de Programação |
 | **Grupo (trio)** | Arthur Luiz Alves Soares · Guilherme de Almeida Rocha Vieira · Marcos Alberto Ferreira Pinto |
 | **Link do repositório / GitHub Projects** | https://github.com/Laboratorio-Medicao/Lab02 / https://github.com/orgs/Laboratorio-Medicao/projects/1 |
-| **Data de entrega** | *(a preencher)* |
+| **Data de entrega** | 24/09/2026 |
 
 ---
 
 ## 1. Introdução
 
-O uso de assistentes de inteligência artificial generativa no desenvolvimento de software tem crescido rapidamente, com ferramentas como GitHub Copilot, ChatGPT e Claude sendo adotadas por desenvolvedores para geração de código, debugging e sugestão de abordagens. Apesar da adoção crescente, há escassez de evidências controladas sobre o real impacto dessas ferramentas em dimensões como tempo de resolução, qualidade funcional e estrutura do código produzido.
+O uso de assistentes de inteligência artificial generativa no desenvolvimento de software tem crescido rapidamente, com ferramentas como GitHub Copilot, ChatGPT e Claude sendo adotadas para geração de código, depuração e sugestão de abordagens. Apesar da adoção crescente, há poucas evidências controladas sobre o impacto real dessas ferramentas no tempo de resolução, na qualidade funcional e na estrutura do código produzido.
 
-Este laboratório conduz um experimento controlado para investigar se o uso de um assistente de IA generativa altera o desempenho de estudantes de graduação na resolução de exercícios de programação (*katas*). O experimento adota um design *crossover within-subject* contrabalanceado: cada participante resolve todos os katas, sendo metade com assistente de IA habilitado e metade sem, garantindo que o mesmo indivíduo sirva como seu próprio controle.
-
-O estudo responde às seguintes questões de pesquisa:
+Este laboratório conduz um experimento controlado para investigar se o uso de um assistente de IA generativa altera o desempenho de estudantes de graduação na resolução de exercícios de programação (*katas*). O experimento adota um desenho *crossover within-subject* contrabalanceado: cada participante resolve todos os katas, metade com o assistente de IA habilitado e metade sem, de modo que cada pessoa sirva como seu próprio controle. Foram realizados **18 trials** (3 participantes × 6 katas). O estudo responde às seguintes questões de pesquisa:
 
 - **RQ1.** O uso de assistente de IA reduz o tempo necessário para resolver uma tarefa de programação? *(métrica: tempo até passar nos testes — *time-to-green* — em segundos, censurado no time-box de 35 min)*
-- **RQ2.** O uso de assistente de IA reduz a quantidade de defeitos no código produzido? *(métrica: taxa de sucesso nos testes de aceitação e número de testes falhando ao final do trial)*
+- **RQ2.** O uso de assistente de IA reduz a quantidade de defeitos (testes que falham) no código produzido? *(métricas: taxa de sucesso nos testes de aceitação e número de testes falhando ao final do trial)*
 - **RQ3.** O uso de assistente de IA altera a complexidade ciclomática ou a duplicação do código produzido? *(métricas: complexidade ciclomática média — CC — e percentual de linhas duplicadas, com LOC como métrica de controle e índice de manutenibilidade — MI — como aprofundamento)*
+
+Como aprofundamento opcional, o grupo também registrou o número de prompts usados nos trials com IA e decompôs o MI nos componentes da sua fórmula (seções 3.6 e 4.6).
+
+### Hipóteses
+
+As hipóteses foram fixadas no desenho da S01 (`docs/experiment_design.md`, Issue #3) e são testadas com o teste de Wilcoxon pareado (seção 3.2).
+
+#### RQ1 — Tempo
+
+- **H0:** o uso de assistente de IA **não reduz** o tempo necessário para resolver uma tarefa de programação.
+- **H1:** o uso de assistente de IA **reduz** o tempo necessário para resolver uma tarefa de programação.
+
+**Direção do teste:** unilateral, porque a RQ pergunta se o assistente *reduz* o tempo.
+
+#### RQ2 — Defeitos
+
+- **H0:** o uso de assistente de IA **não reduz** a quantidade de defeitos (testes que falham) no código produzido.
+- **H1:** o uso de assistente de IA **reduz** a quantidade de defeitos (testes que falham) no código produzido.
+
+**Direção do teste:** unilateral, porque a RQ pergunta se o assistente *reduz* os defeitos.
+
+#### RQ3 — Estrutura do código
+
+- **H0:** o uso de assistente de IA **não altera** a complexidade ciclomática nem a duplicação do código produzido.
+- **H1:** o uso de assistente de IA **altera** a complexidade ciclomática e/ou a duplicação do código produzido.
+
+**Direção do teste:** bilateral, porque a RQ pergunta se o assistente *altera* essas métricas, sem direção prevista.
 
 ---
 
-## 2. Metodologia
+## 2. Contexto
 
-### 2.1 Design experimental
+Este é o Lab02 da disciplina de Laboratório de Experimentação de Software, organizado em três sprints: S01 (desenho e preparação do experimento), S02 (execução e coleta de dados) e S03 (análise de resultados e visualização), seguidas do Relatório Final.
 
-O experimento utiliza um design **crossover within-subject**. Cada um dos três participantes resolve os seis katas individualmente, sob time-box de 35 minutos por trial. A variável independente é a presença ou ausência do assistente de IA durante a resolução. Cada participante realizou metade dos trials com IA e metade sem IA (3 + 3), totalizando 18 trials: 9 com IA e 9 sem IA.
+O objeto de estudo são **seis katas autorais em Python**, escritos pelo próprio grupo para este experimento, cada um com testes automatizados de aceitação. Os três integrantes do trio foram os participantes. O assistente de IA fixado para todos os trials com IA foi o **Claude Code com o modelo Claude Sonnet 5** (`claude-sonnet-5`, Anthropic). Os dados dos trials foram versionados no repositório entre 16 e 17/09/2026.
+
+---
+
+## 2.1 Estrutura GQM
+
+O experimento segue o modelo **Goal-Question-Metric** (BASILI; CALDIERA; ROMBACH, 1994): um objetivo de investigação, do qual derivam as três questões de pesquisa do enunciado (RQ1–RQ3), cada uma respondida por métricas definidas antes da coleta.
+
+### Goal (G1)
+
+> **Analisar** o uso de assistentes de IA generativa na resolução de tarefas de programação
+> **com o propósito de** comparar seu efeito frente à codificação manual
+> **com respeito a** tempo de resolução, qualidade funcional (defeitos) e qualidade estrutural do código produzido
+> **do ponto de vista do** grupo pesquisador
+> **no contexto de** katas de dificuldade equivalente resolvidos por estudantes de graduação sob condições controladas (crossover within-subject, time-boxed).
+
+### Árvore GQM
+
+```mermaid
+graph TD
+    G["<b>Goal (G1)</b><br/>Analisar o uso de assistentes de IA generativa na resolução de tarefas de programação<br/>com o propósito de comparar seu efeito frente à codificação manual<br/>com respeito a tempo, defeitos e estrutura do código<br/>do ponto de vista do grupo pesquisador<br/>no contexto de katas resolvidos por estudantes (crossover, time-boxed)"]
+
+    G --> Q1["Question RQ1<br/>O assistente de IA reduz o tempo de resolução?"]
+    G --> Q2["Question RQ2<br/>O assistente de IA reduz os defeitos (testes falhando)?"]
+    G --> Q3["Question RQ3<br/>O assistente de IA altera a complexidade ciclomática ou a duplicação?"]
+
+    Q1 --> M1["Metric<br/>Tempo até green (s)<br/>censurado em 2100 s"]
+    Q2 --> M2a["Metric<br/>Taxa de sucesso (%)"]
+    Q2 --> M2b["Metric<br/>Nº de testes falhando"]
+    Q3 --> M3a["Metric<br/>CC média por função (Radon cc)"]
+    Q3 --> M3b["Metric<br/>Duplicação (% de linhas, jscpd)"]
+    Q3 --> M3c["Metric de controle<br/>LOC (Radon raw)"]
+    Q3 --> M3d["Metric opcional<br/>MI (Radon mi)"]
+
+    classDef goal fill:#14213d,color:#fff,stroke:#14213d;
+    classDef question fill:#1f77b4,color:#fff,stroke:#1f77b4;
+    classDef metric fill:#eef1f5,color:#1a1a1a,stroke:#94a3b8;
+    class G goal;
+    class Q1,Q2,Q3 question;
+    class M1,M2a,M2b,M3a,M3b,M3c,M3d metric;
+```
+
+**Versão em texto (fallback para exportação em PDF, caso o renderizador não suporte Mermaid):**
+
+```
+Goal (G1): Analisar o uso de assistentes de IA generativa na resolução de
+  tarefas de programação
+  com o propósito de comparar seu efeito frente à codificação manual
+  com respeito a tempo de resolução, qualidade funcional (defeitos) e
+    qualidade estrutural do código produzido
+  do ponto de vista do grupo pesquisador
+  no contexto de katas de dificuldade equivalente resolvidos por estudantes
+    de graduação (crossover within-subject, time-boxed)
+
+├─ Question RQ1 — O assistente de IA reduz o tempo de resolução?
+│    └─ Metric: Tempo até green (s), censurado em 2100 s
+├─ Question RQ2 — O assistente de IA reduz os defeitos (testes falhando)?
+│    ├─ Metric: Taxa de sucesso (% de testes passando)
+│    └─ Metric: Nº de testes falhando (complementar)
+└─ Question RQ3 — O assistente de IA altera a complexidade ciclomática
+     ou a duplicação?
+     ├─ Metric: CC média por função (Radon cc)
+     ├─ Metric: Duplicação (% de linhas duplicadas, jscpd)
+     ├─ Metric de controle: LOC (Radon raw)
+     └─ Metric opcional: MI (Radon mi)
+```
+
+### Tabela de Registro
+
+| Question (RQ) | Metric | Definição Operacional | Responsável (coleta / análise) |
+|---|---|---|---|
+| RQ1 | Tempo até *green* | `elapsed_seconds` de `data/trials.csv`; 2100 s quando `censored = True` | Marcos Alberto (#5, cronômetro) / Arthur Soares (#15) |
+| RQ2 | Taxa de sucesso | `tests_passing / tests_total × 100` (`success_rate_percent`) | Marcos Alberto (#5, #41) / Arthur Soares (#15) |
+| RQ2 | Nº de testes falhando | `tests_failing` | Marcos Alberto (#5, #41) / Arthur Soares (#15) |
+| RQ3 | CC média | média da CC por função/método (`radon cc`) | Marcos Alberto (#5) / Marcos Alberto (#16) |
+| RQ3 | Duplicação | `duplicated_lines_percent` do jscpd, blocos ≥ 5 linhas e 20 tokens, testes excluídos | Arthur Soares (#6) / Marcos Alberto (#16) |
+| RQ3 | LOC (controle) | `loc` bruto do `radon raw` | Marcos Alberto (#5) / Marcos Alberto (#16) |
+| RQ3 | MI (opcional) | `radon mi`, média dos arquivos `.py` do diretório do trial | Marcos Alberto (#5) / Marcos Alberto (#16, #18) |
+| Bônus | Nº de prompts | autorrelato em `data/prompts/prompt_records.csv` | Guilherme Vieira (#12) / Marcos Alberto (#18) |
+
+Responsáveis conforme os Assignees e os commits das Issues citadas (seção 3.3.6).
+
+### Tabela de Métricas consolidada (GQM × Seção 3.5)
+
+A tabela abaixo justifica a escolha de cada métrica, ligando RQ → métrica → o que ela mede → por que ela responde à RQ. As definições operacionais, unidades e fontes estão na seção 3.5.
+
+| Goal | Question (RQ) | Metric | O que mede | Por que responde à RQ |
+|---|---|---|---|---|
+| G1 | RQ1 | **Tempo até *green*** | Tempo do início do trial até todos os testes de aceitação passarem | "Resolver a tarefa" é operacionalizado como passar nos testes de aceitação. É a métrica primária recomendada pelo enunciado; a censura evita descartar trials sem sucesso. Agregada pela mediana, por causa do N pequeno |
+| G1 | RQ2 | **Taxa de sucesso** | Fração dos testes de aceitação que o código final satisfaz | O enunciado define defeito como teste de aceitação falhando. A porcentagem normaliza katas com 5 a 7 testes |
+| G1 | RQ2 | **Nº de testes falhando** (complementar) | Contagem absoluta de testes falhando | Forma direta de reportar defeitos, complementar à taxa |
+| G1 | RQ3 | **CC média** por função | Nº de caminhos independentes de execução (McCabe) | Mede diretamente a complexidade ciclomática citada na RQ3; o Radon é a ferramenta equivalente ao CK para Python |
+| G1 | RQ3 | **Duplicação** | Linhas em blocos repetidos | Mede diretamente a duplicação citada na RQ3; o Radon não cobre duplicação |
+| G1 | RQ3 | **LOC** (controle) | Tamanho do código | O enunciado exige LOC sempre que se reporta complexidade/duplicação: código com IA pode ser mais verboso, e CC sem controle de tamanho pode enganar |
+| G1 | RQ3 | **MI** (opcional) | Índice composto de CC, linhas e volume de Halstead | Resume a manutenibilidade num único índice; é opcional no enunciado e foi incluído pelo grupo |
+| — | — | **Nº de prompts** (opcional, exploratório) | Interações com o assistente nos trials com IA | Apoia só a discussão qualitativa; não responde a nenhuma RQ |
+
+A densidade de defeitos (testes falhando/KLOC), também opcional no enunciado, não foi usada.
+
+---
+
+## 3. Metodologia
+
+### 3.1 Principais Desafios
+
+**Tamanho amostral:** com 3 participantes, o teste pareado tem apenas 3 pares. O menor p que o Wilcoxon exato pode produzir é 1/2³ = 0,125 (unilateral) ou 0,25 (bilateral), acima de α = 0,05. Nenhuma diferença, por maior que seja, pode ser declarada significativa nesta amostra (seção 3.2).
+
+**Medição de defeitos acoplada ao encerramento do trial:** o cronômetro encerra o trial no *green* (todos os testes passando) ou no time-box. Uma taxa de sucesso abaixo de 100% só pode aparecer em trial censurado, o que torna a RQ2 dependente da censura da RQ1 (seção 4.3).
+
+**Contrabalanceamento alterado durante a execução:** a ordem de tratamentos executada por Arthur e Marcos diverge da fechada na S01 (seção 3.3.1), e isso produziu confundimento entre tratamento e kata.
+
+**Proveniência dos tempos:** o modo do cronômetro usado em cada trial não foi registrado, os tempos de Guilherme foram registrados manualmente no CSV e os tempos com IA de Marcos só têm confirmação por autorrelato (seção 3.3.4).
+
+**MI com duas convenções:** o coletor calcula o MI como média dos arquivos `.py` do diretório do trial, e parte dos diretórios tinha um `__init__.py` vazio no momento da coleta (seção 4.4).
+
+**Soluções de referência no repositório:** as soluções de referência dos katas ficaram versionadas no repositório compartilhado antes dos trials (seções 3.3.3 e 3.3.5).
+
+### 3.2 Tomadas de Decisão
+
+**Python + Radon + jscpd:** o enunciado permite uma ferramenta equivalente ao CK/PMD quando a linguagem não é Java. O Radon mede CC, MI e LOC; como não mede duplicação, o jscpd foi usado para ela.
+
+**Assistente único:** Claude Code com o modelo Claude Sonnet 5 em todos os trials com IA, como exige o enunciado.
+
+**Time-box mantido em 35 min**, sem redução.
+
+**Estatística descritiva por mediana e IQR** (Q3 − Q1) por tratamento, como recomenda o enunciado para N pequeno. Média e desvio-padrão não são usados como estatística descritiva. Os quartis seguem `statistics.quantiles(method="inclusive")`.
+
+**Outliers** pelas cercas de Tukey (Q1 − 1,5·IQR e Q3 + 1,5·IQR), calculadas por tratamento. Um outlier é uma observação extrema, não um dado inválido: todos foram **sinalizados e mantidos**, e nenhuma observação foi removida.
+
+**Censura:** trials que atingem o time-box entram na análise com o tempo travado em 2100 s, nunca descartados.
+
+**Teste inferencial:** Wilcoxon signed-rank pareado, exato (CONOVER, 1999), com α = 0,05. O Wilcoxon foi escolhido por ser não paramétrico e adequado ao desenho within-subject. Nenhum artefato da S01/S02 fixava um α; o valor foi declarado na S03.
+
+- **Unidade de pareamento: o participante (N = 3 pares).** Nenhum participante resolveu o mesmo kata nos dois tratamentos, então não existe par participante × kata. O par de cada participante compara o resumo dos seus 3 trials com IA contra o resumo dos seus 3 trials sem IA: a mediana na RQ1 e na RQ3, e a média na RQ2. A RQ2 usa a média porque, com a mediana, um único trial com testes falhando não alteraria o par.
+- **Direção:** unilateral na RQ1 e na RQ2 (H1 "reduz"); bilateral na RQ3 (H1 "altera").
+- **Limite de resolução do teste:** com 3 pares não nulos, o menor p possível é **0,125 (unilateral)** ou **0,25 (bilateral)**, os dois acima de α. Por isso a leitura dos resultados se apoia principalmente na estatística descritiva, e uma H0 não rejeitada aqui **não** é evidência de ausência de efeito.
+
+**Tamanho de efeito:** o material de apoio usado pelo grupo recomenda reportá-lo sempre — "Reporte sempre o tamanho de efeito (Cohen's d, Cliff's δ, A12)" (BATELLA et al., 2026). Esta análise usa medidas ligadas ao próprio teste pareado:
+
+- **RQ1:** diferença entre medianas e razão com IA / sem IA. A correlação bisserial de postos não é reportada porque, com as três diferenças no mesmo sinal, ela vale necessariamente ±1 e não informa nada.
+- **RQ3:** correlação bisserial de postos pareada (r_rb), definida a partir dos postos com sinal do próprio Wilcoxon e que não depende da aproximação normal com N pequeno (justificativa em `results/rq3/rq3_summary.md`, seção 11, item 10).
+
+**RQ3 — métricas e multiplicidade:** CC e duplicação (as métricas da RQ), LOC como controle, CC/LOC (métrica derivada, para separar complexidade de tamanho) e MI como aprofundamento. Como são vários testes, os p-valores brutos são reportados ao lado dos ajustados por Bonferroni e Benjamini–Hochberg dentro de cada família de testes, seguindo a recomendação "Muitos testes? Corrija (Bonferroni / FDR)" (BATELLA et al., 2026).
+
+**Análises de sensibilidade:** pareamento por kata (N = 6) e MI recalculado sob convenção única (RQ3); exclusão de Marcos (RQ1, só descritiva).
+
+**Mann-Whitney:** a Issue #17 implementou o teste de Mann-Whitney (`experiment/analysis/rank_sum.py`) para as figuras que produziu. Esse teste trata como independentes os trials do mesmo participante, o que o desenho não garante. As figuras da #17 foram substituídas pelas deste relatório, e **os p-valores do Mann-Whitney não fazem parte dos resultados**: não aparecem nas tabelas nem entram em nenhuma decisão sobre H0.
+
+**Uma Issue por participante na S02 (desvio do enunciado):** o enunciado pede que os trials sejam registrados como Issues individuais, uma por kata/tratamento. O grupo usou **uma Issue por participante** — #9 (Guilherme), #10 (Arthur) e #11 (Marcos) —, cada uma com a tabela de atribuição dos 6 katas no corpo, e os commits dos trials referenciam essas Issues. Um modelo com uma Issue por kata (#28–#33) chegou a ser criado e foi descartado em 2026-09-06, antes da execução. A justificativa do grupo (menos sobrecarga no quadro, sem perda de rastreabilidade, porque cada trial é identificado pela tabela da Issue e pelas colunas `participant`, `kata_id` e `treatment` do CSV) está em `docs/experiment_design.md`. **É uma divergência da leitura literal do enunciado**, declarada aqui como tal.
+
+### 3.3 Etapas
+
+#### 3.3.1 Desenho experimental
+
+O experimento usa um desenho **crossover within-subject**. Cada um dos três participantes resolve os seis katas individualmente, sob time-box de 35 minutos por trial. A variável independente é a presença ou ausência do assistente de IA durante a resolução. Cada participante fez metade dos trials com IA e metade sem IA (3 + 3), totalizando 18 trials: 9 com IA e 9 sem IA.
 
 **Atribuição executada** (a que gerou os dados; conferida em `data/trials.csv` e em `docs/experiment_design.md`):
 
@@ -41,21 +220,33 @@ O experimento utiliza um design **crossover within-subject**. Cada um dos três 
 | Arthur | kata-01, kata-03, kata-05 | kata-02, kata-04, kata-06 |
 | Marcos | kata-04, kata-05, kata-06 | kata-01, kata-02, kata-03 |
 
-**Atribuição planejada na S01** (Issue #3, commit `e9478c3`): Guilherme 1–3 com IA / 4–6 sem IA; Arthur 1–3 sem IA / 4–6 com IA; Marcos 1–3 com IA / 4–6 sem IA.
+**Atribuição planejada na S01** (Issue #3, commit `906bafc`, 2026-09-06): Guilherme 1–3 com IA / 4–6 sem IA; Arthur 1–3 sem IA / 4–6 com IA; Marcos 1–3 com IA / 4–6 sem IA.
 
-> **Desvio de protocolo.** A execução divergiu do plano em dois participantes. Arthur passou de blocos para a atribuição alternada, e Marcos teve o bloco invertido; Guilherme seguiu o plano. O motivo registrado (em 2026-09-17, por relato de Marcos em nome dos dois) é que a ordem fechada na S01 se mostrou inviável na prática. Não há confirmação independente de Arthur, nem registro de quando a mudança foi decidida (ver "Registro de desvio de protocolo" em `docs/experiment_design.md`). Consequências:
+> **Desvio de protocolo.** A execução divergiu do plano em dois participantes: Arthur passou de blocos para a atribuição alternada, e Marcos teve o bloco invertido; Guilherme seguiu o plano. O motivo registrado (em 2026-09-17, por relato de Marcos em nome dos dois) é que a ordem fechada na S01 se mostrou inviável na prática. Não há confirmação independente de Arthur, nem registro de quando a mudança foi decidida (ver "Registro de desvio de protocolo" em `docs/experiment_design.md`). Consequências:
 >
 > - No executado, nenhum participante resolveu o mesmo kata nos dois tratamentos.
-> - Os katas de cada tratamento não ficaram equilibrados em dificuldade (ver Seção 3.4).
+> - Os katas de cada tratamento não ficaram equilibrados em dificuldade (seção 4.4).
 > - `data/trials.csv` não registra data e hora de início dos trials, então a ordem cronológica real de execução não pode ser reconstruída a partir dos dados.
 
-### 2.2 Participantes
+#### 3.3.2 Participantes
 
-O experimento envolve três participantes: Arthur Luiz Alves Soares, Guilherme de Almeida Rocha Vieira e Marcos Alberto Ferreira Pinto, todos estudantes do 6º período do curso de Engenharia de Software, com conhecimento de Python e sem experiência prévia formalizada com os katas utilizados. O assistente de IA definido para os trials com IA é o **Claude Code com o modelo Claude Sonnet 5** (`claude-sonnet-5`, Anthropic), conforme o ambiente fixado em `README.md`. A confirmação individual e registrada de uso desse assistente existe apenas para os três trials com IA de Marcos (autorrelato em `docs/experiment_design.md`); para Arthur e Guilherme não há confirmação equivalente por escrito.
+Os três participantes são Arthur Luiz Alves Soares, Guilherme de Almeida Rocha Vieira e Marcos Alberto Ferreira Pinto, estudantes do 6º período de Engenharia de Software, com conhecimento de Python. Os três são também os autores do experimento: os katas foram escritos pelo próprio grupo, e as soluções de referência ficaram versionadas no repositório antes dos trials (seção 3.3.3). Por isso **não é possível afirmar que os participantes não tinham contato prévio com os katas**; o que os artefatos permitem ou não afirmar está na ameaça "Vazamento de solução" (seção 3.3.5).
 
-### 2.3 Objetos experimentais (katas)
+A confirmação individual e registrada de uso do assistente fixado existe apenas para os três trials com IA de Marcos (autorrelato em `docs/experiment_design.md`); para Arthur e Guilherme não há confirmação equivalente por escrito.
 
-Foram selecionados seis exercícios autorais, escritos especificamente para este experimento em setembro de 2026, com o objetivo de reduzir o risco de memorização pelo assistente de IA. Os exercícios exigem uma única função principal, utilizam apenas tipos básicos de Python e possuem entre 5 e 7 testes de aceitação cada. No planejamento (S01), a dificuldade foi estimada como equivalente entre os seis. Os dados coletados mostraram, porém, variação relevante de tamanho e complexidade entre os katas; o kata-04, por exemplo, teve a maior CC (ver Seção 3.4).
+**Familiaridade prévia com assistentes de IA (autorrelato).** O nível de familiaridade foi registrado em `data/participant_ai_familiarity.csv` por autoavaliação relativa dentro do trio, sem instrumento padronizado:
+
+| Participante | Familiaridade declarada | Origem do registro |
+|---|---|---|
+| Guilherme | Intermediária | relatada por Marcos em nome do trio (2026-09-17); sem confirmação escrita de Guilherme |
+| Arthur | Intermediária | relatada e reconfirmada por Marcos (2026-09-17); sem confirmação escrita de Arthur |
+| Marcos | Avançada | autorrelato direto (2026-09-17) |
+
+Os três declaram uso de assistentes de IA em estágio profissional. Esses níveis são **autorrelato**, não uma medição objetiva, e dois deles foram prestados por um colega. Eles são usados apenas na discussão qualitativa (seção 5.2).
+
+#### 3.3.3 Objetos experimentais (katas)
+
+Foram usados seis exercícios autorais, escritos para este experimento em 07/09/2026, com o objetivo de reduzir o risco de memorização pelo assistente de IA. Os exercícios exigem uma única função principal, usam apenas tipos básicos de Python e têm entre 5 e 7 testes de aceitação cada (36 no total). No planejamento (S01), a dificuldade foi estimada como equivalente entre os seis. Os dados coletados mostraram, porém, variação relevante de tamanho e complexidade entre os katas; o kata-04, por exemplo, teve a maior CC média (seção 4.4).
 
 | ID | Exercício | Testes |
 |---|---|---:|
@@ -66,71 +257,183 @@ Foram selecionados seis exercícios autorais, escritos especificamente para este
 | kata-05 | Rodízio de equipes | 7 |
 | kata-06 | Pontuação por vizinhança | 5 |
 
-Os testes de aceitação são fixos e idênticos para todos os participantes, não podendo ser modificados durante o trial. A solução de cada participante é armazenada em `katas/participants/<participante>/kata_XX/solution.py`.
+Os testes de aceitação são fixos e idênticos para todos os participantes. A solução de cada participante está em `katas/participants/<participante>/kata_XX/solution.py`. Os 18 `test_solution.py` dos participantes são idênticos aos do oráculo, ou seja, nenhum teste foi alterado.
 
-### 2.4 Coleta de dados
+**Soluções de referência.** Cada `katas/kata_XX/` contém uma `solution.py` de referência, usada para validar o oráculo. Elas foram versionadas no repositório compartilhado em 2026-09-07 (commit `6f79179`, Issue #4), nove dias antes dos trials (16–17/09). O protocolo (`docs/katas.md`) previa iniciar cada trial com a implementação removida, mas não há registro de como isso foi feito.
 
-Para cada trial são registrados:
+**Baixa indexação.** Os katas são autorais, o que reduz o risco de memorização pelo assistente. A busca pelos títulos e frases dos enunciados, prevista em `docs/katas.md` para ser anexada a este relatório, **não foi registrada**; a baixa indexação se apoia só na autoria.
 
-- **Tempo (RQ1):** o instrumento previsto é o script `experiment/collection/timer.py`. Ele inicia um cronômetro no início do trial e, no modo `--kata-path`, detecta automaticamente o *green* rodando `pytest` a cada 5 segundos. Trials que atingem o time-box sem sucesso são registrados como censurados, com tempo travado em 35 min. Os registros são salvos em `data/trials.csv`. **Proveniência:** os 12 tempos de Arthur e Marcos têm o formato que o script grava (3 casas decimais). Os 6 tempos de Guilherme têm 1 casa decimal. `TrialRecord.to_row()` (`experiment/collection/timer.py`, l. 123) sempre grava 3 casas, então esse formato não corresponde ao que o script produz. Os tempos de kata-01 a kata-03 foram inseridos diretamente em `data/trials.csv` no commit `0aff185`, cuja mensagem registra uma resolução de conflitos de merge, e não por execução do CLI do cronômetro (verificável com `git show 0aff185 -- data/trials.csv`). Esses tempos são usados como estão, com essa ressalva (Seção 3.2).
+#### 3.3.4 Coleta de dados
 
-- **Defeitos (RQ2):** número de testes falhando e taxa de sucesso ao final do trial, derivados da execução do `pytest` sobre a solução do participante. Como o cronômetro encerra o trial no *green* (todos os testes passando) ou no time-box, um valor abaixo de 100% só pode ocorrer em trial censurado (ver Seção 3.3).
+Para cada trial foram registrados:
 
-- **Métricas estáticas (RQ3):** coletadas via `experiment/collection/static_metrics.py` sobre o arquivo `solution.py` do participante ao final do trial. São extraídas:
-  - **CC** (complexidade ciclomática média por função) via `radon cc`
-  - **MI** (índice de manutenibilidade, escala 0–100) via `radon mi`
-  - **LOC** (linhas de código) via `radon raw` — usada como variável de controle
-  - **Duplicação** (% de linhas duplicadas) via `jscpd`
+- **Tempo (RQ1):** o instrumento previsto é o script `experiment/collection/timer.py`, com dois modos: (a) o participante pressiona ENTER quando os testes passam (autodeclaração); (b) com `--kata-path`, o script roda `pytest` a cada 5 s e para no primeiro *green*. Trials que atingem o time-box sem sucesso são registrados como censurados, com tempo travado em 35 min. **O modo usado em cada trial não foi registrado**, e `data/trials.csv` não guarda horário de início. **Proveniência:**
+    - Os 12 tempos de Arthur e Marcos têm 3 casas decimais, o formato que `TrialRecord.to_row()` grava no CSV (`experiment/collection/timer.py`, l. 123).
+    - Os 6 tempos de Guilherme têm 1 casa decimal, formato que o script **não grava** no CSV, mas que é o formato que ele **imprime** no terminal (`elapsed=…:.1f`, l. 404). É plausível que tenham sido transcritos da saída do cronômetro, mas não há evidência disso. Os tempos de kata-01 a kata-03 foram inseridos no commit `8684477`, cuja mensagem registra uma resolução de conflitos de merge (verificável com `git show 8684477 -- data/trials.csv`).
+    - Portanto, só se pode afirmar que os tempos de Arthur e Marcos têm o formato de registro do script; os de Guilherme foram **registrados manualmente**. Todos são usados como estão, com essa ressalva (seção 4.2).
 
-  Os resultados são acumulados em `data/static_metrics.csv`.
+- **Defeitos (RQ2):** número de testes falhando e taxa de sucesso ao final do trial, derivados da execução do `pytest` sobre a solução do participante. Como o trial termina no *green* ou no time-box, um valor abaixo de 100% só pode ocorrer em trial censurado (seção 4.3).
 
-- **Dados qualitativos (bônus):** número de prompts utilizados, tipos de ajuda solicitada (geração de código, debugging, explicação de conceito, sugestão de abordagem) e percepção de produtividade (escala Likert 1–5), registrados interativamente via `register_prompts.py` ao final de cada trial com IA.
+- **Métricas estáticas (RQ3):** coletadas via `experiment/collection/static_metrics.py` sobre o diretório de cada trial (`katas/participants/<participante>/kata_XX/`), excluindo os arquivos de teste, e acumuladas em `data/static_metrics.csv`:
+    - **CC** (complexidade ciclomática média por função) via `radon cc`;
+    - **MI** (índice de manutenibilidade, escala 0–100) via `radon mi`, como média dos arquivos `.py` do diretório — por isso a série coletada mistura duas convenções (seção 4.4);
+    - **LOC** (linhas de código) via `radon raw`, usada como variável de controle;
+    - **Duplicação** (% de linhas duplicadas) via `jscpd`.
 
-### 2.5 Análise estatística
+- **Dados qualitativos (bônus):** número de prompts, tipos de ajuda e percepção de produtividade (Likert 1–5) em `data/prompts/prompt_records.csv` (12 linhas: os 9 trials com IA e os 3 sem IA de Arthur). O script interativo `register_prompts.py` foi preparado para registrar esses dados ao final de cada trial, mas **não há evidência de que foi usado**, e parte dos registros é comprovadamente posterior aos trials:
+    - Marcos: registrado no commit `078f511` (2026-09-17), com a nota "autorrelato de Marcos, 2026-09-17", depois dos trials de 2026-09-16. O tipo de ajuda "correção de erros de teste" não está entre as opções aceitas pelo script, então esses registros não saíram dele.
+    - Guilherme: inserido no commit `8684477` (2026-09-17), depois dos trials de 2026-09-16.
+    - Arthur: commitado junto com os trials (`07398a7`, 2026-09-17 01:04).
 
-As três RQs foram analisadas da mesma forma: **estatística descritiva** (mediana e IQR por tratamento, outliers pelas cercas de Tukey, sinalizados e mantidos) e **teste de Wilcoxon signed-rank pareado** (within-subject). O Wilcoxon foi escolhido por ser não paramétrico e adequado ao tamanho amostral reduzido.
+    Esses dados são, portanto, **autorrelato**, em parte retrospectivo, e só apoiam a análise exploratória da seção 4.6.
 
-- **Unidade de pareamento:** o participante (N = 3 pares). Na execução, nenhum participante resolveu o mesmo kata nos dois tratamentos (Seção 2.1), então não existe par participante × kata.
-- **Direção do teste:** unilateral na RQ1 e na RQ2 (H1 "reduz"); bilateral na RQ3 (H1 "altera").
-- **Nível de significância:** α = 0,05, adotado na análise da S03. Nenhum artefato da S01/S02 fixava um valor.
-- **RQ3 — métricas:** CC e duplicação (as métricas da RQ), LOC como controle, CC/LOC (métrica derivada, para separar complexidade de tamanho) e MI como aprofundamento.
-- **RQ3 — tamanho de efeito:** correlação bisserial de postos pareada.
-- **RQ3 — multiplicidade:** correção de Bonferroni e Benjamini–Hochberg dentro de cada família de testes.
-- **RQ3 — sensibilidade:** pareamento por kata (N = 6) e MI recalculado sob convenção única.
+#### 3.3.5 Ameaças à validade previstas no desenho
 
-- **Mann-Whitney (exploratório):** a Issue #17 também calculou o teste de Mann-Whitney sobre os 9 trials de cada tratamento (`experiment/analysis/rank_sum.py`). Esse teste trata como independentes os trials do mesmo participante, o que o desenho não garante. Por isso é apenas descritivo: não entra na decisão sobre H0 nem nas famílias de correção de multiplicidade.
+A classificação segue as categorias usuais de validade em experimentos de Engenharia de Software (WOHLIN et al., 2012). O que se concretizou na execução é discutido na seção 5.2.
 
-Os detalhes e as limitações de cada escolha estão na Seção 3.1. Com 3 participantes e 18 trials, os resultados devem ser interpretados com cautela quanto à generalização.
-
-### 2.6 Ameaças à validade
-
-- **Efeito de aprendizado** *(validade interna):* o plano da S01 previa mitigação por contrabalanceamento em blocos opostos entre participantes. Na execução houve desvio de protocolo (Seção 2.1): para Guilherme e Marcos, tratamento e bloco de katas andam juntos, e a mitigação ficou parcial.
-- **Desvio de protocolo de contrabalanceamento** *(validade interna):* a atribuição de Arthur e Marcos diverge da fechada na S01, sem registro de quando a mudança foi decidida (Seção 2.1).
-- **Memorização pelo assistente de IA** *(validade interna):* mitigado pelo uso de katas autorais com baixa indexação pública.
-- **Vazamento de solução entre participantes** *(validade interna):* mitigado pelo isolamento em pastas individuais (`katas/participants/`) e pela orientação de não consultar soluções de colegas antes do próprio trial.
-- **Tamanho amostral reduzido** *(conclusão estatística):* 3 participantes limitam o poder estatístico; análise não-paramétrica e interpretação qualitativa complementam os resultados.
+- **Efeito de aprendizado** *(validade interna):* o plano da S01 previa mitigação por contrabalanceamento em blocos opostos entre participantes. Na execução houve desvio de protocolo (seção 3.3.1): para Guilherme e Marcos, tratamento e bloco de katas andam juntos, e a mitigação ficou parcial.
+- **Desvio de protocolo de contrabalanceamento** *(validade interna):* a atribuição de Arthur e Marcos diverge da fechada na S01, sem registro de quando a mudança foi decidida (seção 3.3.1).
+- **Familiaridade prévia com o assistente de IA** *(validade interna):* participantes mais experientes com IA podem obter ganhos maiores no tratamento com IA. Mitigação prevista: registrar a familiaridade e tratá-la como variável de confusão na discussão. Os níveis registrados são autorrelato (seção 3.3.2), e com 3 participantes não há como controlar essa variável estatisticamente.
+- **Memorização pelo assistente de IA** *(validade interna):* reduzida pelo uso de katas autorais; a busca que comprovaria a baixa indexação não foi registrada (seção 3.3.3).
+- **Vazamento de solução** *(validade interna):* a mitigação prevista era o isolamento das soluções dos participantes em pastas individuais (`katas/participants/`) e a orientação de não consultar soluções de colegas antes do próprio trial. Essa mitigação **não cobre** as soluções de referência, versionadas em `katas/kata_XX/solution.py` desde 2026-09-07 (seção 3.3.3). Os artefatos mostram que essas soluções estavam **disponíveis** no repositório durante os trials; não mostram se algum participante as **acessou**, nem se as **usou**. A ameaça não foi mitigada e não pode ser medida com os dados disponíveis.
+- **Tamanho amostral reduzido** *(conclusão estatística):* 3 participantes limitam o poder estatístico; análise não paramétrica e interpretação descritiva complementam os resultados.
 - **Generalização limitada** *(validade externa):* os resultados se aplicam ao contexto de estudantes de graduação resolvendo katas em Python com o assistente Claude Code (Claude Sonnet 5).
+
+#### 3.3.6 Execução por sprint (Issues)
+
+Responsáveis conforme os Assignees registrados em cada Issue no GitHub.
+
+**S01 — Desenho e Preparação do Experimento**
+
+| Issue | Título | Responsável |
+|---|---|---|
+| #3 | Desenho do experimento: hipóteses, variáveis e protocolo crossover | Guilherme Vieira |
+| #4 | Seleção e validação dos katas (6 exercícios, baixa indexação) | Arthur Soares |
+| #5 | Script de cronometragem e coleta de métricas estáticas (Radon) | Marcos Alberto |
+| #6 | (Bônus) Script de detecção de duplicação de código via jscpd/PMD CPD | Arthur Soares |
+| #24 | Preparação do ambiente de execução (linguagem, IDE, assistente de IA) | Marcos Alberto |
+| #25 | Snapshot do Kanban (Sprint 1) | Guilherme Vieira |
+| #35 | Sincroniza gerador do desenho e da coleta (métricas, katas, cronômetro) | Marcos Alberto |
+
+**S02 — Execução do Experimento**
+
+| Issue | Título | Responsável |
+|---|---|---|
+| #9 | Trials de execução: Guilherme (katas 1–6, ordem contrabalanceada) | Guilherme Vieira |
+| #10 | Trials de execução: Arthur (katas 1–6, ordem contrabalanceada) | Arthur Soares |
+| #11 | Trials de execução: Marcos (katas 1–6, ordem contrabalanceada) | Marcos Alberto |
+| #12 | (Bônus) Consolidação dos dados de prompts e registro de dificuldades qualitativas | Guilherme Vieira |
+| #26 | Snapshot do Kanban (Sprint 2) | Arthur Soares |
+| #41 | Sincroniza schema de coleta, documenta desvio de contrabalanceamento e completa autorrelatos | Marcos Alberto |
+
+**S03 — Análise, Visualização e Dashboard**
+
+| Issue | Título | Responsável |
+|---|---|---|
+| #15 | Testes estatísticos (Wilcoxon) e análise descritiva RQ1 e RQ2 | Arthur Soares, Guilherme Vieira |
+| #16 | Análise de métricas estáticas RQ3 (complexidade ciclomática, MI, LOC, duplicação) | Marcos Alberto |
+| #17 | Dashboard de visualização (Pandas + Matplotlib/Seaborn) | Arthur Soares |
+| #18 | (Bônus) Análise do Índice de Manutenibilidade e correlação com nº de prompts | Marcos Alberto |
+| #27 | Snapshot do Kanban (Sprint 3) | Marcos Alberto |
+
+**Relatório Final**
+
+| Issue | Título | Responsável |
+|---|---|---|
+| #20 | Introdução, hipóteses e metodologia detalhada | Arthur Soares, Guilherme Vieira |
+| #21 | Resultados e discussão RQ1, RQ2 e RQ3 | Marcos Alberto |
+| #22 | Discussão final, ameaças à validade e conclusão | Guilherme Vieira |
+| #23 | Revisão final, snapshot do Kanban e exportação PDF | Arthur Soares, Guilherme Vieira, Marcos Alberto |
+
+Cada sprint também tem um card pai (#1, #7, #13, #19) e um card de refinamento (#2, #8, #14).
+
+#### Configuração do processo — GitHub Projects
+
+O grupo usou um **GitHub Projects** no formato Kanban. As colunas registradas nos snapshots exportados do board (`data/kanban-snapshots/`) são:
+
+| Coluna | Descrição |
+|---|---|
+| **Backlog** | Tarefas identificadas, ainda não iniciadas |
+| **In progress** | Tarefas em andamento |
+| **Done** | Tarefas concluídas |
+
+**Limite de WIP (Work in Progress):** `6 itens na coluna In progress`
+
+**Justificativa:** valor definido pelo grupo para a configuração do quadro.
+
+**Link do board:** https://github.com/orgs/Laboratorio-Medicao/projects/1
+
+**Print do board:**
+
+**[PRINT DO KANBAN A INSERIR APÓS A FINALIZAÇÃO DAS TAREFAS PENDENTES E ATUALIZAÇÃO DO QUADRO]**
+
+### 3.4 Ferramentas
+
+A tabela separa a versão fixada para o experimento do que pode ser comprovado sobre a execução real.
+
+| Ferramenta | Versão fixada / documentada | Comprovação da versão usada nos trials | Uso |
+|---|---|---|---|
+| **Python** | mínimo 3.10 (README) | não registrada no experimento. Na máquina de Marcos, caches locais não versionados (`*.cpython-314.pyc` de 2026-09-16) indicam CPython 3.14; para Arthur e Guilherme não há evidência. Análise da S03 reexecutada com Python 3.14.5 | Linguagem dos katas e dos scripts |
+| **Claude Code** (modelo Claude Sonnet 5, `claude-sonnet-5`) | modelo fixado no README | **versão do Claude Code não registrada**; uso confirmado por escrito apenas por Marcos | Assistente de IA nos trials com IA |
+| **Visual Studio Code** | — | versão não registrada | IDE |
+| **pytest** | 9.1.1 (`requirements.txt`) | fixada; mesma versão no ambiente de análise | Testes de aceitação e testes do projeto |
+| **Radon** | 6.0.1 (`requirements.txt`) | gravada por trial em `data/static_metrics.csv` (`cc_mi_tool_version`) em 18/18 trials | CC, MI e LOC |
+| **jscpd** | 4.0.5 (`package-lock.json`) | gravada por trial (`duplication_tool_version`) em 18/18 trials | Duplicação |
+| **numpy, pandas, scipy, matplotlib** | 2.5.3, 3.0.6, 1.18.1, 3.11.2 (`requirements.txt`) | fixadas; análises e figuras reexecutadas sem diferença | Análise estatística e figuras |
+| **GitHub Projects** | — | — | Gestão do processo — https://github.com/orgs/Laboratorio-Medicao/projects/1 |
+
+### 3.5 Tabela de Métricas
+
+| RQ | Métrica | Definição Operacional | Unidade | Ferramenta / Fonte |
+|---|---|---|---|---|
+| RQ1 | Tempo até *green* | Tempo do início do trial até todos os testes de aceitação passarem; 2100 s se o time-box for atingido (`censored = True`) | Segundos | `experiment/collection/timer.py` → `data/trials.csv` (`elapsed_seconds`) |
+| RQ2 | Taxa de sucesso | `tests_passing / tests_total × 100` ao final do trial | % | pytest → `data/trials.csv` (`success_rate_percent`) |
+| RQ2 | Nº de testes falhando | `tests_failing` ao final do trial | Contagem | pytest → `data/trials.csv` |
+| RQ3 | CC média | Média da complexidade ciclomática por função/método do trial | Adimensional | Radon `cc` → `data/static_metrics.csv` (`cyclomatic_complexity_avg`) |
+| RQ3 | Duplicação | % de linhas em blocos duplicados (mín. 5 linhas e 20 tokens), testes excluídos | % de linhas | jscpd → `data/static_metrics.csv` (`duplicated_lines_percent`) |
+| RQ3 | LOC (controle) | `loc` bruto do Radon (inclui linhas em branco e comentários) | Linhas | Radon `raw` → `data/static_metrics.csv` (`loc`) |
+| RQ3 | CC/LOC (derivada) | CC média ÷ LOC | Complexidade por linha | calculada em `experiment/analysis/rq3.py` |
+| RQ3 | MI (opcional) | Como coletado: média do `radon mi` dos arquivos `.py` do diretório; harmonizado: `radon mi` só do `solution.py` | 0–100 | Radon `mi` → `data/static_metrics.csv`; harmonizado em `results/rq3/source_integrity_check.csv` (`mi_source_only`) |
+| Bônus | Nº de prompts | Interações com o assistente declaradas pelo participante | Contagem | Autorrelato → `data/prompts/prompt_records.csv` |
+
+### 3.6 Inovações Propostas pelo Grupo
+
+**Verificação cruzada das métricas estáticas.** A análise da RQ3 recalcula LOC, CC e MI a partir do código versionado de cada trial e compara com o CSV coletado na S02 (`results/rq3/source_integrity_check.csv`). LOC e CC conferem em 18/18 trials; a verificação revelou as duas convenções de MI e deu origem à série harmonizada (seção 4.4).
+
+**Análises de sensibilidade.** Além do teste principal (pareado por participante), o grupo repetiu os testes da RQ3 pareando por kata (N = 6) e com o MI harmonizado, e mediu o desequilíbrio de dificuldade dos katas entre os tratamentos (`results/rq3/task_allocation_balance.csv`). Na RQ1, verificou se o padrão descritivo se mantém sem Marcos.
+
+**Cronômetro com verificação automática do *green*.** O `timer.py` pode rodar o `pytest` a cada 5 s e parar sozinho no primeiro *green* (`--kata-path`), em vez de depender da autodeclaração do participante. O modo usado em cada trial, porém, não foi registrado (seção 3.3.4).
+
+**Bônus — MI em profundidade e nº de prompts (Issues #12 e #18).** O grupo decompôs o MI nos componentes da fórmula do Radon e cruzou o nº de prompts com CC, MI e LOC nos trials com IA. É uma análise exploratória, sem testes de hipótese (seção 4.6).
 
 ---
 
-## 3. Resultados
+## 4. Resultados
 
-Os números das tabelas e dos testes desta seção são calculados pelos scripts da S03 a partir de `data/trials.csv` e `data/static_metrics.csv`, sem valores fixos no código: `python analyze_rq1_rq2.py` (RQ1 e RQ2, Issue #15, saída completa em [`docs/analysis_rq1_rq2.md`](analysis_rq1_rq2.md)) e `python -m experiment.analysis.rq3` (RQ3, Issue #16, saída completa em [`results/rq3/rq3_summary.md`](../results/rq3/rq3_summary.md)). As Figuras 1 a 8 são geradas por `python generate_figures.py` a partir dessas mesmas análises, em PNG e PDF, em `docs/figures/`. Cada figura responde a uma única pergunta e não traz p-valores, que ficam nas tabelas.
+Os números das tabelas e dos testes desta seção são calculados pelos scripts da S03 a partir de `data/trials.csv` e `data/static_metrics.csv`, sem valores fixos no código: `python analyze_rq1_rq2.py` (RQ1 e RQ2, Issue #15, saída completa em [`docs/analysis_rq1_rq2.md`](analysis_rq1_rq2.md)), `python -m experiment.analysis.rq3` (RQ3, Issue #16, saída completa em [`results/rq3/rq3_summary.md`](../results/rq3/rq3_summary.md)) e `python -m experiment.analysis.mi_prompts` (bônus, Issue #18, saída em [`results/mi_prompts/mi_prompts_summary.md`](../results/mi_prompts/mi_prompts_summary.md)). As Figuras 1 a 10 são geradas por `python generate_figures.py` a partir dessas mesmas análises, em PNG e PDF, em `docs/figures/`. Cada figura responde a uma única pergunta e não traz p-valores, que ficam nas tabelas.
 
-### 3.1 Dados analisados e procedimento estatístico
+### 4.1 Coleta de Dados
 
-- **18 trials** (3 participantes × 6 katas, 9 com IA e 9 sem IA). Nenhum foi excluído e **nenhum foi censurado**: todos chegaram ao *green* antes do time-box de 35 min.
-- **Estatística descritiva:** mediana e IQR (Q3 − Q1) por tratamento, como pede o enunciado para N pequeno. Média e desvio-padrão não são usados como estatística descritiva. A única média da análise é o resumo por participante da RQ2 (ver abaixo).
-- **Outliers:** cercas de Tukey (Q1 − 1,5·IQR e Q3 + 1,5·IQR) calculadas por tratamento. Um outlier é uma observação extrema, não um dado inválido: todos foram **sinalizados e mantidos**, e nenhuma observação foi removida.
-- **Teste inferencial:** Wilcoxon signed-rank pareado, com α = 0,05. Nenhum artefato da S01/S02 fixava um α; o valor foi declarado na S03.
-- **Unidade de pareamento: o participante (N = 3 pares).** Nenhum participante resolveu o mesmo kata nos dois tratamentos, então não existe par participante × kata. O par de cada participante compara o resumo dos seus 3 trials com IA contra o resumo dos seus 3 trials sem IA: a mediana na RQ1 e na RQ3, e a média na RQ2. A RQ2 usa a média porque, com a mediana, um único trial com testes falhando não alteraria o par.
-- **Tamanho de efeito:** o material da disciplina recomenda reportá-lo sempre (Cohen's d, Cliff's δ, A12). Esta análise usa medidas ligadas ao próprio teste pareado:
-  - **RQ1:** diferença entre medianas e razão com IA / sem IA. A correlação bisserial de postos não é reportada porque, com as três diferenças no mesmo sinal, ela vale necessariamente ±1 e não informa nada.
-  - **RQ3:** correlação bisserial de postos pareada (r_rb). Ela é definida a partir dos postos com sinal do próprio Wilcoxon signed-rank e não depende da aproximação normal com N pequeno (justificativa em `results/rq3/rq3_summary.md`, Seção 11, item 10).
-- **Direção do teste:** unilateral na RQ1 e na RQ2, porque as H1 são direcionais ("reduz"); bilateral na RQ3, porque a H1 é "altera".
-- **Limite de resolução do teste, que vale para todas as RQs:** com 3 pares não nulos, o menor p que o Wilcoxon exato pode produzir é 1/2³ = **0,125 (unilateral)** ou 2/2³ = **0,25 (bilateral)**. Os dois ficam acima de α = 0,05. Com esta amostra, portanto, o teste não tem resolução suficiente para rejeitar H0, qualquer que seja o tamanho da diferença. Por isso a leitura dos resultados se apoia principalmente na estatística descritiva, e uma H0 não rejeitada aqui **não** é evidência de ausência de efeito.
+Foram analisados os **18 trials** (3 participantes × 6 katas; 9 com IA e 9 sem IA). Nenhum foi excluído e **nenhum foi censurado**: todos chegaram ao *green* antes do time-box de 35 min.
 
-### 3.2 RQ1 — Tempo até *green*
+| Métrica | N válido | Excluídos | Observação |
+|---|---|---|---|
+| RQ1 — Tempo até *green* | 18 | 0 | 0 censurados; 2 outliers sinalizados e mantidos |
+| RQ2 — Taxa de sucesso / testes falhando | 18 | 0 | Todos os trials com 100% de sucesso e 0 testes falhando |
+| RQ3 — CC | 18 | 0 | Recalculada a partir do código: confere em 18/18 |
+| RQ3 — LOC | 18 | 0 | Recalculada a partir do código: confere em 18/18 |
+| RQ3 — Duplicação | 18 | 0 | 0% em todos os trials |
+| RQ3 — MI como coletado | 18 | 0 | Duas convenções de cálculo (seção 4.4) |
+| RQ3 — MI harmonizado | 18 | 0 | Recalculado sob convenção única |
+| Bônus — Nº de prompts | 9 | — | Trials com IA; os 3 registros sem IA de Arthur não entram na análise |
+
+**Casos especiais identificados:**
+
+- **Proveniência dos tempos:** os 6 tempos de Guilherme foram registrados manualmente, e os 3 tempos com IA de Marcos só têm confirmação por autorrelato (seção 3.3.4). Mantidos na análise, com ressalva.
+- **MI com duas convenções:** 12 valores (Arthur e Marcos) incluem na média um `__init__.py` vazio; 6 (Guilherme), não. Mantidos sem alteração; a série harmonizada é usada como sensibilidade (seção 4.4).
+- **Contrabalanceamento alterado:** a atribuição executada diverge da planejada (seção 3.3.1).
+
+### 4.2 RQ1 — Tempo até *green*
 
 > **H0:** o uso de assistente de IA não reduz o tempo necessário para resolver uma tarefa de programação. **H1:** reduz.
 
@@ -155,7 +458,7 @@ Os números das tabelas e dos testes desta seção são calculados pelos scripts
 
 ![Figura 2 — RQ1: tempo por participante](figures/rq1_tempo_por_participante.png)
 
-*Figura 2 — Os 6 trials de cada participante: 3 sem IA e 3 com IA, com o número do kata sobre cada ponto e a mediana de cada lado. É a comparação que o Wilcoxon faz (a mediana sem IA contra a mediana com IA de cada participante, N = 3). O subtítulo de cada painel indica a ressalva de proveniência: os tempos de Guilherme estão fora do formato do cronômetro, e os tempos com IA de Marcos são só autorrelato. Os números de kata também mostram o confundimento: cada lado contém katas diferentes.*
+*Figura 2 — Os 6 trials de cada participante: 3 sem IA e 3 com IA, com o número do kata sobre cada ponto e a mediana de cada lado. É a comparação que o Wilcoxon faz (a mediana sem IA contra a mediana com IA de cada participante, N = 3). O subtítulo de cada painel indica a proveniência dos tempos: os de Arthur estão no formato gravado pelo cronômetro, os de Guilherme foram registrados manualmente e os tempos com IA de Marcos são só autorrelato. Os números de kata também mostram o confundimento: cada lado contém katas diferentes.*
 
 **Tamanho de efeito:** a diferença entre as medianas gerais é **−684,0 s**. Por participante, a diferença das medianas vai de −493,1 s a −945,3 s (Tabela 2).
 
@@ -165,7 +468,7 @@ Os números das tabelas e dos testes desta seção são calculados pelos scripts
 
 **Análise de sensibilidade (descritiva): sem Marcos.** Os três tempos de Marcos com IA (36,781 / 36,824 / 36,757 s) não têm log independente. Excluindo esse participante (6 trials por tratamento, 2 pares), a mediana é 41,4 s com IA contra 555,9 s sem IA, e a separação completa se mantém. Nenhum teste é aplicado: com 2 pares, o menor p unilateral possível seria 1/2² = 0,25. Esta análise só verifica se o padrão descritivo depende de um participante; ela não substitui o resultado principal, que usa os três participantes.
 
-**Discussão estatística.**
+**Discussão hipótese vs. resultado.**
 
 - **Evidência descritiva:** os tempos observados foram muito menores no tratamento com IA. A mediana com IA (37,6 s) é cerca de **5%** da mediana sem IA (721,6 s). Houve **separação completa**: o tempo com IA mais lento (71,8 s) ficou abaixo do tempo sem IA mais rápido (246,9 s). A diferença tem a mesma direção nos três participantes, e a mediana com IA de cada um ficou entre 3,7% e 8,2% da sua mediana sem IA.
 - **Inferência:** com p unilateral = 0,125, N = 3 pares e α = 0,05, **não foi possível rejeitar H0**. O valor de 0,125 é o menor que o teste pode produzir com 3 pares, então o teste não tem resolução para rejeitar H0 nesta amostra. A conclusão é "H0 não rejeitada", e não "a IA não reduz o tempo". A evidência descritiva aponta na direção de H1, mas não é confirmatória.
@@ -173,11 +476,11 @@ Os números das tabelas e dos testes desta seção são calculados pelos scripts
 Ressalvas que limitam a leitura:
 
 1. **Confundimento de ordem e kata:** para Guilherme e Marcos, que executaram os tratamentos em blocos, tratamento e bloco de katas andam juntos. A ordem cronológica não está registrada nos dados; se ela seguiu a numeração dos katas, tratamento e ordem de execução também estão confundidos.
-2. **Resolução do cronômetro:** os tempos com IA (28–72 s) estão na mesma escala da resolução do cronômetro, que verifica o *green* a cada 5 s.
+2. **Resolução do cronômetro:** no modo `--kata-path`, o cronômetro verifica o *green* a cada 5 s, uma resolução próxima da escala dos tempos com IA (28–72 s). O modo usado em cada trial não foi registrado.
 3. **Tempos de Marcos com IA:** são confirmados apenas por autorrelato.
-4. **Proveniência dos tempos de Guilherme** (problema distinto do item 3). As 6 linhas têm 1 casa decimal, formato que `TrialRecord.to_row()` não produz (ele grava 3). Os tempos de kata-01 a kata-03 foram inseridos diretamente durante uma resolução de conflito de merge, e não pela execução normal do CLI do cronômetro (Seção 2.4). Esses tempos foram usados como estão, sem alteração, mas não têm o mesmo nível de confiança dos tempos registrados pelo cronômetro. Assim, as ressalvas 3 e 4 atingem 9 dos 18 tempos: 6 de Guilherme e 3 de Marcos. Apenas os 6 tempos de Arthur não têm ressalva de proveniência. A sensibilidade "sem Marcos" acima não trata esta ressalva.
+4. **Proveniência dos tempos de Guilherme** (problema distinto do item 3). As 6 linhas têm 1 casa decimal, formato que `TrialRecord.to_row()` não grava no CSV (ele grava 3), mas que coincide com o que o cronômetro imprime no terminal. Os valores foram registrados manualmente no CSV (os de kata-01 a kata-03 durante uma resolução de conflito de merge), possivelmente transcritos da saída do cronômetro, sem evidência que confirme isso (seção 3.3.4). Esses tempos foram usados como estão, sem alteração, mas não têm o mesmo nível de confiança dos tempos gravados pelo cronômetro. Assim, as ressalvas 3 e 4 atingem 9 dos 18 tempos: 6 de Guilherme e 3 de Marcos. Apenas os 6 tempos de Arthur não têm ressalva de proveniência além do modo do cronômetro não registrado. A sensibilidade "sem Marcos" acima não trata esta ressalva.
 
-### 3.3 RQ2 — Defeitos (testes de aceitação falhando)
+### 4.3 RQ2 — Defeitos (testes de aceitação falhando)
 
 > **H0:** o uso de assistente de IA não reduz a quantidade de defeitos (testes que falham) no código produzido. **H1:** reduz.
 
@@ -196,9 +499,9 @@ Por participante, a média da taxa de sucesso foi de 100% e a média de testes f
 
 *Figura 3 — Como os 18 trials terminaram: 9 de 9 no green em cada tratamento, e nenhum no time-box (censurado). A figura mostra o mecanismo que impede a RQ2 de ser respondida: a taxa de sucesso só poderia ficar abaixo de 100% num trial encerrado pelo time-box. Ela não mede defeitos e não indica ausência de defeitos. Os valores da métrica estão na Tabela 3.*
 
-**Discussão estatística.** Os 18 trials terminaram com todos os testes passando, então a RQ2 **não tem variância a comparar**. Isso não é evidência de que os tratamentos produzam a mesma quantidade de defeitos: decorre da forma como o protocolo mede defeitos (**efeito de teto**, uma questão de validade de construto). O cronômetro encerra o trial no *green*, isto é, quando todos os testes passam, e por isso uma taxa de sucesso abaixo de 100% só poderia aparecer em um trial censurado. Nenhum trial foi censurado, e com isso a métrica não teve como variar. A RQ2 depende, portanto, da censura da RQ1. Com a métrica coletada, **a RQ2 não pôde ser respondida**. O protocolo de encerramento condicionou o estado final de cada trial à aprovação de todos os testes, e isso eliminou a variação necessária para comparar os tratamentos. Os dados só permitem dizer que, sob os dois tratamentos, todos os participantes chegaram a uma solução que passa nos testes de aceitação dentro do time-box. Isso não mostra que "não houve defeitos": defeitos fora da cobertura dos testes de aceitação não são medidos.
+**Discussão hipótese vs. resultado.** Os 18 trials terminaram com todos os testes passando, então a RQ2 **não tem variância a comparar**. Isso não é evidência de que os tratamentos produzam a mesma quantidade de defeitos: decorre da forma como o protocolo mede defeitos (**efeito de teto**, uma questão de validade de construto). O trial termina no *green*, isto é, quando todos os testes passam, e por isso uma taxa de sucesso abaixo de 100% só poderia aparecer em um trial censurado. Nenhum trial foi censurado, e com isso a métrica não teve como variar. A RQ2 depende, portanto, da censura da RQ1. Com a métrica coletada, **a RQ2 não pôde ser respondida**. Os dados só permitem dizer que, sob os dois tratamentos, todos os participantes chegaram a uma solução que passa nos testes de aceitação dentro do time-box. Isso não mostra que "não houve defeitos": defeitos fora da cobertura dos testes de aceitação não são medidos.
 
-### 3.4 RQ3 — Estrutura do código
+### 4.4 RQ3 — Estrutura do código
 
 > **H0:** o uso de assistente de IA não altera a complexidade ciclomática nem a duplicação do código produzido. **H1:** altera a complexidade ciclomática e/ou a duplicação.
 
@@ -215,7 +518,7 @@ As métricas foram coletadas na S02 com Radon 6.0.1 (CC, MI e LOC) e jscpd 4.0.5
 | MI harmonizado (0–100) — sensibilidade ¹ | 58,85 (5,57) | 63,75 (3,68) | +4,90 | 0,0 | 0,25 | +1,00 |
 | Duplicação (% de linhas) | 0,00 (0,00) | 0,00 (0,00) | 0,00 | — | não aplicável | — |
 
-*Diferença = mediana com IA − mediana sem IA, sobre os 9 trials de cada tratamento. W, p e r_rb vêm do Wilcoxon pareado por participante (N = 3 pares). r_rb é a correlação bisserial de postos pareada: com 3 pares, ±1,00 significa apenas que os três pares foram na mesma direção. Na CC, as diferenças pareadas (−3, −2, −2) têm empates em módulo, e o p "exato" é aproximado nesse caso; como os três sinais são iguais, o valor 0,25 não se altera. ¹ As duas linhas de MI usam convenções de cálculo diferentes; ver "Índice de manutenibilidade" abaixo.*
+*Diferença = mediana com IA − mediana sem IA, sobre os 9 trials de cada tratamento. W, p e r_rb vêm do Wilcoxon pareado por participante (N = 3 pares). r_rb é a correlação bisserial de postos pareada: com 3 pares, ±1,00 significa apenas que os três pares foram na mesma direção. Na CC, as diferenças pareadas (Arthur −3, Guilherme −2, Marcos −2) têm empates em módulo, e o p "exato" é aproximado nesse caso; como os três sinais são iguais, o valor 0,25 não se altera. ¹ As duas linhas de MI usam convenções de cálculo diferentes; ver "Índice de manutenibilidade" abaixo.*
 
 ![Figura 4 — RQ3: LOC e CC por tratamento](figures/rq3_loc_cc_por_tratamento.png)
 
@@ -228,15 +531,15 @@ As métricas foram coletadas na S02 com Radon 6.0.1 (CC, MI e LOC) e jscpd 4.0.5
 **Índice de manutenibilidade: duas séries.** O MI aparece em duas séries, que **não devem ser comparadas em nível absoluto**:
 
 - **MI como coletado** — o resultado principal, gravado em `data/static_metrics.csv` na S02 e mantido sem alteração. O coletor grava a média do MI por arquivo `.py` do diretório do trial. Quando os 12 trials de Arthur e Marcos foram medidos, o diretório já continha um `__init__.py` vazio, que pontua MI = 100. Esses 12 valores são, portanto, a média entre o `solution.py` e esse arquivo vazio. Os 6 valores de Guilherme foram medidos antes de o arquivo existir e correspondem ao `solution.py` sozinho. O coletor atual não reproduz esses 6 valores. A série mistura as duas convenções, e por isso a mediana por tratamento (77,93 / 80,71) não é comparável entre participantes. No pareamento por participante, os dois lados de cada par usam a mesma convenção, e o sinal de cada diferença é preservado. **Esta série é a da Tabela 4 (linha "MI como coletado") e do painel esquerdo da Figura 6.**
-- **MI harmonizado** — a análise de sensibilidade: o MI do `solution.py` sozinho, recalculado para os 18 trials a partir do código versionado (coluna `mi_source_only` de [`source_integrity_check.csv`](../results/rq3/source_integrity_check.csv)). É uma convenção única para todos, e por isso os valores ficam cerca de 20 pontos abaixo da série como coletada. **É o painel direito da Figura 6.**
+- **MI harmonizado** — a análise de sensibilidade: o MI do `solution.py` sozinho, recalculado para os 18 trials a partir do código versionado (coluna `mi_source_only` de [`source_integrity_check.csv`](../results/rq3/source_integrity_check.csv)). É uma convenção única para todos. Os 12 valores de Arthur e Marcos ficam entre 15,5 e 23,6 pontos abaixo da série como coletada; os 6 de Guilherme são iguais nas duas séries. **É o painel direito da Figura 6.**
 
 **Interpretação:** as duas séries apontam na mesma direção nos três pares (MI maior com IA, r_rb = +1,00, p = 0,25). A diferença de nível entre elas vem da convenção de cálculo, não dos dados. Detalhes em [`data_quality_report.md`](../results/rq3/data_quality_report.md).
 
 ![Figura 6 — RQ3: MI por participante nas duas séries](figures/rq3_mi_duas_series.png)
 
-*Figura 6 — MI por participante (mediana dos 3 trials de cada lado), nas duas séries: como coletado (principal, à esquerda) e harmonizado (sensibilidade, à direita). Nas duas, o MI foi maior com IA nos três participantes. Os níveis diferem entre os painéis pela convenção de cálculo; no painel da esquerda, o nível mais baixo de Guilherme vem dessa convenção. Por isso o MI é mostrado pareado, e não como distribuição conjunta dos 18 trials.*
+*Figura 6 — MI por participante (mediana dos 3 trials de cada lado), nas duas séries: como coletado (principal, à esquerda) e harmonizado (sensibilidade, à direita). Nas duas, o MI foi maior com IA nos três participantes. Os níveis diferem entre os painéis pela convenção de cálculo; no painel da esquerda, o nível mais baixo de Guilherme vem dessa convenção. No painel da direita, os pontos sem IA de Arthur (58,85) e Marcos (58,88) quase coincidem. Por isso o MI é mostrado pareado, e não como distribuição conjunta dos 18 trials.*
 
-**Normalização por LOC.** CC e LOC têm correlação moderada nos 18 trials (Spearman ρ = 0,63). Por isso foi calculada a razão CC/LOC, para separar "mais complexo porque é maior" de "mais complexo por linha". A CC/LOC é uma **métrica derivada** das duas anteriores, e não uma terceira evidência independente. Ela é sensível à definição de LOC: o `loc` bruto do Radon conta linhas em branco e comentários. Com as linhas de código-fonte sem essas linhas (SLOC, coluna `sloc_recomputed` de `source_integrity_check.csv`), as medianas de CC/SLOC ficam em 0,429 (sem IA) e 0,500 (com IA). A diferença cai de 0,162 para 0,071, para menos da metade. O MI não foi normalizado, porque já incorpora LOC na fórmula. A duplicação/LOC é zero por construção.
+**Normalização por LOC.** CC e LOC têm correlação moderada nos 18 trials (Spearman ρ = 0,63). Por isso foi calculada a razão CC/LOC, para separar "mais complexo porque é maior" de "mais complexo por linha". A CC/LOC é uma **métrica derivada** das duas anteriores, e não uma terceira evidência independente. Ela é sensível à definição de LOC: o `loc` bruto do Radon conta linhas em branco e comentários. Com as linhas de código-fonte sem essas linhas (SLOC, coluna `sloc_recomputed` de `source_integrity_check.csv`), as medianas de CC/SLOC ficam em 0,429 (sem IA) e 0,500 (com IA). A diferença cai de 0,162 para 0,071, menos da metade. O MI não foi normalizado, porque já incorpora linhas de código na fórmula. A duplicação/LOC é zero por construção.
 
 ![Figura 7 — RQ3: CC × LOC](figures/rq3_cc_vs_loc.png)
 
@@ -253,7 +556,7 @@ As métricas foram coletadas na S02 com Radon 6.0.1 (CC, MI e LOC) e jscpd 4.0.5
 - **Participante** (análise primária): todos os p brutos = 0,25; Bonferroni = 1; BH = 0,25.
 - **Kata** (sensibilidade): p brutos de 0,03125 a 0,84375; ver abaixo.
 
-Seguindo a orientação do material da disciplina ("Muitos testes? Corrija (Bonferroni / FDR)"), os p-valores brutos foram mantidos e reportados ao lado dos p ajustados por Bonferroni (erro por família) e Benjamini–Hochberg (taxa de falsas descobertas). **Nenhum teste permanece significativo após a correção.** Nenhum p bruto atingiria o limiar de Bonferroni mesmo com os 10 testes numa única família (α = 0,005). Valores completos em [`statistical_tests.csv`](../results/rq3/statistical_tests.csv). Os p do Mann-Whitney (Seção 2.5) são exploratórios, não entram nessas famílias e não são usados em nenhuma decisão.
+Os p-valores brutos foram mantidos e reportados ao lado dos p ajustados por Bonferroni (erro por família) e Benjamini–Hochberg (taxa de falsas descobertas). **Nenhum teste permanece significativo após a correção.** Nenhum p bruto atingiria o limiar de Bonferroni mesmo com os 10 testes numa única família (α = 0,005). Valores completos em [`statistical_tests.csv`](../results/rq3/statistical_tests.csv).
 
 **Análise de sensibilidade: pareamento por kata (N = 6).** Parear por kata bloqueia a dificuldade da tarefa e baixa o piso de p para 0,031, mas os dois lados de cada par vêm de participantes diferentes. Resultados (p bruto): LOC 0,0625; CC 0,375; MI como coletado 0,844; CC/LOC 0,3125; MI harmonizado 0,03125. O MI harmonizado é o **único p bruto abaixo de α**. O caminho completo desse resultado:
 
@@ -274,31 +577,31 @@ Seguindo a orientação do material da disciplina ("Muitos testes? Corrija (Bonf
 - Em LOC, Guilherme e Marcos ficam praticamente equilibrados (±0,11).
 - O kata-04, o de maior CC média, ficou no lado sem IA para Arthur e Guilherme.
 
-Esse indicador é derivado das próprias medições e absorve parte de um eventual efeito do tratamento. Ele serve para descrever a alocação, não para estimar um efeito de tarefa. Há, portanto, **confundimento entre tarefa (kata) e tratamento**, uma limitação do desenho executado (Seção 2.1) que a análise não corrige. Parte das diferenças observadas pode estar associada à composição dos katas de cada lado. Em particular, o fato de os três pares apontarem na mesma direção em LOC e em CC **não pode ser interpretado isoladamente como evidência do efeito do tratamento**, porque os dois lados de cada par contêm katas diferentes e desequilibrados em dificuldade.
+Esse indicador é derivado das próprias medições e absorve parte de um eventual efeito do tratamento. Ele serve para descrever a alocação, não para estimar um efeito de tarefa. Há, portanto, **confundimento entre tarefa (kata) e tratamento**, uma limitação do desenho executado (seção 3.3.1) que a análise não corrige. Parte das diferenças observadas pode estar associada à composição dos katas de cada lado. Em particular, o fato de os três pares apontarem na mesma direção em LOC e em CC **não pode ser interpretado isoladamente como evidência do efeito do tratamento**.
 
-**Discussão estatística.**
+**Discussão hipótese vs. resultado.**
 
 - **Evidência descritiva:** o código produzido com IA foi **menor** (mediana de 14 contra 21 linhas), teve **CC absoluta menor** (5 contra 8) e teve **MI maior** nas duas séries de MI. As três direções se repetem nos três participantes. Nesta amostra, o código com IA não foi mais verboso. Com 3 pares e o confundimento com os katas, porém, isso não basta para descartar a preocupação do enunciado de que o código gerado por IA seja mais verboso.
 - **CC, LOC e CC/LOC:** não são três evidências independentes. Como o LOC caiu proporcionalmente mais que a CC, a razão CC/LOC ficou maior com IA (0,444 contra 0,282). A diferença cai para menos da metade (0,071) quando as linhas em branco não são contadas. A CC absoluta menor acompanha, em boa parte, o tamanho menor, e não indica um código com lógica mais simples por linha.
 - **Inferência:** nenhuma dessas diferenças é estatisticamente significativa. Com 3 pares o p bilateral mínimo é 0,25, nenhum teste sobrevive à correção de multiplicidade, e o confundimento com a dificuldade dos katas impede atribuir a direção observada só ao tratamento.
-- **Duplicação:** nenhum bloco duplicado foi detectado em nenhum dos 18 trials. Isso é um valor observado, não prova de que o código não tenha duplicação. Cada trial tem uma única função num único arquivo, e o jscpd exige 5 linhas / 20 tokens repetidos dentro do próprio trial. Nesse arranjo, a métrica não teve oportunidade de variar. A duplicação **não pôde ser avaliada adequadamente** com a estrutura da coleta. Por isso não há figura de duplicação: um gráfico de valor constante sugeriria uma evidência que a coleta não produziu.
+- **Duplicação:** nenhum bloco duplicado foi detectado em nenhum dos 18 trials. Isso é um valor observado, não prova de que o código não tenha duplicação. Cada trial tem uma única função num único arquivo, e o jscpd exige 5 linhas / 20 tokens repetidos dentro do próprio trial. Nesse arranjo, a métrica não teve oportunidade de variar, e a duplicação **não pôde ser avaliada adequadamente**. Por isso não há figura de duplicação: um gráfico de valor constante sugeriria uma evidência que a coleta não produziu.
 
 **Conclusão da RQ3: H0 não rejeitada.** Os dados não permitem afirmar que o uso de IA alterou a complexidade ciclomática, e a duplicação não foi avaliável com a métrica coletada.
 
-### 3.5 Síntese frente às hipóteses
+### 4.5 Síntese frente às hipóteses
 
 | RQ | Métrica principal | Com IA × sem IA (medianas) | Teste (pareado por participante, n = 3) | Decisão (α = 0,05) | O que os dados respondem |
 |---|---|---|---|---|---|
 | RQ1 | Tempo até *green* | 37,6 s × 721,6 s | W = 0,0; p unilateral = 0,125 (piso) | H0 não rejeitada | Descritivamente, tempos muito menores com IA nos três participantes, com separação completa; o teste não tem resolução para confirmar a diferença |
-| RQ2 | Taxa de sucesso / testes falhando | 100% × 100% / 0 × 0 | Não aplicável (diferenças nulas) | Teste não aplicável; H0 não rejeitada | **Não respondida:** sem variação por efeito de teto do protocolo de encerramento |
+| RQ2 | Taxa de sucesso / testes falhando | 100% × 100% / 0 × 0 | Não aplicável (diferenças nulas) | Teste não aplicável; H0 não rejeitada | **Não respondida:** sem variação, por efeito de teto do protocolo de encerramento |
 | RQ3 | CC (LOC como controle; CC/LOC derivada; MI como aprofundamento) | CC 5 × 8; LOC 14 × 21; CC/LOC 0,444 × 0,282; MI maior com IA nas duas séries | W = 0,0; p bilateral = 0,25 (piso); nenhum teste significativo após correção | H0 não rejeitada | Descritivamente, código com IA menor, com CC absoluta menor e mais denso por linha; sem significância e com confundimento de kata |
 | RQ3 | Duplicação | 0% × 0% | Não aplicável (diferenças nulas) | Teste não aplicável; H0 não rejeitada | **Não avaliável** com a métrica coletada: nenhuma duplicação detectada, e a métrica não teve como variar |
 
-Em nenhuma RQ foi possível rejeitar H0. Nas três, porém, isso reflete limitações do desenho executado, e não evidência de equivalência entre os tratamentos: 3 pares, com piso de p acima de α; efeito de teto na RQ2; ausência de variância na duplicação; e confundimento entre tratamento e kata. A discussão integrada dessas limitações e de suas consequências para a validade do estudo será feita na Seção 4.
+Em nenhuma RQ foi possível rejeitar H0. Nas três, porém, isso reflete limitações do desenho executado, e não evidência de equivalência entre os tratamentos: 3 pares, com piso de p acima de α; efeito de teto na RQ2; ausência de variância na duplicação; e confundimento entre tratamento e kata. Essas limitações são discutidas na seção 5.
 
-### 3.6 Análise exploratória: MI em profundidade e nº de prompts (bônus, Issue #18)
+### 4.6 Análise exploratória: MI em profundidade e nº de prompts (bônus, Issue #18)
 
-Esta análise é **exploratória e descritiva**. Ela não acrescenta testes de hipótese, porque os testes de MI entre tratamentos já estão na Seção 3.4, com correção de multiplicidade. Foi gerada por `python -m experiment.analysis.mi_prompts`, com saída completa em [`results/mi_prompts/mi_prompts_summary.md`](../results/mi_prompts/mi_prompts_summary.md).
+Esta análise é **exploratória e descritiva**. Ela não acrescenta testes de hipótese, porque os testes de MI entre tratamentos já estão na seção 4.4, com correção de multiplicidade.
 
 **MI em profundidade.** O Radon calcula o MI a partir de quatro componentes: volume de Halstead (V), complexidade ciclomática (G), linhas lógicas (LLOC, L) e % de linhas de comentário (C). Os componentes foram recalculados do `solution.py` de cada trial, na convenção do MI harmonizado. O MI reconstruído a partir deles confere com essa série nos 18 trials.
 
@@ -311,9 +614,9 @@ Esta análise é **exploratória e descritiva**. Ela não acrescenta testes de h
 
 - Nenhum trial tem comentários, então o termo C da fórmula é constante e não explica nenhuma diferença de MI.
 - Nesta amostra, o MI acompanha sobretudo o tamanho lógico e a CC, e parte dessa associação é mecânica, porque esses componentes estão na própria fórmula.
-- O MI maior com IA observado na Seção 3.4 corresponde, portanto, ao código com IA ter menos linhas lógicas e menor CC. Como métrica composta, o MI **não acrescenta aqui evidência independente** de LOC e CC, e herda deles o confundimento com os katas.
+- O MI maior com IA observado na seção 4.4 corresponde, portanto, ao código com IA ter menos linhas lógicas e menor CC. Como métrica composta, o MI **não acrescenta aqui evidência independente** de LOC e CC, e herda deles o confundimento com os katas.
 
-**Nº de prompts × qualidade do código.** O nº de prompts vem de `data/prompts/prompt_records.csv`, que cobre os 9 trials com IA. O MI usado é o harmonizado, porque a comparação é entre participantes e o MI como coletado não é comparável entre participantes.
+**Nº de prompts × qualidade do código.** O nº de prompts vem de `data/prompts/prompt_records.csv` (autorrelato, em parte retrospectivo; seção 3.3.4), que cobre os 9 trials com IA. O MI usado é o harmonizado, porque a comparação é entre participantes e o MI como coletado não é comparável entre participantes.
 
 | Participante | Nº de prompts | CC (mediana) | MI harmonizado (mediana) | LOC (mediana) |
 |---|---:|---:|---:|---:|
@@ -331,7 +634,7 @@ Nos 9 trials com IA, o ρ de Spearman entre o nº de prompts e cada métrica foi
 
 ![Figura 9 — Bônus: MI harmonizado contra os componentes da fórmula](figures/bonus_mi_componentes.png)
 
-*Figura 9 — MI harmonizado contra LLOC, CC e volume de Halstead, nos 18 trials, com o ρ de Spearman descritivo em cada painel. Os pontos com IA ficam na região de menos linhas e menor CC, e por isso com MI mais alto.*
+*Figura 9 — MI harmonizado contra LLOC, CC e volume de Halstead, nos 18 trials, com o ρ de Spearman descritivo em cada painel. Os pontos com IA ficam na região de menos linhas e menor CC, e por isso com MI mais alto. Arthur kata-06 (sem IA) e Marcos kata-06 (com IA) têm valores idênticos nos três componentes; os dois pontos foram deslocados levemente na horizontal para ficarem visíveis.*
 
 ![Figura 10 — Bônus: nº de prompts × CC e MI](figures/bonus_prompts_qualidade.png)
 
@@ -339,64 +642,86 @@ Nos 9 trials com IA, o ρ de Spearman entre o nº de prompts e cada métrica foi
 
 ---
 
-## 4. Discussão
+## 5. Discussão
 
-### 4.1 Interpretação integrada dos resultados
+### 5.1 Interpretação integrada dos resultados
 
-Os resultados das três RQs apontam na mesma direção: o uso de assistente de IA esteve associado a tempos de resolução muito menores, a código mais compacto e com menor complexidade ciclomática absoluta, e a taxas de sucesso idênticas. Em nenhuma RQ foi possível rejeitar H0 estatisticamente. Essa combinação — efeito descritivo grande, inferência não significativa — não é contraditória: decorre de limitações do desenho executado, que são discutidas a seguir.
+Nas três RQs, o tratamento com IA esteve associado a tempos de resolução muito menores e a código mais compacto e com menor complexidade ciclomática absoluta; as taxas de sucesso foram idênticas (100%) nos dois tratamentos, por construção do protocolo. Em nenhuma RQ foi possível rejeitar H0 estatisticamente. Essa combinação — efeito descritivo grande, inferência não significativa — não é contraditória: decorre de limitações do desenho executado, discutidas a seguir.
 
-**RQ1 — Tempo.** A separação completa entre os tratamentos (o trial com IA mais lento foi mais rápido que o trial sem IA mais rápido) é o resultado descritivo mais robusto do estudo. A diferença de medianas foi de −684 s, e a mesma direção se repetiu nos três participantes. O p unilateral de 0,125 é o menor valor que o Wilcoxon pareado pode produzir com 3 pares, o que significa que o teste simplesmente não tem resolução para confirmar a diferença nesta amostra — não que a diferença seja pequena. A magnitude observada é coerente com a literatura: Copilot e assistentes similares têm sido associados a reduções de tempo da ordem de 50–56% em tarefas de programação controladas (Peng et al., 2023; GitHub, 2022). No presente estudo, a redução foi muito maior (medianas 95% menores com IA), mas katas curtos com solução única são mais suscetíveis a esse efeito do que tarefas de produção.
+**RQ1 — Tempo.** A separação completa entre os tratamentos (o trial com IA mais lento foi mais rápido que o trial sem IA mais rápido) é o resultado descritivo mais robusto do estudo. A diferença de medianas foi de −684 s, e a mesma direção se repetiu nos três participantes. O p unilateral de 0,125 é o menor valor que o Wilcoxon pareado pode produzir com 3 pares: o teste não tem resolução para confirmar a diferença nesta amostra, o que não significa que a diferença seja pequena. A direção observada é coerente com a literatura: Copilot e assistentes similares têm sido associados a reduções de tempo da ordem de 50–56% em tarefas de programação controladas (PENG et al., 2023; GITHUB, 2022). No presente estudo, a mediana com IA foi cerca de 95% menor que a sem IA, mas katas curtos com solução única são mais suscetíveis a esse efeito do que tarefas de produção.
 
-**RQ2 — Defeitos.** A ausência de variação na taxa de sucesso não é resultado do experimento: é uma consequência direta do protocolo de encerramento. O cronômetro encerra o trial no *green*, isto é, quando todos os testes passam — e, como nenhum trial foi censurado, todos os 18 terminaram com 100% de sucesso. A RQ2 não foi respondida. Para respondê-la seria necessário registrar o estado do código no momento do encerramento pelo time-box, o que exigiria uma modificação no protocolo.
+**RQ2 — Defeitos.** A ausência de variação na taxa de sucesso não é um resultado sobre os tratamentos: é uma consequência direta do protocolo de encerramento. O trial termina no *green*, isto é, quando todos os testes passam — e, como nenhum trial foi censurado, todos os 18 terminaram com 100% de sucesso. A RQ2 não foi respondida. Para respondê-la seria necessário registrar o estado do código num momento que não dependa do *green* (por exemplo, no encerramento pelo time-box), o que exigiria uma modificação no protocolo.
 
-**RQ3 — Estrutura do código.** Os três indicadores descritivos (LOC menor, CC absoluta menor, MI maior com IA) repetiram-se nos três participantes. O resultado mais delicado é a CC/LOC: embora o código com IA tenha sido menor e menos complexo em termos absolutos, a razão CC por linha foi maior (0,444 contra 0,282 com LOC bruto; 0,500 contra 0,429 com SLOC). Isso sugere que o assistente produziu código mais denso — mais lógica por linha — e não necessariamente mais simples. A interpretação é inconclusiva, contudo, porque o confundimento entre tratamento e kata (cada participante resolveu katas diferentes em cada tratamento) impede isolar o efeito do assistente do efeito da dificuldade da tarefa. A duplicação zero em todos os trials decorre da estrutura da coleta (uma função por arquivo, limiares de 5 linhas e 20 tokens), e não de uma característica do código produzido.
+**RQ3 — Estrutura do código.** Os três indicadores descritivos (LOC menor, CC absoluta menor, MI maior com IA) repetiram-se nos três participantes. O resultado mais delicado é a CC/LOC: embora o código com IA tenha sido menor e menos complexo em termos absolutos, a razão CC por linha foi maior (0,444 contra 0,282 com LOC bruto; 0,500 contra 0,429 com SLOC). Isso sugere que o assistente produziu código mais denso — mais lógica por linha — e não necessariamente mais simples. A interpretação é inconclusiva, contudo, porque o confundimento entre tratamento e kata (cada participante resolveu katas diferentes em cada tratamento) impede isolar o efeito do assistente do efeito da dificuldade da tarefa. A duplicação zero em todos os trials decorre da estrutura da coleta (uma função por arquivo, limiares de 5 linhas e 20 tokens), e não de uma característica demonstrada do código produzido.
 
-### 4.2 Ameaças à validade observadas na execução
+### 5.2 Ameaças à validade observadas na execução
 
-As ameaças previstas no desenho (Seção 2.6) se concretizaram em graus distintos durante a execução:
+As ameaças previstas no desenho (seção 3.3.5) se concretizaram em graus distintos durante a execução:
 
 **Efeito de aprendizado** *(validade interna).* O contrabalanceamento entre participantes foi executado, mas de forma diferente do planejado na S01. Guilherme seguiu o bloco original (katas 1–3 com IA, 4–6 sem IA); Arthur passou para alternância (katas 1, 3, 5 com IA; 2, 4, 6 sem IA); Marcos teve o bloco invertido (katas 1–3 sem IA, 4–6 com IA). Esse desvio não invalida a execução, mas enfraquece a garantia de que os efeitos de aprendizado foram distribuídos igualmente, pois a ordem cronológica real de execução não ficou registrada nos dados.
 
 **Memorização pelo assistente de IA** *(validade interna).* Os katas foram elaborados de forma autoral, sem publicação prévia. O risco de memorização foi reduzido, mas não eliminado: o assistente pode ter generalizado padrões de katas similares vistos no treinamento. Essa ameaça não pode ser avaliada com os dados disponíveis.
 
-**Vazamento de solução entre participantes** *(validade interna).* As soluções foram isoladas em diretórios individuais (`katas/participants/`), o que reduziu o risco. Contudo, o commit de Arthur (issue #4) incluiu soluções para todos os 6 katas antes que Guilherme e Marcos tivessem executado seus trials. Os participantes operaram sob orientação de não consultar o código de colegas, mas não há registro de que isso foi verificado.
+**Familiaridade prévia com o assistente de IA** *(validade interna).* Os três declararam uso de assistentes de IA em estágio profissional: Marcos com familiaridade "Avançada", Guilherme e Arthur "Intermediária" (autorrelato; seção 3.3.2). Marcos teve a maior redução relativa de tempo: sua mediana com IA foi 3,7% da mediana sem IA, contra 5,3% para Arthur e 8,2% para Guilherme (Tabela 2). Isso é compatível com a ameaça, mas com um participante por nível e katas diferentes em cada lado não é possível separar familiaridade de participante, kata ou ordem. A ameaça fica registrada e não é controlada.
 
-**Tamanho amostral reduzido** *(conclusão estatística).* Com 3 participantes, o piso de p do Wilcoxon pareado é 0,125 unilateral — acima do α convencional de 0,05. Isso significa que nenhuma diferença, por maior que seja, pode produzir um resultado significativo neste experimento. O tamanho amostral não é uma limitação contornável por escolha de teste: é uma restrição estrutural do desenho.
+**Vazamento de solução** *(validade interna).* As soluções dos participantes foram isoladas em diretórios individuais (`katas/participants/`), com orientação de não consultar o código de colegas; não há registro de que isso foi verificado. Além disso, as **soluções de referência** dos 6 katas foram versionadas no repositório compartilhado em 2026-09-07 (commit `6f79179`, Issue #4, feito por Arthur), antes de qualquer trial, e continuaram disponíveis durante a S02. O que as evidências sustentam, e o que não sustentam:
 
-**Qualidade e proveniência dos dados** *(ameaça não prevista no desenho).* Duas situações comprometeram a confiança em parte dos dados: os tempos com IA de Guilherme (katas 1–3) foram inseridos manualmente durante uma resolução de conflito de merge, sem origem no CLI do cronômetro; e os tempos com IA de Marcos são confirmados apenas por autorrelato. Apenas os 6 tempos de Arthur foram registrados pelo cronômetro sem ressalva de proveniência. Essa ameaça afeta 9 dos 18 trials e é a mais relevante do estudo, pois compromete a variável dependente principal (RQ1).
+- **Comprovado:** as soluções de referência existiam no repositório durante os trials dos três participantes.
+- **Não comprovado:** que algum participante as tenha acessado. Não há registro de acesso, nem do procedimento usado para remover a implementação antes de cada trial.
+- **Não comprovado:** que algum participante as tenha usado. As soluções dos participantes são funções curtas, e semelhança com a referência não distingue cópia de convergência natural.
+- **Agravante:** o commit das referências foi feito por um participante (Arthur), antes dos próprios trials; o git não registra quem as escreveu.
+
+A ameaça não foi mitigada e não pode ser medida com os dados disponíveis. Ela pode ter reduzido os tempos nos dois tratamentos, sem direção previsível sobre a diferença entre eles.
+
+**Tamanho amostral reduzido** *(conclusão estatística).* Com 3 participantes, o piso de p do Wilcoxon pareado é 0,125 unilateral e 0,25 bilateral — acima de α = 0,05. Nenhuma diferença, por maior que seja, pode produzir um resultado significativo neste experimento. Não é uma limitação contornável por escolha de teste: é uma restrição estrutural do desenho.
+
+**Qualidade e proveniência dos dados** *(ameaça não prevista no desenho).* Duas situações comprometeram a confiança em parte dos dados: os 6 tempos de Guilherme foram registrados manualmente no CSV, com 1 casa decimal (os de kata-01 a kata-03 durante uma resolução de conflito de merge), sem origem comprovada no CLI do cronômetro; e os tempos com IA de Marcos são confirmados apenas por autorrelato. Apenas os 6 tempos de Arthur estão no formato gravado pelo cronômetro sem outra ressalva de proveniência, embora o modo do cronômetro usado (ENTER ou verificação automática) não tenha sido registrado para nenhum trial. Essa ameaça afeta 9 dos 18 trials e é a mais relevante do estudo, pois compromete a variável dependente principal (RQ1).
 
 **Confundimento tratamento–kata** *(ameaça não prevista no desenho).* Como o protocolo executado não atribuiu o mesmo kata aos dois tratamentos para nenhum participante, a dificuldade da tarefa entra como variável de confusão em todas as comparações. Em 2 dos 3 participantes (Arthur e Guilherme), os katas do lado com IA tinham, em média, CC menor — o que pode explicar parte da diferença observada em CC e LOC.
 
-### 4.3 Relação com a literatura e limitações de generalização
+### 5.3 Relação com a literatura e limitações de generalização
 
-Os resultados descritivos de RQ1 são coerentes com estudos que reportam ganhos de produtividade com assistentes de IA em tarefas de programação controladas. Peng et al. (2023) reportaram 55,8% de redução no tempo de conclusão de uma tarefa de implementação de servidor HTTP com GitHub Copilot. O efeito observado neste estudo foi proporcionalmente maior, o que pode refletir a natureza dos katas — tarefas curtas, com solução única e testes de aceitação claros, onde o assistente pode gerar a solução quase diretamente a partir do enunciado.
+Os resultados descritivos da RQ1 são coerentes com estudos que reportam ganhos de produtividade com assistentes de IA em tarefas de programação controladas. Peng et al. (2023) reportaram 55,8% de redução no tempo de conclusão de uma tarefa de implementação de servidor HTTP com GitHub Copilot. O efeito observado neste estudo foi proporcionalmente maior, o que pode refletir a natureza dos katas — tarefas curtas, com solução única e testes de aceitação claros, em que o assistente pode gerar a solução quase diretamente a partir do enunciado.
 
-A generalização é limitada por três fatores: (1) os participantes são estudantes de graduação em ambiente acadêmico controlado, não profissionais em contexto de produção; (2) os katas são tarefas de complexidade reduzida, com domínio bem delimitado, diferentemente de tarefas de manutenção ou de desenvolvimento de novas funcionalidades em bases de código existentes; (3) o assistente utilizado (Claude Sonnet, via Claude Code) pode ter comportamento diferente de outros assistentes, e os resultados não devem ser generalizados para ferramentas distintas.
+A generalização é limitada por três fatores: (1) os participantes são estudantes de graduação em ambiente acadêmico controlado, não profissionais em contexto de produção; (2) os katas são tarefas de complexidade reduzida, com domínio bem delimitado, diferentemente de tarefas de manutenção ou de desenvolvimento de novas funcionalidades em bases de código existentes; (3) o assistente utilizado (Claude Sonnet 5, via Claude Code) pode ter comportamento diferente de outros assistentes, e os resultados não devem ser generalizados para ferramentas distintas.
 
 ---
 
-## 5. Conclusão
+## 6. Conclusão
 
-Este laboratório investigou o impacto do uso de um assistente de IA generativa (Claude Sonnet via Claude Code) na resolução de katas de programação em Python, por meio de um experimento controlado *crossover within-subject* com três participantes e seis katas autorais.
+Este laboratório investigou o impacto do uso de um assistente de IA generativa (Claude Sonnet 5 via Claude Code) na resolução de katas de programação em Python, por meio de um experimento controlado *crossover within-subject* com três participantes, seis katas autorais e 18 trials.
 
 **Em nenhuma das três RQs foi possível rejeitar H0** com α = 0,05. Esse resultado deve ser lido com cautela: ele não é evidência de que o assistente de IA não tem efeito. Ele reflete, sobretudo, as limitações do desenho executado — em especial o tamanho amostral de 3 participantes, que impede qualquer teste pareado de atingir significância estatística, e o confundimento entre tratamento e kata decorrente do desvio de protocolo.
 
 **Descritivamente**, os dados são expressivos:
 
-- Com IA, o tempo mediano de resolução foi de 37,6 s, contra 721,6 s sem IA — uma diferença de mais de 10 vezes, com separação completa entre os tratamentos.
-- Com IA, o código produzido foi mais compacto (mediana de 14 contra 21 linhas) e com menor complexidade ciclomática absoluta (5 contra 8), embora mais denso por linha (CC/LOC 0,444 contra 0,282).
-- A taxa de sucesso foi de 100% nos dois tratamentos, o que impediu a avaliação de RQ2 por efeito de teto do protocolo.
-- Nenhuma duplicação foi detectada em nenhum dos 18 trials, o que também impediu a avaliação desse aspecto de RQ3 com a métrica coletada.
+- **RQ1:** com IA, o tempo mediano de resolução foi de 37,6 s, contra 721,6 s sem IA — cerca de 19 vezes menor —, com separação completa entre os tratamentos.
+- **RQ2:** a taxa de sucesso foi de 100% nos dois tratamentos, o que impediu a avaliação da RQ2 por efeito de teto do protocolo.
+- **RQ3:** com IA, o código produzido foi mais compacto (mediana de 14 contra 21 linhas) e teve menor complexidade ciclomática absoluta (5 contra 8), embora mais denso por linha (CC/LOC 0,444 contra 0,282). Nenhuma duplicação foi detectada em nenhum dos 18 trials, o que impediu a avaliação desse aspecto da RQ3 com a métrica coletada.
 
-**Para estudos futuros**, as principais recomendações são: (1) aumentar o número de participantes para pelo menos 8–10, de modo a dar ao teste estatístico resolução suficiente; (2) registrar o estado do código no encerramento pelo time-box, separando *green* de censura, para viabilizar a RQ2; (3) garantir que o mesmo participante resolva o mesmo kata nos dois tratamentos (crossover puro), eliminando o confundimento com a dificuldade da tarefa; (4) registrar todos os tempos com o cronômetro padronizado, sem inserção manual.
+**Para estudos futuros**, as principais recomendações são:
 
-Apesar das limitações, o experimento cumpriu seu propósito formativo: exercitou a definição de hipóteses, o planejamento experimental, a coleta de dados com instrumentação automática, a análise estatística não-paramétrica e a discussão crítica de ameaças à validade em um contexto real de experimentação em engenharia de software.
+1. aumentar o número de participantes para pelo menos 8–10, de modo a dar ao teste estatístico resolução suficiente;
+2. registrar o estado do código num momento independente do *green*, separando *green* de censura, para viabilizar a RQ2;
+3. balancear a alocação kata × tratamento entre os participantes (por exemplo, com um quadrado latino), de modo que cada kata apareça o mesmo número de vezes em cada tratamento, e calibrar a dificuldade dos katas com um piloto — repetir o mesmo kata para o mesmo participante nos dois tratamentos não resolveria o confundimento, porque introduziria memorização da própria solução;
+4. registrar todos os tempos com o cronômetro padronizado, no modo de verificação automática, com horário de início e sem inserção manual;
+5. manter as soluções de referência fora do repositório usado pelos participantes até o fim da coleta;
+6. registrar prompts e familiaridade com IA por cada participante, no momento do trial.
+
+Apesar das limitações, o experimento cumpriu seu propósito formativo: exercitou a definição de hipóteses, o planejamento experimental, a coleta de dados com instrumentação (parcialmente manual; seção 3.3.4), a análise estatística não paramétrica e a discussão crítica de ameaças à validade em um contexto real de experimentação em Engenharia de Software.
 
 ---
 
-## Referências
+## 7. Referências
 
-- PENG, S. et al. **The Impact of AI on Developer Productivity: Evidence from GitHub Copilot**. arXiv preprint arXiv:2302.06590, 2023.
-- GITHUB. **Research: quantifying GitHub Copilot's impact on developer productivity and happiness**. GitHub Blog, 2022. Disponível em: https://github.blog/2022-09-07-research-quantifying-github-copilots-impact-on-developer-productivity-and-happiness/
-- WOHLIN, C. et al. **Experimentation in Software Engineering**. Springer, 2012.
-- CONOVER, W. J. **Practical Nonparametric Statistics**. 3. ed. Wiley, 1999.
+BASILI, V. R.; CALDIERA, G.; ROMBACH, H. D. **The Goal Question Metric Approach**. Encyclopedia of Software Engineering. Wiley, 1994.
+
+BATELLA, C. et al. **Análise de Dados Aplicada à Experimentação em Engenharia de Software**: Trabalho Final — Grupo 1. Pontifícia Universidade Católica de Minas Gerais, Engenharia de Software, jun. 2026. 98 slides.
+
+CONOVER, W. J. **Practical Nonparametric Statistics**. 3. ed. Wiley, 1999.
+
+GITHUB. **Research: quantifying GitHub Copilot's impact on developer productivity and happiness**. GitHub Blog, 2022. Disponível em: https://github.blog/2022-09-07-research-quantifying-github-copilots-impact-on-developer-productivity-and-happiness/.
+
+PENG, S. et al. **The Impact of AI on Developer Productivity: Evidence from GitHub Copilot**. arXiv preprint arXiv:2302.06590, 2023.
+
+WOHLIN, C. et al. **Experimentation in Software Engineering**. Springer, 2012.

@@ -140,3 +140,55 @@ class TestExperimentDesignBuilder:
                 h0=Hypothesis(ResearchQuestion.RQ1, HypothesisType.NULL, "H0"),
                 h1=Hypothesis(ResearchQuestion.RQ2, HypothesisType.ALTERNATIVE, "H1"),
             )
+
+
+class TestDesignReportExport:
+    def _write_generated(self, design, path, body=""):
+        from experiment.config.design_report import generate_markdown
+
+        text = generate_markdown(design).replace(
+            "<!-- manual:start protocolo -->\n",
+            f"<!-- manual:start protocolo -->\n{body}",
+        )
+        path.write_text(text, encoding="utf-8")
+        return text
+
+    def test_regenerating_preserves_manual_blocks(self, design, tmp_path):
+        from experiment.config.design_report import export
+
+        output = tmp_path / "design.md"
+        original = self._write_generated(design, output, "### Registro manual\n\nTexto.\n")
+        export(design, output)
+        assert output.read_text(encoding="utf-8") == original
+
+    def test_refuses_to_drop_text_outside_manual_blocks(self, design, tmp_path):
+        from experiment.config.design_report import ManualContentLossError, export
+
+        output = tmp_path / "design.md"
+        original = self._write_generated(design, output) + "\nTexto solto.\n"
+        output.write_text(original, encoding="utf-8")
+        with pytest.raises(ManualContentLossError, match="Texto solto"):
+            export(design, output)
+        assert output.read_text(encoding="utf-8") == original
+
+    def test_force_overwrites_text_outside_manual_blocks(self, design, tmp_path):
+        from experiment.config.design_report import export
+
+        output = tmp_path / "design.md"
+        output.write_text(self._write_generated(design, output) + "\nTexto solto.\n", encoding="utf-8")
+        export(design, output, force=True)
+        assert "Texto solto." not in output.read_text(encoding="utf-8")
+
+    def test_block_without_anchor_is_appended_not_dropped(self):
+        from experiment.config.design_report import merge_manual_blocks
+
+        existing = "<!-- manual:start antigo -->\nNota antiga.\n<!-- manual:end antigo -->\n"
+        merged = merge_manual_blocks("# Gerado\n", existing)
+        assert "Nota antiga." in merged
+
+    def test_non_contiguous_katas_share_one_row(self, design):
+        from experiment.config.design_report import generate_markdown
+
+        markdown = generate_markdown(design)
+        assert "| Arthur | kata-01, kata-03 e kata-05 | Com IA |" in markdown
+        assert "| Guilherme | kata-01 a kata-03 | Com IA |" in markdown

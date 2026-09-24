@@ -34,7 +34,7 @@ Analisar o uso de assistentes de IA generativa na resolução de tarefas de prog
 - **Índice de Manutenibilidade (MI)** (0–100) — Métrica composta via Radon mi: combina complexidade ciclomática, LOC e volume de Halstead. Escala 0–100. Métrica opcional de aprofundamento (linha 55 do enunciado): o grupo optou por incluí-la porque combina CC, LOC e volume de Halstead em um único índice, permitindo comparar a manutenibilidade geral do código com e sem IA de forma mais robusta do que olhar CC e duplicação isoladamente. `[RQ3]`
 - **Duplicação de código** (%) — Percentual de linhas duplicadas via jscpd. `[RQ3]`
 
-	A coleta usa jscpd (versão efetivamente instalada, reportada em `tool_version` a cada execução — ver `experiment/collection/duplication_metrics.py`), considera os arquivos Python do diretório do trial e aplica limiar mínimo de 5 linhas e 20 tokens para reconhecer um bloco duplicado. Arquivos `test_*.py` e `*_test.py` são excluídos; o diretório do trial deve conter somente o código produzido pelo participante.
+	A coleta usa jscpd (versão efetivamente instalada, reportada em `duplication_tool_version` a cada execução — ver `experiment/collection/duplication_metrics.py`), considera os arquivos Python do diretório do trial e aplica limiar mínimo de 5 linhas e 20 tokens para reconhecer um bloco duplicado. Arquivos `test_*.py` e `*_test.py` são excluídos; o diretório do trial deve conter somente o código produzido pelo participante.
 
 **Variáveis de controle:**
 
@@ -61,11 +61,17 @@ Os objetos experimentais são os 6 exercícios autorais documentados em [`docs/k
 | Marcos | kata-01 a kata-03 | Sem IA |
 | Marcos | kata-04 a kata-06 | Com IA |
 
+<!-- manual:start protocolo -->
 ### Registro de desvio de protocolo (adicionado em 2026-09-17)
 
 A tabela acima é a atribuição **efetivamente executada** na S02. Ela difere
 da atribuição originalmente fechada no desenho da S01 (Issue #3, commit
-`e9478c3`, 2026-09-04), que era:
+`906bafc`, 2026-09-06), que era:
+
+> **Nota sobre hashes (2026-09-24):** o histórico de `main` foi reescrito após a
+> S03. Os hashes citados neste documento são os do histórico atual de `main`;
+> os hashes originais (ex.: `e9478c3`, `c826baa`, `805bb72`) só existem nas
+> branches `feature/*` do repositório remoto.
 
 | Participante | Kata | Tratamento original (S01) |
 |---|---|---|
@@ -79,11 +85,11 @@ da atribuição originalmente fechada no desenho da S01 (Issue #3, commit
 **O que mudou:**
 - **Arthur** passou de atribuição em bloco (katas 1–3 sem IA / 4–6 com IA)
   para atribuição alternada (katas 1, 3, 5 com IA / 2, 4, 6 sem IA). A
-  mudança foi commitada junto com os dados de Arthur (commit `c826baa`,
+  mudança foi commitada junto com os dados de Arthur (commit `07398a7`,
   2026-09-17).
 - **Marcos** teve o bloco invertido (de "1–3 com IA / 4–6 sem IA" para "1–3
   sem IA / 4–6 com IA"). A mudança foi commitada junto com os dados de Marcos
-  (commit `805bb72`, 2026-09-17); o corpo da Issue #11 já refletia a nova
+  (commit `c30be82`, 2026-09-16); o corpo da Issue #11 já refletia a nova
   ordem desde 2026-09-15.
 - **Guilherme** não teve sua atribuição alterada.
 
@@ -151,7 +157,7 @@ design original: cada integrante faz todos os katas.").
 - Cada trial individual (kata × participante × tratamento) continua
   rastreável — a tabela dentro da Issue do participante identifica o
   tratamento de cada um dos 6 katas, e os commits que registram os dados
-  (`c826baa`, `805bb72`, `485bc09`/`faff5d4`/`f79eb52`/`991cf83`) referenciam
+  (`07398a7`, `c30be82`, `27fcebf`/`3d6cae6`/`66ae97f`/`05574dd`/`8684477`) referenciam
   a Issue correspondente, mantendo a regra de "commit deve referenciar a
   Issue" do enunciado.
 - A execução da S02 é, por desenho, organizada por participante: cada
@@ -168,6 +174,7 @@ Esta nota documenta a decisão deliberada do grupo; não é uma reinterpretaçã
 do enunciado — a leitura literal ("uma Issue por kata/tratamento") continua
 divergente do modelo adotado, e isso deve ser declarado como tal no Relatório
 Final, com esta justificativa como a razão da escolha.
+<!-- manual:end protocolo -->
 
 ## Ameaças à Validade
 
@@ -177,13 +184,18 @@ Final, com esta justificativa como a razão da escolha.
 
 **Mitigação:** Design crossover contrabalanceado: a ordem dos tratamentos é alternada entre participantes, distribuindo o efeito igualmente.
 
+<!-- manual:start ameaca:efeito-de-aprendizado -->
+<!-- manual:end ameaca:efeito-de-aprendizado -->
+
 ### Familiaridade prévia com o assistente de IA `[Validade Interna]`
 
 **Descrição:** Participantes com mais experiência com ferramentas de IA podem obter ganhos maiores no tratamento WITH_AI, introduzindo viés.
 
 **Mitigação:** Registrar nível de familiaridade prévia de cada participante em [`data/participant_ai_familiarity.csv`](../data/participant_ai_familiarity.csv) e tratar como variável de confusão na discussão qualitativa.
 
+<!-- manual:start ameaca:familiaridade-previa-com-o-assistente-de-ia -->
 **Status da mitigação (atualizado em 2026-09-17):** [`data/participant_ai_familiarity.csv`](../data/participant_ai_familiarity.csv) está preenchido — todos os três relatam uso de assistentes de IA em estágio profissional (familiaridade "Intermediária" para Guilherme e Arthur, "Avançada" para Marcos, por autoavaliação relativa dentro do trio). **Ressalva:** este autorrelato foi coletado por Marcos em nome do grupo. Marcos reconfirmou nesta mesma data o nível de Arthur — mas essa reconfirmação continua sendo prestada por Marcos, não é uma autodeclaração direta e por escrito do próprio Arthur. Guilherme ainda não confirmou individualmente e por escrito seu próprio nível. O CSV registra essa origem no campo `notes` de cada linha. Recomenda-se a confirmação individual e por escrito de Guilherme (e, idealmente, também de Arthur diretamente) antes do Relatório Final, para que a autodeclaração não dependa só do relato de um colega.
+<!-- manual:end ameaca:familiaridade-previa-com-o-assistente-de-ia -->
 
 ### Memorização pelo assistente de IA `[Validade Interna]`
 
@@ -191,11 +203,18 @@ Final, com esta justificativa como a razão da escolha.
 
 **Mitigação:** Selecionar katas de baixa indexação, preferencialmente autorais ou pouco divulgados, evitando exercícios clássicos do LeetCode/HackerRank.
 
+<!-- manual:start ameaca:memorizacao-pelo-assistente-de-ia -->
+<!-- manual:end ameaca:memorizacao-pelo-assistente-de-ia -->
+
 ### Vazamento de solução já vista entre participantes `[Validade Interna]`
 
 **Descrição:** Como os três participantes resolvem os mesmos seis katas no repositório compartilhado do grupo, um participante pode ver a solução de um kata já resolvido por um colega (commit, histórico do Git, conversa) antes do seu próprio trial daquele kata, contaminando a comparação entre tratamentos independentemente do uso de IA.
 
 **Mitigação:** Evitar consultar ou discutir o código de um kata já resolvido por outro participante antes de concluir o próprio trial daquele kata; considerar isolar a solução de cada trial (branch ou diretório próprio) até que todos os participantes tenham resolvido o kata.
+
+<!-- manual:start ameaca:vazamento-de-solucao-ja-vista-entre-participantes -->
+**Status observado (registrado em 2026-09-24):** as soluções de referência completas dos seis katas (`katas/kata_0N/solution.py`) foram commitadas no repositório compartilhado em 2026-09-07 (commit `6f79179`, Issue #4, commit feito por Arthur), antes de qualquer trial — os dados e soluções dos trials foram commitados entre 2026-09-16 e 2026-09-17. Os artefatos comprovam que essas soluções **estavam disponíveis** no repositório durante a S02; eles **não** comprovam se algum participante as **acessou**, nem se alguém as **usou**. Também não há registro de como a implementação de referência foi removida antes de cada trial (procedimento previsto em [`docs/katas.md`](katas.md)) nem de quem escreveu as soluções de referência — o git registra apenas quem fez o commit, e esse integrante também foi participante. A mitigação prevista acima (isolamento por diretório entre participantes) não cobre esse caso, porque a referência ficou fora de `katas/participants/`. A ameaça permanece **não mitigada e não mensurável** com os dados disponíveis.
+<!-- manual:end ameaca:vazamento-de-solucao-ja-vista-entre-participantes -->
 
 ### Tamanho amostral reduzido `[Conclusão Estatística]`
 
@@ -203,14 +222,22 @@ Final, com esta justificativa como a razão da escolha.
 
 **Mitigação:** Usar mediana e IQR em vez de média/desvio-padrão; aplicar teste de Wilcoxon não-paramétrico (within-subject); interpretar os resultados com cautela quanto à generalização.
 
+<!-- manual:start ameaca:tamanho-amostral-reduzido -->
+<!-- manual:end ameaca:tamanho-amostral-reduzido -->
+
 ### Generalização limitada `[Validade Externa]`
 
 **Descrição:** Os resultados podem não se generalizar para profissionais experientes, outras linguagens, ou contextos de desenvolvimento de produção.
 
 **Mitigação:** Declarar explicitamente o escopo: estudantes de graduação, Python, katas de complexidade equivalente, assistente de IA específico.
 
+<!-- manual:start ameaca:generalizacao-limitada -->
+<!-- manual:end ameaca:generalizacao-limitada -->
+
+<!-- manual:start ameacas-adicionais -->
 ### Desvio de protocolo de contrabalanceamento `[Validade Interna]` (adicionado em 2026-09-17)
 
 **Descrição:** A ordem de tratamentos efetivamente executada por Arthur e por Marcos diverge da ordem fechada no desenho original da S01 (ver "Registro de desvio de protocolo" acima). Não há, nos artefatos do projeto, registro do motivo da mudança nem confirmação de que ela foi decidida antes da execução dos trials — o que introduz um risco à validade interna: não é possível descartar, com os dados disponíveis, que a ordem tenha sido ajustada a posteriori para coincidir com o que já havia sido executado.
 
 **Mitigação:** Nenhuma mitigação foi aplicada no momento da mudança (o desvio não foi documentado quando ocorreu). Mitigação corretiva: Arthur e Marcos devem registrar, no Relatório Final, o motivo real da mudança e, se possível, evidência independente de quando cada trial foi de fato executado (ex.: histórico do editor, timestamps de arquivos locais antes do commit), para permitir avaliar se o desvio compromete a comparabilidade dos resultados desses dois participantes.
+<!-- manual:end ameacas-adicionais -->

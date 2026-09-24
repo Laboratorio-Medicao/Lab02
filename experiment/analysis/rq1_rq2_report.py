@@ -329,9 +329,10 @@ def _caveats_section(rq1: Rq1Analysis, off_format: tuple[str, ...] = ()) -> list
         lines.append(
             "- **Proveniência dos tempos:** os valores de `elapsed_seconds` de "
             f"{_join_names(list(off_format))} não têm as 3 casas decimais que "
-            "`TrialRecord.to_row` sempre grava, então não vieram da execução normal do CLI do "
-            "cronômetro (ver o histórico git de `data/trials.csv`). São usados como estão, com "
-            "confiança menor que os tempos registrados pelo cronômetro."
+            "`TrialRecord.to_row` sempre grava no CSV, então foram registrados manualmente (ver o "
+            "histórico git de `data/trials.csv`); o formato coincide com o que o cronômetro "
+            "imprime no terminal, mas não há evidência de que tenham sido transcritos dele. São "
+            "usados como estão, com confiança menor que os tempos gravados pelo cronômetro."
         )
     if blocks:
         lines.append(

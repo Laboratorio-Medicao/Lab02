@@ -26,7 +26,8 @@ mas os identificadores experimentais permanecem `kata-01` a `kata-06`.
 ## Equivalência estimada
 
 Os seis exercícios exigem uma única função principal, usam apenas tipos básicos
-de Python e possuem entre 5 e 6 testes de aceitação. Cada um combina um caso
+de Python e possuem entre 5 e 7 testes de aceitação (5, 6, 7, 6, 7 e 5, de
+kata-01 a kata-06; 36 no total — conferido com `pytest --collect-only`). Cada um combina um caso
 normal, um caso de borda, uma regra de transformação e uma validação de entrada.
 As soluções de referência têm tamanho semelhante e devem ser resolvíveis no
 time-box de 35 minutos por um estudante familiarizado com Python.
@@ -51,8 +52,8 @@ empírico):
 | kata-02 | 17 | 10.0 | 6 |
 | kata-03 | 8 | 6.0 | 7 |
 | kata-04 | 22 | 10.0 | 6 |
-| kata-05 | 6 | 4.0 | 5 |
-| kata-06 | 13 | 5.0 | 6 |
+| kata-05 | 6 | 4.0 | 7 |
+| kata-06 | 13 | 5.0 | 5 |
 
 LOC varia de 6 a 22 e complexidade de 4 a 10 entre as soluções de referência —
 uma variação relevante, que qualifica "dificuldade comparável" como
@@ -81,12 +82,13 @@ observada entre os seis katas.
 
 **Hipótese mais provável para a discrepância de kata-01 (registrada aqui, não
 confirmada):** kata-01 **não** é a solução de referência mais complexa — pelo
-contrário, tem a segunda menor complexidade ciclomática (4.0) e o segundo
-menor LOC (14) das seis, empatada com kata-05, que levou só 263,7 s. Ou seja,
+contrário, tem a menor complexidade ciclomática (4.0), empatada com kata-05
+(que levou só 263,7 s), e LOC intermediário (14; o 4º menor das seis). Ou seja,
 a estrutura do enunciado não explica o tempo alto. A explicação mais
 parcimoniosa está na ordem de execução: kata-01 foi o **primeiro** trial do
 único participante que o resolveu sem IA (Marcos, que fez kata-01 → kata-02 →
-kata-03 sem IA, nessa ordem, segundo `data/trials.csv`). Isso é exatamente o
+kata-03 sem IA — ordem **presumida** pela numeração dos katas; `data/trials.csv`
+não registra horário de início, então a ordem real não é comprovável). Isso é exatamente o
 padrão descrito na ameaça "Efeito de aprendizado entre katas" já documentada
 em [`docs/experiment_design.md`](experiment_design.md) — o participante
 melhora ao longo dos trials pela prática repetida, independentemente do
@@ -107,10 +109,13 @@ e contagem de testes parecidas.
 
 Como os seis enunciados, títulos, nomes de funções e exemplos foram criados
 para este repositório, a seleção não depende de uma plataforma pública e não
-possui fonte externa a ser indexada. Antes da execução oficial, a equipe deve
-fazer uma busca pelos títulos e por frases distintivas dos enunciados, registrar
-a data e anexar os resultados ao relatório final. Qualquer resultado que revele
-uma solução equivalente deve provocar a substituição do kata.
+possui fonte externa a ser indexada. O plano previa que, antes da execução
+oficial, a equipe fizesse uma busca pelos títulos e por frases distintivas dos
+enunciados, registrasse a data e anexasse os resultados ao relatório final.
+
+**Status (2026-09-24):** não há registro dessa busca no repositório. A baixa
+indexação se apoia apenas no fato de os katas serem autorais; isso está
+declarado como limitação no Relatório Final.
 
 ## Testes de aceitação
 
@@ -118,6 +123,13 @@ Cada diretório em [`katas/`](../katas/) contém `test_solution.py` e uma
 `solution.py` de referência. A referência é usada somente para validar o
 oráculo; os participantes devem iniciar o trial com a implementação removida,
 mantendo os testes inalterados.
+
+**Status (2026-09-24):** as soluções de referência estão versionadas no
+repositório desde o commit `6f79179` (2026-09-07, Issue #4), antes dos trials.
+Não há registro de como a implementação foi removida antes de cada trial. Os
+`test_solution.py` dos 18 trials em `katas/participants/` são idênticos aos do
+oráculo, ou seja, os testes não foram alterados. Ver o status da ameaça
+"Vazamento de solução" em [`docs/experiment_design.md`](experiment_design.md).
 
 Validação executada (S01, antes da execução dos trials):
 

@@ -19,7 +19,7 @@ TIME_BOX_MINUTES = 35
 
 # Ordem de tratamento efetivamente seguida por cada integrante (item F do
 # desenho). Guilherme mantém a atribuição em blocos fechada no desenho
-# original da S01 (commit e9478c3): kata-01 a kata-03 com IA, kata-04 a
+# original da S01 (commit 906bafc, Issue #3): kata-01 a kata-03 com IA, kata-04 a
 # kata-06 sem IA. Arthur e Marcos divergem do que foi fechado na S01: Arthur
 # passou de atribuição em bloco (1-3 sem IA / 4-6 com IA) para alternada
 # (1,3,5 com IA / 2,4,6 sem IA); Marcos teve o bloco original (1-3 com IA /
@@ -261,8 +261,9 @@ def create_lab02_design() -> ExperimentDesign:
                     "obter ganhos maiores no tratamento WITH_AI, introduzindo viés."
                 ),
                 mitigation=(
-                    "Registrar nível de familiaridade prévia de cada participante e "
-                    "tratar como variável de confusão na discussão qualitativa."
+                    "Registrar nível de familiaridade prévia de cada participante em "
+                    "[`data/participant_ai_familiarity.csv`](../data/participant_ai_familiarity.csv) "
+                    "e tratar como variável de confusão na discussão qualitativa."
                 ),
             )
         )
