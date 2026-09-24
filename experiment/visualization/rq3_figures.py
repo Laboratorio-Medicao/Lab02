@@ -144,13 +144,19 @@ def _save(figure: plt.Figure, output_dir: Path, name: str) -> Path:
     return path
 
 
-def _figure_with_footer(nrows: int, ncols: int, figsize: tuple[float, float]):
+def _figure_with_footer(
+    nrows: int, ncols: int, figsize: tuple[float, float],
+    footer_height: float | None = None,
+):
     """Figura com uma faixa inferior própria para legenda e rodapé.
 
-    Reservar uma linha da grade evita que as duas disputem a margem.
+    Reservar uma linha da grade evita que as duas disputem a margem. Um rodapé
+    com mais linhas de texto precisa de uma faixa mais alta, senão invade o aviso.
     """
+    if footer_height is None:
+        footer_height = FOOTER_HEIGHT
     figure = plt.figure(figsize=figsize, layout="constrained")
-    grid = figure.add_gridspec(2, 1, height_ratios=[1 - FOOTER_HEIGHT, FOOTER_HEIGHT])
+    grid = figure.add_gridspec(2, 1, height_ratios=[1 - footer_height, footer_height])
     panels = np.atleast_1d(grid[0].subgridspec(nrows, ncols).subplots())
     footer = figure.add_subplot(grid[1])
     footer.axis("off")
@@ -469,7 +475,9 @@ def plot_complexity_per_line(
     observations: pd.DataFrame, output_dir: Path, name: str
 ) -> Path:
     """Figura 5 — complexidade já descontado o tamanho do código."""
-    figure, panels, footer = _figure_with_footer(1, 1, (10.5, 10.0))
+    figure, panels, footer = _figure_with_footer(
+        1, 1, (10.5, 10.0), footer_height=0.28
+    )
     axes = panels[0]
 
     _dot_column_panel(axes, observations, "cc_per_loc")

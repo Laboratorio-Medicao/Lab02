@@ -88,7 +88,7 @@ StaticMetric = Callable[[StaticMetricsRecord], float]
 # docs/experiment_design.md), e aparece como tal no rótulo.
 RQ3_METRICS: tuple[tuple[StaticMetric, str, str], ...] = (
     (cc_value, "cyclomatic_complexity_avg", "CC média"),
-    (mi_value, "maintainability_index", "MI (0–100)"),
+    (mi_value, "maintainability_index", "MI como coletado (0–100)"),
     (loc_value, "loc", "LOC (controle)"),
     (duplication_value, "duplicated_lines_percent", "Duplicação (%)"),
 )

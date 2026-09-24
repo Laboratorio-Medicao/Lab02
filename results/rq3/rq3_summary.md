@@ -73,11 +73,11 @@ O enunciado (linha 54) exige LOC como controle sempre que complexidade ou duplic
 
 | Figura | Tipo | Pergunta que responde |
 | --- | --- | --- |
-| [`fig1_distribuicao_por_tratamento.png`](figures/fig1_distribuicao_por_tratamento.png) | Boxplot + os 18 trials | Os dois tratamentos produzem distribuições diferentes em LOC, CC e MI — e onde estão os 18 trials dentro dessas distribuições? |
+| [`fig1_distribuicao_por_tratamento.png`](figures/fig1_distribuicao_por_tratamento.png) | Pontos dos 18 trials + mediana por tratamento | Os dois tratamentos produzem distribuições diferentes em LOC, CC e MI — e onde estão os 18 trials dentro dessas distribuições? |
 | [`fig2_comparacao_pareada.png`](figures/fig2_comparacao_pareada.png) | Pares por participante + trials individuais | Dentro de cada participante, em que direção a métrica muda de sem IA para com IA, e sobre quantas observações cada ponto do par se apoia? |
 | [`fig3_resultados_por_kata.png`](figures/fig3_resultados_por_kata.png) | Categórico × numérico × grupo (pontos) | Como os valores observados se distribuíram por kata, e quais katas caíram em cada tratamento? |
 | [`fig4_cc_vs_loc.png`](figures/fig4_cc_vs_loc.png) | Dispersão | A complexidade acompanha o tamanho do código, e os tratamentos ocupam regiões diferentes desse plano? |
-| [`fig5_complexidade_normalizada.png`](figures/fig5_complexidade_normalizada.png) | Boxplot + comparação de denominadores | Controlando o tamanho, a densidade de complexidade difere — e quanto dessa diferença depende de como as linhas são contadas? |
+| [`fig5_complexidade_normalizada.png`](figures/fig5_complexidade_normalizada.png) | Pontos dos 18 trials + mediana por tratamento | Controlando o tamanho, a densidade de complexidade difere — e quanto dessa diferença depende de como as linhas são contadas? |
 
 Cada figura responde a uma pergunta que nenhuma outra responde. Formas do catálogo da disciplina que foram deliberadamente **não** usadas:
 

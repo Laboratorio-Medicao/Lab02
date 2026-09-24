@@ -132,20 +132,29 @@ altera os dados brutos.
 | `outliers.csv` | Observações fora de 1,5 × IQR (sinalizadas, não removidas) |
 | `figures/*.png` | As cinco figuras de RQ3 (distribuição, comparação pareada, por kata, CC × LOC e complexidade normalizada) |
 
-**Gráficos comparativos com IA × sem IA** ([Issue #17](../../issues/17)):
+**Figuras do relatório** ([Issue #17](../../issues/17)):
 
 ```bash
 python generate_figures.py
 ```
 
-Consolida com pandas `data/trials.csv` e `data/static_metrics.csv` (já
-validados) numa tabela com uma linha por trial e gera em
-[`docs/figures/`](docs/figures/) os boxplots de RQ1 (tempo), RQ2 (taxa de
-sucesso e testes falhando) e RQ3 (CC, MI, LOC e duplicação), em PNG (300 dpi) e
-PDF. Cada painel anota a mediana de cada tratamento, o p do Wilcoxon pareado
-por participante (reaproveitado da análise da #15) e o do Mann-Whitney como
-complemento exploratório. A saída é determinística: regenerar as figuras não
-gera diff.
+Gera em [`docs/figures/`](docs/figures/), em PNG e PDF, as 8 figuras usadas em
+`docs/relatorio.md` (`experiment/visualization/report_figures.py`), a partir das
+análises já validadas (#15 e #16). Cada figura responde a uma única pergunta:
+
+| Figura | Pergunta |
+|---|---|
+| `rq1_tempo_por_tratamento` | Quão diferentes são os tempos entre os tratamentos? |
+| `rq1_tempo_por_participante` | A diferença aparece dentro de cada pessoa? Quais katas ficaram em cada lado? |
+| `rq2_desfecho_trials` | Por que a métrica de testes falhando não pôde variar? |
+| `rq3_loc_cc_por_tratamento` | LOC e CC diferem entre os tratamentos? |
+| `rq3_loc_cc_por_participante` | Os três pares (unidade do Wilcoxon) vão na mesma direção? |
+| `rq3_mi_duas_series` | O MI mudou, nas duas séries (como coletado e harmonizado)? |
+| `rq3_cc_vs_loc` | A complexidade acompanha o tamanho? |
+| `rq3_cc_normalizada` | A CC por linha difere, e quanto isso depende da contagem de linhas? |
+
+Os p-valores ficam nas tabelas do relatório, não nas figuras. A saída é
+determinística: regenerar as figuras não gera diff.
 
 ## Reprodutibilidade
 

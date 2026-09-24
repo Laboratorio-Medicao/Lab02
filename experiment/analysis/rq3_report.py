@@ -742,11 +742,11 @@ def _figures_table(results, figures_subdir: str) -> str:
 
 
 _FIGURE_TYPES = {
-    "fig1_distribuicao_por_tratamento.png": "Boxplot + os 18 trials",
+    "fig1_distribuicao_por_tratamento.png": "Pontos dos 18 trials + mediana por tratamento",
     "fig2_comparacao_pareada.png": "Pares por participante + trials individuais",
     "fig3_resultados_por_kata.png": "Categórico × numérico × grupo (pontos)",
     "fig4_cc_vs_loc.png": "Dispersão",
-    "fig5_complexidade_normalizada.png": "Boxplot + comparação de denominadores",
+    "fig5_complexidade_normalizada.png": "Pontos dos 18 trials + mediana por tratamento",
 }
 
 

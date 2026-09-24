@@ -360,7 +360,14 @@ def build_rq2_figure(
             ax, data, column, paired=rq2_tests[label], rank_sum=rank_sums_by_label[label],
             aggregate="mean", label=label, integer_axis=column == "tests_failing",
         )
-    fig.suptitle("RQ2 — Defeitos ao final do trial", x=0.02, ha="left", fontsize=12)
+    fig.suptitle("RQ2 — Testes de aceitação ao final do trial", x=0.02, ha="left", fontsize=12)
+    # O trial termina no green, então a métrica só varia em trial censurado:
+    # 100% / 0 falhas não é evidência de ausência de defeitos.
+    fig.supxlabel(
+        "O trial encerra quando todos os testes passam: sem censura, a métrica não tem como "
+        "variar (efeito de teto). Não indica ausência de defeitos.",
+        fontsize=9, color=MUTED,
+    )
     _add_legend(fig, data)
     return fig
 

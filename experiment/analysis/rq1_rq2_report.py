@@ -303,7 +303,7 @@ def _block_participants() -> list[str]:
     ]
 
 
-def _caveats_section(rq1: Rq1Analysis) -> list[str]:
+def _caveats_section(rq1: Rq1Analysis, off_format: tuple[str, ...] = ()) -> list[str]:
     with_ai = rq1.by_treatment[Treatment.WITH_AI]
     leave_out_times = rq1.leave_out_with_ai_times
     blocks = _block_participants()
@@ -324,6 +324,14 @@ def _caveats_section(rq1: Rq1Analysis) -> list[str]:
             f"({' / '.join(_num(t, 3) for t in leave_out_times)} s, amplitude de "
             f"{_num(max(leave_out_times) - min(leave_out_times), 3)} s): confirmados apenas por "
             "autorrelato, sem log independente.",
+        )
+    if off_format:
+        lines.append(
+            "- **Proveniência dos tempos:** os valores de `elapsed_seconds` de "
+            f"{_join_names(list(off_format))} não têm as 3 casas decimais que "
+            "`TrialRecord.to_row` sempre grava, então não vieram da execução normal do CLI do "
+            "cronômetro (ver o histórico git de `data/trials.csv`). São usados como estão, com "
+            "confiança menor que os tempos registrados pelo cronômetro."
         )
     if blocks:
         lines.append(
@@ -346,7 +354,9 @@ def _caveats_section(rq1: Rq1Analysis) -> list[str]:
     ]
 
 
-def generate_markdown(rq1: Rq1Analysis, rq2: Rq2Analysis) -> str:
+def generate_markdown(
+    rq1: Rq1Analysis, rq2: Rq2Analysis, off_format: tuple[str, ...] = ()
+) -> str:
     lines = [
         "# Análise Estatística — RQ1 e RQ2 — Lab02",
         "",
@@ -362,12 +372,14 @@ def generate_markdown(rq1: Rq1Analysis, rq2: Rq2Analysis) -> str:
         "",
         *_rq1_section(rq1),
         *_rq2_section(rq2),
-        *_caveats_section(rq1),
+        *_caveats_section(rq1, off_format),
     ]
     return "\n".join(lines)
 
 
-def export(rq1: Rq1Analysis, rq2: Rq2Analysis, output_path: Path) -> None:
+def export(
+    rq1: Rq1Analysis, rq2: Rq2Analysis, output_path: Path, off_format: tuple[str, ...] = ()
+) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(generate_markdown(rq1, rq2), encoding="utf-8")
+    output_path.write_text(generate_markdown(rq1, rq2, off_format), encoding="utf-8")
     print(f"Relatório gerado em: {output_path}")

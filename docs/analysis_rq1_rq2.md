@@ -118,6 +118,7 @@ Como nenhuma das duas métricas de RQ2 chegou a ser testada, não há correção
 - **Desvio de contrabalanceamento:** Arthur e Marcos executaram uma ordem de tratamentos diferente da fechada na S01 (ver `docs/experiment_design.md`, "Registro de desvio de protocolo").
 - **Tempos com IA de Marcos** (36,781 / 36,824 / 36,757 s, amplitude de 0,067 s): confirmados apenas por autorrelato, sem log independente.
 - **Resolução do cronômetro:** com `--kata-path`, o green é verificado a cada 5 s (padrão), uma resolução próxima da escala dos tempos com IA (28–72 s).
+- **Proveniência dos tempos:** os valores de `elapsed_seconds` de Guilherme não têm as 3 casas decimais que `TrialRecord.to_row` sempre grava, então não vieram da execução normal do CLI do cronômetro (ver o histórico git de `data/trials.csv`). São usados como estão, com confiança menor que os tempos registrados pelo cronômetro.
 - **Confusão tratamento × kata × ordem:** Guilherme e Marcos fizeram os tratamentos em blocos, então para eles tratamento, kata e ordem de execução andam juntos.
 - **Leitura do CSV:** os valores de `data/trials.csv` são lidos numericamente, não como texto, porque nem todas as linhas precisam seguir o formato exato de `TrialRecord.to_row` (número de casas decimais).
 - **Tamanho amostral:** com 3 participantes, o teste pareado não tem poder para rejeitar H0 a α = 0,05; os resultados devem ser lidos principalmente pela estatística descritiva.
