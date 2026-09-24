@@ -1,0 +1,3 @@
+metric,treatment,participant,kata_id,value,lower_fence,upper_fence,decision
+LOC,with_ai,Marcos,kata-04,25.0,4.0,20.0,mantido na análise
+CC/LOC,with_ai,Guilherme,kata-03,0.8571428571428571,0.2115,0.6731,mantido na análise

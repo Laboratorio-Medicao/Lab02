@@ -1,0 +1,4 @@
+participant,katas_without_ai,cyclomatic_complexity_avg_without_ai,loc_without_ai,katas_with_ai,cyclomatic_complexity_avg_with_ai,loc_with_ai,cyclomatic_complexity_avg_difference,loc_difference
+Arthur,kata-02 kata-04 kata-06,8.6667,22.4444,kata-01 kata-03 kata-05,5.1111,14.5556,-3.5556,-7.8888
+Guilherme,kata-04 kata-05 kata-06,7.3333,18.4444,kata-01 kata-02 kata-03,6.4444,18.5556,-0.8889,0.1112
+Marcos,kata-01 kata-02 kata-03,6.4444,18.5556,kata-04 kata-05 kata-06,7.3333,18.4444,0.8889,-0.1112

@@ -1,0 +1,19 @@
+participant,kata_id,treatment,loc_csv,loc_recomputed,sloc_recomputed,loc_matches,cc_csv,cc_recomputed,cc_blocks,cc_matches,mi_csv,mi_collector_today,mi_source_only,mi_reproducible_now,mi_status,empty_package_files
+Arthur,kata-01,with_ai,13,13,11,True,5.0,5.0,1,True,81.64,81.64,63.29,True,reproduzível pelo coletor atual,1
+Arthur,kata-02,without_ai,18,18,16,True,8.0,8.0,1,True,79.42,79.42,58.85,True,reproduzível pelo coletor atual,1
+Arthur,kata-03,with_ai,14,14,10,True,7.0,7.0,1,True,81.87,81.87,63.75,True,reproduzível pelo coletor atual,1
+Arthur,kata-04,without_ai,39,39,30,True,11.0,11.0,1,True,76.45,76.45,52.9,True,reproduzível pelo coletor atual,1
+Arthur,kata-05,with_ai,10,10,7,True,5.0,5.0,1,True,82.55,82.55,65.11,True,reproduzível pelo coletor atual,1
+Arthur,kata-06,without_ai,18,18,13,True,5.0,5.0,1,True,80.71,80.71,61.43,True,reproduzível pelo coletor atual,1
+Guilherme,kata-01,with_ai,14,14,14,True,4.0,4.0,1,True,64.8,82.4,64.8,False,histórico — não reproduzível no estado atual,1
+Guilherme,kata-02,with_ai,14,14,14,True,8.0,8.0,1,True,59.13,79.56,59.13,False,histórico — não reproduzível no estado atual,1
+Guilherme,kata-03,with_ai,7,7,7,True,6.0,6.0,1,True,67.92,83.96,67.92,False,histórico — não reproduzível no estado atual,1
+Guilherme,kata-04,without_ai,24,24,24,True,14.0,14.0,1,True,54.19,77.1,54.19,False,histórico — não reproduzível no estado atual,1
+Guilherme,kata-05,without_ai,9,9,9,True,4.0,4.0,1,True,64.74,82.37,64.74,False,histórico — não reproduzível no estado atual,1
+Guilherme,kata-06,without_ai,17,17,16,True,8.0,8.0,1,True,56.99,78.49,56.99,False,histórico — não reproduzível no estado atual,1
+Marcos,kata-01,without_ai,21,21,16,True,4.0,4.0,1,True,81.77,81.77,63.53,True,reproduzível pelo coletor atual,1
+Marcos,kata-02,without_ai,32,32,21,True,9.0,9.0,1,True,77.93,77.93,55.86,True,reproduzível pelo coletor atual,1
+Marcos,kata-03,without_ai,34,34,22,True,7.0,7.0,1,True,79.44,79.44,58.88,True,reproduzível pelo coletor atual,1
+Marcos,kata-04,with_ai,25,25,21,True,10.0,10.0,1,True,77.88,77.88,55.76,True,reproduzível pelo coletor atual,1
+Marcos,kata-05,with_ai,9,9,8,True,4.0,4.0,1,True,84.45,84.45,68.91,True,reproduzível pelo coletor atual,1
+Marcos,kata-06,with_ai,15,15,13,True,5.0,5.0,1,True,80.71,80.71,61.43,True,reproduzível pelo coletor atual,1
