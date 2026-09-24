@@ -92,6 +92,19 @@ e `treatment`.
 python generate_design_report.py
 ```
 
+## Análise de resultados (S03)
+
+**RQ1 e RQ2 — mediana/IQR e Wilcoxon pareado** ([Issue #15](../../issues/15)):
+
+```bash
+python analyze_rq1_rq2.py
+```
+
+Lê e valida `data/trials.csv` contra o desenho (`experiment/config/lab02_design.py`),
+aplica o teste de Wilcoxon pareado por participante e gera
+[`docs/analysis_rq1_rq2.md`](docs/analysis_rq1_rq2.md) com p-valores, conclusão
+sobre H0, outliers, trials censurados e ressalvas.
+
 ## Reprodutibilidade
 
 - As dependências e versões exatas estão fixadas em [`requirements.txt`](requirements.txt).

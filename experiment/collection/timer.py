@@ -37,6 +37,9 @@ CSV_FIELDNAMES = [
 _PASSED_RE = re.compile(r"(\d+) passed")
 _FAILED_RE = re.compile(r"(\d+) failed")
 
+# Aceita taxas gravadas com 1 casa decimal (ex.: 83.3 para 5/6 = 83.33).
+_SUCCESS_RATE_TOLERANCE = 0.05
+
 
 class TimerError(Exception):
     pass
@@ -130,6 +133,55 @@ class TrialRecord:
             row["tests_failing"] = str(self.test_result.failing)
             row["success_rate_percent"] = f"{self.test_result.success_rate_percent:.2f}"
         return row
+
+    @classmethod
+    def from_row(cls, row: dict[str, str]) -> "TrialRecord":
+        """Reconstrói um `TrialRecord` a partir de uma linha do CSV de trials.
+
+        Os números são lidos como float/int, não comparados como texto: nem
+        todas as linhas de `data/trials.csv` foram gravadas por `to_row`
+        (há `100.0` em vez de `100.00` e tempos com 1 casa decimal).
+
+        A consistência de `tests_failing` e `success_rate_percent` é checada
+        aqui, sobre a linha bruta — `AcceptanceTestResult` só guarda
+        `passing` e `total` e recalcula o resto, então depois de construído o
+        registro essa checagem não seria mais possível.
+        """
+        censored_raw = row["censored"]
+        if censored_raw not in ("True", "False"):
+            raise ValueError(f"censored inválido: {censored_raw!r} (esperado 'True' ou 'False')")
+
+        test_columns = ("tests_total", "tests_passing", "tests_failing", "success_rate_percent")
+        filled = [row[column].strip() != "" for column in test_columns]
+        test_result = None
+        if all(filled):
+            test_result = AcceptanceTestResult(
+                passing=int(row["tests_passing"]), total=int(row["tests_total"])
+            )
+            if int(row["tests_failing"]) != test_result.failing:
+                raise ValueError(
+                    f"tests_failing={row['tests_failing']} não confere com "
+                    f"tests_total - tests_passing = {test_result.failing}"
+                )
+            if abs(float(row["success_rate_percent"]) - test_result.success_rate_percent) > _SUCCESS_RATE_TOLERANCE:
+                raise ValueError(
+                    f"success_rate_percent={row['success_rate_percent']} não confere com "
+                    f"{test_result.success_rate_percent} calculado de passing/total"
+                )
+        elif any(filled):
+            raise ValueError(
+                "Colunas de teste parcialmente preenchidas: devem estar todas "
+                "preenchidas ou todas em branco."
+            )
+
+        return cls(
+            participant=row["participant"],
+            kata_id=row["kata_id"],
+            treatment=Treatment(row["treatment"]),
+            elapsed_seconds=float(row["elapsed_seconds"]),
+            censored=censored_raw == "True",
+            test_result=test_result,
+        )
 
 
 class TrialTimer:
