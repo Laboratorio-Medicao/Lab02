@@ -14,7 +14,7 @@ from experiment.analysis.rq1_rq2 import (
     tukey_outliers,
     validate_trials,
 )
-from experiment.analysis.rq1_rq2_report import generate_markdown
+from experiment.analysis.rq1_rq2_report import _h0_conclusion, generate_markdown
 from experiment.collection.timer import CSV_FIELDNAMES, AcceptanceTestResult, TrialRecord
 from experiment.config.lab02_design import KATAS, TREATMENTS_BY_PARTICIPANT
 from experiment.domain.enums import Treatment
@@ -106,6 +106,12 @@ class TestTrialRecordFromRow:
         with pytest.raises(ValueError, match="success_rate_percent"):
             TrialRecord.from_row(_row(success_rate_percent="100.0"))
 
+    def test_passing_above_total_raises(self):
+        with pytest.raises(ValueError, match="fora de 0..tests_total"):
+            TrialRecord.from_row(
+                _row(tests_total="5", tests_passing="7", tests_failing="-2", success_rate_percent="140.0")
+            )
+
     def test_partially_blank_test_columns_raise(self):
         with pytest.raises(ValueError, match="parcialmente"):
             TrialRecord.from_row(_row(tests_failing=""))
@@ -116,6 +122,39 @@ class TestLoadAndValidate:
         path = tmp_path / "trials.csv"
         _write_csv(path, _design_records())
         assert len(load_trials(path)) == 18
+
+    def test_short_row_raises_data_error(self, tmp_path):
+        path = tmp_path / "trials.csv"
+        path.write_text(
+            ",".join(CSV_FIELDNAMES) + "\nArthur,kata-01,with_ai,10.0,False,5\n", encoding="utf-8"
+        )
+        with pytest.raises(TrialsDataError, match="linha 2"):
+            load_trials(path)
+
+    def test_extra_columns_raise(self, tmp_path):
+        path = tmp_path / "trials.csv"
+        row = _design_records()[0].to_row()
+        path.write_text(
+            ",".join(CSV_FIELDNAMES) + "\n" + ",".join(row.values()) + ",extra\n", encoding="utf-8"
+        )
+        with pytest.raises(TrialsDataError, match="colunas a mais"):
+            load_trials(path)
+
+    def test_non_censored_trial_with_failing_tests_is_rejected(self):
+        records = _design_records()
+        first = records[0]
+        records[0] = _record(
+            first.participant, first.kata_id, first.treatment, first.elapsed_seconds, passing=4
+        )
+        with pytest.raises(TrialsDataError, match="não censurado"):
+            validate_trials(records)
+
+    def test_nan_elapsed_is_rejected(self):
+        records = _design_records()
+        first = records[0]
+        records[0] = _record(first.participant, first.kata_id, first.treatment, float("nan"))
+        with pytest.raises(TrialsDataError, match="inválido"):
+            validate_trials(records)
 
     def test_wrong_header_raises(self, tmp_path):
         path = tmp_path / "trials.csv"
@@ -247,6 +286,13 @@ class TestPairedWilcoxon:
         assert result.p_one_sided is None
         assert not result.reject_h0
 
+    def test_min_attainable_p_ignores_zero_differences(self):
+        result = paired_wilcoxon([5, 5, 1], [5, 5, 3], alternative="less")
+        assert result.n_nonzero == 1
+        assert result.method.startswith("permutação")
+        assert result.min_attainable_p == pytest.approx(0.5)
+        assert result.p_one_sided == pytest.approx(0.5)
+
     def test_tied_absolute_differences_use_exact_permutation(self):
         result = paired_wilcoxon([1, 2, 3], [2, 3, 5], alternative="less")
         assert result.method.startswith("permutação")
@@ -288,6 +334,68 @@ class TestAnalyses:
         assert rq2.failing_by_treatment[WITHOUT_AI].maximum == 0
         assert not rq2.success_rate_test.applicable
         assert not rq2.failing_test.applicable
+
+    def test_rq2_pairs_use_mean_so_a_single_failing_trial_counts(self):
+        records = _design_records()
+        first = next(r for r in records if r.treatment == WITHOUT_AI)
+        records[records.index(first)] = _record(
+            first.participant, first.kata_id, WITHOUT_AI, TIME_BOX_SECONDS, censored=True,
+            passing=2,
+        )
+
+        rq2 = analyze_rq2(records)
+
+        # Com a mediana, 1 trial com falhas entre 3 não mudaria o par (seria 0).
+        assert rq2.failing_test.applicable
+        assert rq2.failing_test.n_nonzero == 1
+        assert rq2.failing_test.differences == pytest.approx((-1.0, 0.0, 0.0))
+        assert rq2.failing_test.alternative == "less"
+        assert rq2.failing_test.p_one_sided == pytest.approx(0.5)
+        assert rq2.success_rate_test.alternative == "greater"
+        assert rq2.success_rate_test.p_one_sided == pytest.approx(0.5)
+
+    def test_report_ceiling_note_reflects_censored_trials(self):
+        records = _design_records()
+        first = next(r for r in records if r.treatment == WITHOUT_AI)
+        records[records.index(first)] = _record(
+            first.participant, first.kata_id, WITHOUT_AI, TIME_BOX_SECONDS, censored=True,
+            passing=3,
+        )
+
+        markdown = generate_markdown(analyze_rq1(records), analyze_rq2(records))
+
+        assert "nenhum trial foi censurado" not in markdown
+        assert "Houve 1 trial(s) censurado(s) e 1 trial(s) com testes falhando" in markdown
+
+    def test_report_flags_censoring_with_ai_as_favoring_h1(self):
+        records = _design_records()
+        first = next(r for r in records if r.treatment == WITH_AI)
+        records[records.index(first)] = _record(
+            first.participant, first.kata_id, WITH_AI, TIME_BOX_SECONDS, censored=True, passing=3
+        )
+
+        markdown = generate_markdown(analyze_rq1(records), analyze_rq2(records))
+
+        assert "conservador quanto a H1" not in markdown
+        assert "favorece H1" in markdown
+
+    def test_h0_conclusion_when_rejected(self):
+        result = paired_wilcoxon([1, 2, 3, 4, 5, 6], [11, 22, 33, 44, 55, 66], alternative="less")
+
+        conclusion = _h0_conclusion(result)
+
+        assert conclusion.startswith("**H0 rejeitada**")
+        assert "não tem poder" not in conclusion
+
+    def test_h0_conclusion_with_power_but_not_rejected(self):
+        # 6 pares com sinais mistos: tem poder (1/64 < α), mas p ≥ α.
+        result = paired_wilcoxon([1, 22, 3, 44, 5, 66], [11, 2, 33, 4, 55, 6], alternative="less")
+
+        conclusion = _h0_conclusion(result)
+
+        assert result.has_power and not result.reject_h0
+        assert conclusion.startswith("**H0 não rejeitada**")
+        assert "não tem poder" not in conclusion
 
     def test_report_states_h0_conclusions(self):
         records = _design_records()

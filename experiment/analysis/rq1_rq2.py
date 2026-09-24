@@ -6,20 +6,24 @@ teste de Wilcoxon pareado por participante (desenho within-subject).
 
 Decisões estatísticas:
 
-- O teste confirmatório pareia cada participante consigo mesmo: mediana dos
-  trials com IA contra mediana dos trials sem IA (n = nº de participantes).
-  Unilateral, pois as H1 de RQ1 e RQ2 são direcionais ("a IA reduz ...").
+- O teste confirmatório pareia cada participante consigo mesmo (n = nº de
+  participantes): em RQ1, mediana dos tempos com IA contra sem IA; em RQ2,
+  média — com a mediana, um único trial com testes falhando entre 3 sumiria
+  do par. Unilateral, pois as H1 de RQ1 e RQ2 são direcionais ("a IA
+  reduz ...").
 - A comparação por kata é apenas descritiva/exploratória: cada kata foi
   resolvido por pessoas diferentes em cada tratamento, então não é pareada.
 - Trials censurados (time-box atingido) entram com o tempo travado no
-  time-box, nunca são descartados — tratamento conservador, pois o tempo real
-  seria ao menos o time-box.
+  time-box, nunca são descartados. O tempo real seria ao menos o time-box:
+  censura sem IA é conservadora quanto a H1 (subestima o tempo sem IA), mas
+  censura com IA favorece H1 (subestima o tempo com IA).
 - Quartis via `statistics.quantiles(method="inclusive")`, equivalente ao
   padrão (interpolação linear) do numpy/pandas.
 """
 from __future__ import annotations
 
 import csv
+import math
 import statistics
 from collections import Counter
 from dataclasses import dataclass
@@ -72,6 +76,8 @@ def load_trials(path: Path = DEFAULT_TRIALS_PATH) -> list[TrialRecord]:
             )
         records = []
         for line_number, row in enumerate(reader, start=2):
+            if None in row:
+                raise TrialsDataError(f"{path}, linha {line_number}: colunas a mais que o cabeçalho.")
             try:
                 records.append(TrialRecord.from_row(row))
             except (ValueError, KeyError) as error:
@@ -110,6 +116,16 @@ def validate_trials(records: Sequence[TrialRecord]) -> None:
             )
         if r.test_result is None:
             raise TrialsDataError(f"{label}: resultado dos testes de aceitação ausente.")
+        if r.test_result.total <= 0:
+            raise TrialsDataError(f"{label}: nenhum teste de aceitação registrado (tests_total=0).")
+        if not (math.isfinite(r.elapsed_seconds) and r.elapsed_seconds >= 0):
+            raise TrialsDataError(f"{label}: elapsed={r.elapsed_seconds} inválido.")
+        # O cronômetro só encerra um trial não censurado no green (todos os
+        # testes passando): falha em trial não censurado é registro inconsistente.
+        if not r.censored and r.test_result.failing > 0:
+            raise TrialsDataError(
+                f"{label}: trial não censurado (green) com {r.test_result.failing} teste(s) falhando."
+            )
         if r.censored and abs(r.elapsed_seconds - TIME_BOX_SECONDS) > _CENSORED_TOLERANCE:
             raise TrialsDataError(
                 f"{label}: censurado, mas elapsed={r.elapsed_seconds} não está "
@@ -136,6 +152,7 @@ def validate_trials(records: Sequence[TrialRecord]) -> None:
 class Summary:
     n: int
     median: float
+    mean: float
     q1: float
     q3: float
     minimum: float
@@ -156,6 +173,7 @@ def summarize(values: Sequence[float]) -> Summary:
     return Summary(
         n=len(values),
         median=statistics.median(values),
+        mean=statistics.fmean(values),
         q1=q1,
         q3=q3,
         minimum=min(values),
@@ -313,9 +331,19 @@ class PairedTestResult:
         return self.applicable and self.p_one_sided < self.alpha
 
     @property
+    def n_nonzero(self) -> int:
+        """Pares efetivamente usados: o scipy (zero_method="wilcox") descarta diferenças zero."""
+        return sum(1 for d in self.differences if d != 0)
+
+    @property
     def min_attainable_p(self) -> float:
-        """Menor p unilateral possível com n pares (todos os sinais iguais): 1/2ⁿ."""
-        return 1 / 2**self.n_pairs
+        """Menor p unilateral possível (todos os sinais iguais): 1/2ⁿ, n = pares não nulos."""
+        return 1 / 2**self.n_nonzero
+
+    @property
+    def all_same_sign(self) -> bool:
+        nonzero = [d for d in self.differences if d != 0]
+        return bool(nonzero) and (all(d < 0 for d in nonzero) or all(d > 0 for d in nonzero))
 
     @property
     def has_power(self) -> bool:
@@ -373,13 +401,20 @@ def paired_wilcoxon(
 
 
 def participant_wilcoxon(
-    comparisons: Sequence[ParticipantComparison], alternative: str
+    comparisons: Sequence[ParticipantComparison],
+    alternative: str,
+    aggregate: Callable[[Summary], float] = lambda s: s.median,
 ) -> PairedTestResult:
+    """Wilcoxon sobre um valor por participante e tratamento (`aggregate`)."""
     return paired_wilcoxon(
-        [c.with_ai.median for c in comparisons],
-        [c.without_ai.median for c in comparisons],
+        [aggregate(c.with_ai) for c in comparisons],
+        [aggregate(c.without_ai) for c in comparisons],
         alternative=alternative,
     )
+
+
+def _mean(summary: Summary) -> float:
+    return summary.mean
 
 
 # ---------------------------------------------------------------------------
@@ -399,14 +434,19 @@ class Rq1Analysis:
     leave_out_participant: str
     leave_out_by_treatment: dict[Treatment, Summary]
     leave_out_fully_separated: bool
+    leave_out_with_ai_times: tuple[float, ...]
 
 
 @dataclass(frozen=True)
 class Rq2Analysis:
     success_rate_by_treatment: dict[Treatment, Summary]
     failing_by_treatment: dict[Treatment, Summary]
+    success_rate_by_participant: tuple[ParticipantComparison, ...]
+    failing_by_participant: tuple[ParticipantComparison, ...]
     success_rate_test: PairedTestResult
     failing_test: PairedTestResult
+    censored_count: int
+    trials_with_failures: int
 
 
 def analyze_rq1(
@@ -428,18 +468,31 @@ def analyze_rq1(
         leave_out_participant=leave_out,
         leave_out_by_treatment=summarize_by_treatment(remaining, elapsed_seconds),
         leave_out_fully_separated=fully_separated(remaining, elapsed_seconds),
+        leave_out_with_ai_times=tuple(
+            r.elapsed_seconds
+            for r in records
+            if r.participant == leave_out and r.treatment == Treatment.WITH_AI
+        ),
     )
 
 
 def analyze_rq2(records: Sequence[TrialRecord]) -> Rq2Analysis:
+    success_rate_by_participant = compare_by_participant(records, success_rate_percent)
+    failing_by_participant = compare_by_participant(records, tests_failing)
     return Rq2Analysis(
         success_rate_by_treatment=summarize_by_treatment(records, success_rate_percent),
         failing_by_treatment=summarize_by_treatment(records, tests_failing),
+        success_rate_by_participant=success_rate_by_participant,
+        failing_by_participant=failing_by_participant,
         # H1 (RQ2): com IA, taxa de sucesso maior e menos testes falhando.
+        # Média por participante: com a mediana, um único trial com falhas
+        # entre os 3 de um tratamento não alteraria o par.
         success_rate_test=participant_wilcoxon(
-            compare_by_participant(records, success_rate_percent), alternative="greater"
+            success_rate_by_participant, alternative="greater", aggregate=_mean
         ),
         failing_test=participant_wilcoxon(
-            compare_by_participant(records, tests_failing), alternative="less"
+            failing_by_participant, alternative="less", aggregate=_mean
         ),
+        censored_count=sum(1 for r in records if r.censored),
+        trials_with_failures=sum(1 for r in records if r.test_result.failing > 0),
     )

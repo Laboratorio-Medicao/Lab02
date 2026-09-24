@@ -152,12 +152,17 @@ class TrialRecord:
             raise ValueError(f"censored inválido: {censored_raw!r} (esperado 'True' ou 'False')")
 
         test_columns = ("tests_total", "tests_passing", "tests_failing", "success_rate_percent")
-        filled = [row[column].strip() != "" for column in test_columns]
+        # DictReader preenche com None as colunas ausentes em linhas curtas.
+        filled = [(row[column] or "").strip() != "" for column in test_columns]
         test_result = None
         if all(filled):
             test_result = AcceptanceTestResult(
                 passing=int(row["tests_passing"]), total=int(row["tests_total"])
             )
+            if not 0 <= test_result.passing <= test_result.total:
+                raise ValueError(
+                    f"tests_passing={test_result.passing} fora de 0..tests_total={test_result.total}"
+                )
             if int(row["tests_failing"]) != test_result.failing:
                 raise ValueError(
                     f"tests_failing={row['tests_failing']} não confere com "
