@@ -132,6 +132,19 @@ altera os dados brutos.
 | `outliers.csv` | Observações fora de 1,5 × IQR (sinalizadas, não removidas) |
 | `figures/*.png` | As cinco figuras de RQ3 (distribuição, comparação pareada, por kata, CC × LOC e complexidade normalizada) |
 
+**Bônus — MI em profundidade e nº de prompts** ([Issue #18](../../issues/18)):
+
+```bash
+python -m experiment.analysis.mi_prompts
+```
+
+Análise exploratória e descritiva, sem testes de hipótese novos. Decompõe o MI
+nos componentes da fórmula do Radon (volume de Halstead, CC, LLOC e
+comentários), recalculados do código versionado, e cruza o nº de prompts
+(`data/prompts/prompt_records.csv`) com CC, MI harmonizado e LOC nos trials com
+IA. A saída vai para `results/mi_prompts/` (`mi_prompts_summary.md` e CSVs); as
+figuras `bonus_*` saem de `python generate_figures.py`.
+
 **Figuras do relatório** ([Issue #17](../../issues/17)):
 
 ```bash

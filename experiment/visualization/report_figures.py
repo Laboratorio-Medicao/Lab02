@@ -469,3 +469,95 @@ def build_all(rq1: Rq1Analysis, results: Rq3Results) -> dict[str, Figure]:
 def save_all(figures: dict[str, Figure], out_dir: Path) -> list[Path]:
     return [path for name, fig in figures.items() for path in _save(fig, out_dir, name)]
 
+
+
+# ---------------------------------------------------------------------------
+# Bônus (Issue #18) — exploratório
+# ---------------------------------------------------------------------------
+
+
+def bonus_mi_components(components: pd.DataFrame) -> Figure:
+    """O que move o MI nestes dados: MI harmonizado contra cada componente da fórmula."""
+    panels = (
+        ("lloc", "LLOC (linhas lógicas)"),
+        ("cc_total", "CC (complexidade ciclomática)"),
+        ("halstead_volume", "Volume de Halstead"),
+    )
+    fig, axes = plt.subplots(1, 3, figsize=(12, 4.6), sharey=True)
+    for ax, (column, xlabel) in zip(axes, panels):
+        for treatment in TREATMENTS:
+            side = components[components["treatment"] == treatment]
+            ax.scatter(
+                side[column], side["maintainability_index_harmonized"], s=46,
+                color=COLORS[treatment], edgecolor="white", zorder=3,
+            )
+        rho = components[column].corr(components["maintainability_index_harmonized"], method="spearman")
+        ax.text(0.97, 0.96, f"ρ = {_br(rho, 2)}", transform=ax.transAxes, ha="right", va="top")
+        ax.grid(axis="x", visible=True)
+        ax.set_xlabel(xlabel)
+    axes[0].set_ylabel("MI harmonizado (0–100)")
+    axes[-1].legend(
+        handles=[Patch(color=COLORS[t], label=LABELS[t]) for t in TREATMENTS],
+        loc="lower left", frameon=False,
+    )
+    fig.suptitle(
+        "Bônus — MI harmonizado contra os componentes da fórmula (18 trials)",
+        x=0.01, ha="left", fontweight="bold", fontsize=12.5,
+    )
+    _footer(
+        fig,
+        "Exploratório · ρ de Spearman descritivo · comentários = 0% em todos os trials (termo constante) · "
+        "parte da associação é mecânica: os componentes entram na fórmula do MI",
+    )
+    fig.tight_layout(rect=(0, 0.04, 1, 1))
+    return fig
+
+
+def bonus_prompts_quality(prompts_quality: pd.DataFrame) -> Figure:
+    """Nº de prompts × CC e MI nos trials com IA, com o participante explícito no eixo."""
+    values = sorted(prompts_quality["n_prompts"].unique())
+    tick_labels = []
+    for value in values:
+        names = ", ".join(
+            sorted(prompts_quality.loc[prompts_quality["n_prompts"] == value, "participant"].unique())
+        )
+        tick_labels.append(f"{int(value)} prompt{'s' if value > 1 else ''}\n({names})")
+    panels = (
+        ("cyclomatic_complexity_avg", "CC (complexidade ciclomática)", 0),
+        ("maintainability_index_harmonized", "MI harmonizado (0–100)", 1),
+    )
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 4.9))
+    for ax, (column, ylabel, digits) in zip(axes, panels):
+        for position, value in enumerate(values):
+            group = prompts_quality[prompts_quality["n_prompts"] == value].sort_values(["participant", "kata_id"])
+            for rank, (_, trial) in enumerate(group.iterrows()):
+                x = position + SPREAD[rank % len(SPREAD)]
+                ax.scatter(x, trial[column], s=46, color=COLORS[WITH_AI], edgecolor="white", zorder=3)
+                ax.annotate(
+                    f"{trial['participant'][0]}{trial['kata_id'].removeprefix('kata-')}", (x, trial[column]),
+                    xytext=(6, 0), textcoords="offset points", va="center", fontsize=8, color=MUTED,
+                )
+        ax.set_xticks(range(len(values)), tick_labels)
+        ax.set_xlim(-0.6, len(values) - 0.4)
+        if digits == 0:
+            ax.yaxis.set_major_locator(MaxNLocator(integer=True))
+        ax.set_ylabel(ylabel)
+    fig.suptitle(
+        "Bônus — Nº de prompts × CC e MI nos 9 trials com IA",
+        x=0.01, ha="left", fontweight="bold", fontsize=12.5,
+    )
+    _footer(
+        fig,
+        "Rótulo = inicial do participante + kata · o nº de prompts é constante dentro de cada participante:\n"
+        "a comparação entre as colunas é também entre participantes e katas diferentes — não mede o efeito dos prompts.",
+    )
+    fig.tight_layout(rect=(0, 0.08, 1, 1))
+    return fig
+
+
+BONUS_FIGURE_NAMES = ("bonus_mi_componentes", "bonus_prompts_qualidade")
+
+
+def build_bonus(components: pd.DataFrame, prompts_quality: pd.DataFrame) -> dict[str, Figure]:
+    figures = (bonus_mi_components(components), bonus_prompts_quality(prompts_quality))
+    return dict(zip(BONUS_FIGURE_NAMES, figures))

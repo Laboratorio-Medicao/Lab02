@@ -1,0 +1,5 @@
+target,metric,metric_key,n,spearman_rho,note
+MI (harmonizado),Volume de Halstead (V),halstead_volume,18,-0.6287490435398191,
+MI (harmonizado),LLOC (L),lloc,18,-0.9099398384424761,
+MI (harmonizado),CC (G),cc_total,18,-0.851531521555949,
+MI (harmonizado),Comentários (C),comments_percent,18,,métrica constante — correlação indefinida

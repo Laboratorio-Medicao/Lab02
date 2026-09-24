@@ -1,0 +1,11 @@
+metric,metric_key,unit,treatment,n,median,q1,q3,iqr,min,max
+MI (harmonizado),maintainability_index_harmonized,0–100,without_ai,9,58.85,55.86,61.43,5.57,52.9,64.74
+MI (harmonizado),maintainability_index_harmonized,0–100,with_ai,9,63.75,61.43,65.11,3.6799999999999997,55.76,68.91
+Volume de Halstead (V),halstead_volume,bits,without_ai,9,82.0447025077789,51.89147427955947,94.01164534875782,42.120171069198356,24.0,172.8771237954945
+Volume de Halstead (V),halstead_volume,bits,with_ai,9,62.907475208398566,53.77443751081735,87.56916320732489,33.79472569650754,24.0,129.65784284662087
+LLOC (L),lloc,linhas lógicas,without_ai,9,17.0,16.0,22.0,6.0,11.0,30.0
+LLOC (L),lloc,linhas lógicas,with_ai,9,12.0,9.0,14.0,5.0,7.0,22.0
+CC (G),cc_total,adimensional,without_ai,9,8.0,5.0,9.0,4.0,4.0,14.0
+CC (G),cc_total,adimensional,with_ai,9,5.0,5.0,7.0,2.0,4.0,10.0
+Comentários (C),comments_percent,% de linhas,without_ai,9,0.0,0.0,0.0,0.0,0.0,0.0
+Comentários (C),comments_percent,% de linhas,with_ai,9,0.0,0.0,0.0,0.0,0.0,0.0

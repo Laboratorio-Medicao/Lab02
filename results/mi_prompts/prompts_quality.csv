@@ -1,0 +1,10 @@
+participant,kata_id,treatment,n_prompts,productivity_perception,cyclomatic_complexity_avg,maintainability_index_harmonized,loc
+Arthur,kata-01,with_ai,1,5,5.0,63.29,13
+Arthur,kata-03,with_ai,1,5,7.0,63.75,14
+Arthur,kata-05,with_ai,1,5,5.0,65.11,10
+Guilherme,kata-01,with_ai,1,5,4.0,64.8,14
+Guilherme,kata-02,with_ai,1,5,8.0,59.13,14
+Guilherme,kata-03,with_ai,1,5,6.0,67.92,7
+Marcos,kata-04,with_ai,2,4,10.0,55.76,25
+Marcos,kata-05,with_ai,2,4,4.0,68.91,9
+Marcos,kata-06,with_ai,2,4,5.0,61.43,15

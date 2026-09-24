@@ -1,0 +1,4 @@
+target,metric,metric_key,n,spearman_rho,note
+Nº de prompts,CC,cyclomatic_complexity_avg,9,-0.04662524041201569,
+Nº de prompts,MI (harmonizado),maintainability_index_harmonized,9,-0.18257418583505536,
+Nº de prompts,LOC,loc,9,0.3713906763541038,

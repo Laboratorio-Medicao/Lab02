@@ -296,6 +296,47 @@ Esse indicador é derivado das próprias medições e absorve parte de um eventu
 
 Em nenhuma RQ foi possível rejeitar H0. Nas três, porém, isso reflete limitações do desenho executado, e não evidência de equivalência entre os tratamentos: 3 pares, com piso de p acima de α; efeito de teto na RQ2; ausência de variância na duplicação; e confundimento entre tratamento e kata. A discussão integrada dessas limitações e de suas consequências para a validade do estudo será feita na Seção 4.
 
+### 3.6 Análise exploratória: MI em profundidade e nº de prompts (bônus, Issue #18)
+
+Esta análise é **exploratória e descritiva**. Ela não acrescenta testes de hipótese, porque os testes de MI entre tratamentos já estão na Seção 3.4, com correção de multiplicidade. Foi gerada por `python -m experiment.analysis.mi_prompts`, com saída completa em [`results/mi_prompts/mi_prompts_summary.md`](../results/mi_prompts/mi_prompts_summary.md).
+
+**MI em profundidade.** O Radon calcula o MI a partir de quatro componentes: volume de Halstead (V), complexidade ciclomática (G), linhas lógicas (LLOC, L) e % de linhas de comentário (C). Os componentes foram recalculados do `solution.py` de cada trial, na convenção do MI harmonizado. O MI reconstruído a partir deles confere com essa série nos 18 trials.
+
+| Componente | Sem IA — mediana (IQR) | Com IA — mediana (IQR) | ρ de Spearman com o MI (18 trials) |
+|---|---:|---:|---:|
+| LLOC (L) | 17 (6) | 12 (5) | −0,91 |
+| CC (G) | 8 (4) | 5 (2) | −0,85 |
+| Volume de Halstead (V) | 82,04 (42,12) | 62,91 (33,79) | −0,63 |
+| Comentários (C) | 0% (0) | 0% (0) | — (constante) |
+
+- Nenhum trial tem comentários, então o termo C da fórmula é constante e não explica nenhuma diferença de MI.
+- Nesta amostra, o MI acompanha sobretudo o tamanho lógico e a CC, e parte dessa associação é mecânica, porque esses componentes estão na própria fórmula.
+- O MI maior com IA observado na Seção 3.4 corresponde, portanto, ao código com IA ter menos linhas lógicas e menor CC. Como métrica composta, o MI **não acrescenta aqui evidência independente** de LOC e CC, e herda deles o confundimento com os katas.
+
+**Nº de prompts × qualidade do código.** O nº de prompts vem de `data/prompts/prompt_records.csv`, que cobre os 9 trials com IA. O MI usado é o harmonizado, porque a comparação é entre participantes e o MI como coletado não é comparável entre participantes.
+
+| Participante | Nº de prompts | CC (mediana) | MI harmonizado (mediana) | LOC (mediana) |
+|---|---:|---:|---:|---:|
+| Arthur | 1 | 5 | 63,75 | 13 |
+| Guilherme | 1 | 6 | 64,80 | 14 |
+| Marcos | 2 | 5 | 61,43 | 15 |
+
+Nos 9 trials com IA, o ρ de Spearman entre o nº de prompts e cada métrica foi −0,05 (CC), −0,18 (MI harmonizado) e 0,37 (LOC). São valores apenas descritivos, sem p-valor, por três motivos:
+
+- O nº de prompts teve só dois valores: 1 para Arthur e Guilherme, 2 para Marcos.
+- Ele é **constante dentro de cada participante**, então qualquer associação se confunde com o participante e, como cada um resolveu katas diferentes com IA, também com o kata.
+- Os 9 trials não são independentes, porque são 3 por participante.
+
+**Os dados coletados não permitem avaliar se o nº de prompts está associado à qualidade do código.**
+
+![Figura 9 — Bônus: MI harmonizado contra os componentes da fórmula](figures/bonus_mi_componentes.png)
+
+*Figura 9 — MI harmonizado contra LLOC, CC e volume de Halstead, nos 18 trials, com o ρ de Spearman descritivo em cada painel. Os pontos com IA ficam na região de menos linhas e menor CC, e por isso com MI mais alto.*
+
+![Figura 10 — Bônus: nº de prompts × CC e MI](figures/bonus_prompts_qualidade.png)
+
+*Figura 10 — CC e MI harmonizado dos 9 trials com IA, agrupados pelo nº de prompts. O rótulo de cada ponto é a inicial do participante mais o kata. O eixo mostra quem está em cada coluna: a comparação entre colunas também é entre participantes e katas diferentes, e não mede o efeito dos prompts.*
+
 ---
 
 ## 4. Discussão
