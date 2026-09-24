@@ -105,32 +105,20 @@ aplica o teste de Wilcoxon pareado por participante e gera
 [`docs/analysis_rq1_rq2.md`](docs/analysis_rq1_rq2.md) com p-valores, conclusão
 sobre H0, outliers, trials censurados e ressalvas.
 
-**RQ3 — métricas estáticas** ([Issue #16](../../issues/16)): consolida
-`data/trials.csv` e `data/static_metrics.csv`, valida os dados, calcula
-mediana/IQR por tratamento, aplica Wilcoxon signed-rank pareado com tamanho de
-efeito e correção de multiplicidade, normaliza as métricas por LOC e gera as
-figuras.
+**Gráficos comparativos com IA × sem IA** ([Issue #17](../../issues/17)):
 
 ```bash
-python -m experiment.analysis.rq3
+python generate_figures.py
 ```
 
-Os artefatos são escritos em `results/rq3/` (use `--output-dir` para mudar o
-destino). Os CSVs de `data/` são abertos somente para leitura — a análise nunca
-altera os dados brutos.
-
-| Artefato | Conteúdo |
-|---|---|
-| `rq3_summary.md` | Resposta à RQ3, tabelas principais e interpretação |
-| `data_quality_report.md` | Verificações de qualidade, conferência contra o código-fonte e outliers |
-| `consolidated_trials.csv` | Os 18 trials com todas as métricas, uma linha por trial |
-| `descriptive_statistics.csv` | n, mediana, Q1, Q3, IQR, mínimo e máximo por métrica × tratamento |
-| `statistical_tests.csv` | Wilcoxon por métrica e por unidade de pareamento, com p-valor bruto, p ajustado (Bonferroni e Benjamini–Hochberg) e tamanho de efeito |
-| `normalized_metrics.csv` | Descritiva das razões por LOC (CC/LOC e duplicação/LOC) |
-| `task_allocation_balance.csv` | Dificuldade aparente dos katas de cada lado do par, por participante (confundimento tratamento × tarefa) |
-| `source_integrity_check.csv` | CSV coletado na S02 × recomputação via Radon, trial a trial |
-| `outliers.csv` | Observações fora de 1,5 × IQR (sinalizadas, não removidas) |
-| `figures/*.png` | As cinco figuras de RQ3 (distribuição, comparação pareada, por kata, CC × LOC e complexidade normalizada) |
+Consolida com pandas `data/trials.csv` e `data/static_metrics.csv` (já
+validados) numa tabela com uma linha por trial e gera em
+[`docs/figures/`](docs/figures/) os boxplots de RQ1 (tempo), RQ2 (taxa de
+sucesso e testes falhando) e RQ3 (CC, MI, LOC e duplicação), em PNG (300 dpi) e
+PDF. Cada painel anota a mediana de cada tratamento, o p do Wilcoxon pareado
+por participante (reaproveitado da análise da #15) e o do Mann-Whitney como
+complemento exploratório. A saída é determinística: regenerar as figuras não
+gera diff.
 
 ## Reprodutibilidade
 
