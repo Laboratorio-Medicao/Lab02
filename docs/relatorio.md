@@ -341,16 +341,62 @@ Nos 9 trials com IA, o ρ de Spearman entre o nº de prompts e cada métrica foi
 
 ## 4. Discussão
 
-*A discussão integrada dos resultados das três RQs, as ameaças à validade observadas na execução e a relação com a literatura serão consolidadas nesta seção pela Issue #22. A discussão estatística de cada RQ está na Seção 3.*
+### 4.1 Interpretação integrada dos resultados
+
+Os resultados das três RQs apontam na mesma direção: o uso de assistente de IA esteve associado a tempos de resolução muito menores, a código mais compacto e com menor complexidade ciclomática absoluta, e a taxas de sucesso idênticas. Em nenhuma RQ foi possível rejeitar H0 estatisticamente. Essa combinação — efeito descritivo grande, inferência não significativa — não é contraditória: decorre de limitações do desenho executado, que são discutidas a seguir.
+
+**RQ1 — Tempo.** A separação completa entre os tratamentos (o trial com IA mais lento foi mais rápido que o trial sem IA mais rápido) é o resultado descritivo mais robusto do estudo. A diferença de medianas foi de −684 s, e a mesma direção se repetiu nos três participantes. O p unilateral de 0,125 é o menor valor que o Wilcoxon pareado pode produzir com 3 pares, o que significa que o teste simplesmente não tem resolução para confirmar a diferença nesta amostra — não que a diferença seja pequena. A magnitude observada é coerente com a literatura: Copilot e assistentes similares têm sido associados a reduções de tempo da ordem de 50–56% em tarefas de programação controladas (Peng et al., 2023; GitHub, 2022). No presente estudo, a redução foi muito maior (medianas 95% menores com IA), mas katas curtos com solução única são mais suscetíveis a esse efeito do que tarefas de produção.
+
+**RQ2 — Defeitos.** A ausência de variação na taxa de sucesso não é resultado do experimento: é uma consequência direta do protocolo de encerramento. O cronômetro encerra o trial no *green*, isto é, quando todos os testes passam — e, como nenhum trial foi censurado, todos os 18 terminaram com 100% de sucesso. A RQ2 não foi respondida. Para respondê-la seria necessário registrar o estado do código no momento do encerramento pelo time-box, o que exigiria uma modificação no protocolo.
+
+**RQ3 — Estrutura do código.** Os três indicadores descritivos (LOC menor, CC absoluta menor, MI maior com IA) repetiram-se nos três participantes. O resultado mais delicado é a CC/LOC: embora o código com IA tenha sido menor e menos complexo em termos absolutos, a razão CC por linha foi maior (0,444 contra 0,282 com LOC bruto; 0,500 contra 0,429 com SLOC). Isso sugere que o assistente produziu código mais denso — mais lógica por linha — e não necessariamente mais simples. A interpretação é inconclusiva, contudo, porque o confundimento entre tratamento e kata (cada participante resolveu katas diferentes em cada tratamento) impede isolar o efeito do assistente do efeito da dificuldade da tarefa. A duplicação zero em todos os trials decorre da estrutura da coleta (uma função por arquivo, limiares de 5 linhas e 20 tokens), e não de uma característica do código produzido.
+
+### 4.2 Ameaças à validade observadas na execução
+
+As ameaças previstas no desenho (Seção 2.6) se concretizaram em graus distintos durante a execução:
+
+**Efeito de aprendizado** *(validade interna).* O contrabalanceamento entre participantes foi executado, mas de forma diferente do planejado na S01. Guilherme seguiu o bloco original (katas 1–3 com IA, 4–6 sem IA); Arthur passou para alternância (katas 1, 3, 5 com IA; 2, 4, 6 sem IA); Marcos teve o bloco invertido (katas 1–3 sem IA, 4–6 com IA). Esse desvio não invalida a execução, mas enfraquece a garantia de que os efeitos de aprendizado foram distribuídos igualmente, pois a ordem cronológica real de execução não ficou registrada nos dados.
+
+**Memorização pelo assistente de IA** *(validade interna).* Os katas foram elaborados de forma autoral, sem publicação prévia. O risco de memorização foi reduzido, mas não eliminado: o assistente pode ter generalizado padrões de katas similares vistos no treinamento. Essa ameaça não pode ser avaliada com os dados disponíveis.
+
+**Vazamento de solução entre participantes** *(validade interna).* As soluções foram isoladas em diretórios individuais (`katas/participants/`), o que reduziu o risco. Contudo, o commit de Arthur (issue #4) incluiu soluções para todos os 6 katas antes que Guilherme e Marcos tivessem executado seus trials. Os participantes operaram sob orientação de não consultar o código de colegas, mas não há registro de que isso foi verificado.
+
+**Tamanho amostral reduzido** *(conclusão estatística).* Com 3 participantes, o piso de p do Wilcoxon pareado é 0,125 unilateral — acima do α convencional de 0,05. Isso significa que nenhuma diferença, por maior que seja, pode produzir um resultado significativo neste experimento. O tamanho amostral não é uma limitação contornável por escolha de teste: é uma restrição estrutural do desenho.
+
+**Qualidade e proveniência dos dados** *(ameaça não prevista no desenho).* Duas situações comprometeram a confiança em parte dos dados: os tempos com IA de Guilherme (katas 1–3) foram inseridos manualmente durante uma resolução de conflito de merge, sem origem no CLI do cronômetro; e os tempos com IA de Marcos são confirmados apenas por autorrelato. Apenas os 6 tempos de Arthur foram registrados pelo cronômetro sem ressalva de proveniência. Essa ameaça afeta 9 dos 18 trials e é a mais relevante do estudo, pois compromete a variável dependente principal (RQ1).
+
+**Confundimento tratamento–kata** *(ameaça não prevista no desenho).* Como o protocolo executado não atribuiu o mesmo kata aos dois tratamentos para nenhum participante, a dificuldade da tarefa entra como variável de confusão em todas as comparações. Em 2 dos 3 participantes (Arthur e Guilherme), os katas do lado com IA tinham, em média, CC menor — o que pode explicar parte da diferença observada em CC e LOC.
+
+### 4.3 Relação com a literatura e limitações de generalização
+
+Os resultados descritivos de RQ1 são coerentes com estudos que reportam ganhos de produtividade com assistentes de IA em tarefas de programação controladas. Peng et al. (2023) reportaram 55,8% de redução no tempo de conclusão de uma tarefa de implementação de servidor HTTP com GitHub Copilot. O efeito observado neste estudo foi proporcionalmente maior, o que pode refletir a natureza dos katas — tarefas curtas, com solução única e testes de aceitação claros, onde o assistente pode gerar a solução quase diretamente a partir do enunciado.
+
+A generalização é limitada por três fatores: (1) os participantes são estudantes de graduação em ambiente acadêmico controlado, não profissionais em contexto de produção; (2) os katas são tarefas de complexidade reduzida, com domínio bem delimitado, diferentemente de tarefas de manutenção ou de desenvolvimento de novas funcionalidades em bases de código existentes; (3) o assistente utilizado (Claude Sonnet, via Claude Code) pode ter comportamento diferente de outros assistentes, e os resultados não devem ser generalizados para ferramentas distintas.
 
 ---
 
 ## 5. Conclusão
 
-*(a preencher — Issue #22)*
+Este laboratório investigou o impacto do uso de um assistente de IA generativa (Claude Sonnet via Claude Code) na resolução de katas de programação em Python, por meio de um experimento controlado *crossover within-subject* com três participantes e seis katas autorais.
+
+**Em nenhuma das três RQs foi possível rejeitar H0** com α = 0,05. Esse resultado deve ser lido com cautela: ele não é evidência de que o assistente de IA não tem efeito. Ele reflete, sobretudo, as limitações do desenho executado — em especial o tamanho amostral de 3 participantes, que impede qualquer teste pareado de atingir significância estatística, e o confundimento entre tratamento e kata decorrente do desvio de protocolo.
+
+**Descritivamente**, os dados são expressivos:
+
+- Com IA, o tempo mediano de resolução foi de 37,6 s, contra 721,6 s sem IA — uma diferença de mais de 10 vezes, com separação completa entre os tratamentos.
+- Com IA, o código produzido foi mais compacto (mediana de 14 contra 21 linhas) e com menor complexidade ciclomática absoluta (5 contra 8), embora mais denso por linha (CC/LOC 0,444 contra 0,282).
+- A taxa de sucesso foi de 100% nos dois tratamentos, o que impediu a avaliação de RQ2 por efeito de teto do protocolo.
+- Nenhuma duplicação foi detectada em nenhum dos 18 trials, o que também impediu a avaliação desse aspecto de RQ3 com a métrica coletada.
+
+**Para estudos futuros**, as principais recomendações são: (1) aumentar o número de participantes para pelo menos 8–10, de modo a dar ao teste estatístico resolução suficiente; (2) registrar o estado do código no encerramento pelo time-box, separando *green* de censura, para viabilizar a RQ2; (3) garantir que o mesmo participante resolva o mesmo kata nos dois tratamentos (crossover puro), eliminando o confundimento com a dificuldade da tarefa; (4) registrar todos os tempos com o cronômetro padronizado, sem inserção manual.
+
+Apesar das limitações, o experimento cumpriu seu propósito formativo: exercitou a definição de hipóteses, o planejamento experimental, a coleta de dados com instrumentação automática, a análise estatística não-paramétrica e a discussão crítica de ameaças à validade em um contexto real de experimentação em engenharia de software.
 
 ---
 
 ## Referências
 
-*(a preencher)*
+- PENG, S. et al. **The Impact of AI on Developer Productivity: Evidence from GitHub Copilot**. arXiv preprint arXiv:2302.06590, 2023.
+- GITHUB. **Research: quantifying GitHub Copilot's impact on developer productivity and happiness**. GitHub Blog, 2022. Disponível em: https://github.blog/2022-09-07-research-quantifying-github-copilots-impact-on-developer-productivity-and-happiness/
+- WOHLIN, C. et al. **Experimentation in Software Engineering**. Springer, 2012.
+- CONOVER, W. J. **Practical Nonparametric Statistics**. 3. ed. Wiley, 1999.
