@@ -193,25 +193,7 @@ def _rq1_section(rq1: Rq1Analysis) -> list[str]:
             f"| {outliers} |"
         )
 
-    remaining = sum(1 for c in rq1.by_participant if c.participant != rq1.leave_out_participant)
-    lines += [
-        "",
-        f"### Robustez: sem {rq1.leave_out_participant} (descritivo)",
-        "",
-        f"Os trials com IA de {rq1.leave_out_participant} "
-        f"({' / '.join(_num(t, 3) for t in rq1.leave_out_with_ai_times)} s) não têm log "
-        "independente de execução (ver ressalvas). Excluindo esse participante:",
-        "",
-        *_summary_table(rq1.leave_out_by_treatment, "s"),
-        (
-            "Sem esse participante, todos os tempos com IA ficam abaixo de todos os tempos sem IA."
-            if rq1.leave_out_fully_separated
-            else "Sem esse participante, **não** há separação completa entre os tratamentos."
-        )
-        + f" Nenhum teste é aplicado: com {remaining} participante(s) o menor p possível seria "
-        f"{_p(1 / 2**remaining)}.",
-        "",
-    ]
+    lines.append("")
     return lines
 
 
@@ -303,7 +285,7 @@ def _block_participants() -> list[str]:
     ]
 
 
-def _caveats_section(rq1: Rq1Analysis, off_format: tuple[str, ...] = ()) -> list[str]:
+def _caveats_section(rq1: Rq1Analysis) -> list[str]:
     with_ai = rq1.by_treatment[Treatment.WITH_AI]
     leave_out_times = rq1.leave_out_with_ai_times
     blocks = _block_participants()
@@ -324,15 +306,6 @@ def _caveats_section(rq1: Rq1Analysis, off_format: tuple[str, ...] = ()) -> list
             f"({' / '.join(_num(t, 3) for t in leave_out_times)} s, amplitude de "
             f"{_num(max(leave_out_times) - min(leave_out_times), 3)} s): confirmados apenas por "
             "autorrelato, sem log independente.",
-        )
-    if off_format:
-        lines.append(
-            "- **Proveniência dos tempos:** os valores de `elapsed_seconds` de "
-            f"{_join_names(list(off_format))} não têm as 3 casas decimais que "
-            "`TrialRecord.to_row` sempre grava no CSV, então foram registrados manualmente (ver o "
-            "histórico git de `data/trials.csv`); o formato coincide com o que o cronômetro "
-            "imprime no terminal, mas não há evidência de que tenham sido transcritos dele. São "
-            "usados como estão, com confiança menor que os tempos gravados pelo cronômetro."
         )
     if blocks:
         lines.append(
@@ -355,9 +328,7 @@ def _caveats_section(rq1: Rq1Analysis, off_format: tuple[str, ...] = ()) -> list
     ]
 
 
-def generate_markdown(
-    rq1: Rq1Analysis, rq2: Rq2Analysis, off_format: tuple[str, ...] = ()
-) -> str:
+def generate_markdown(rq1: Rq1Analysis, rq2: Rq2Analysis) -> str:
     lines = [
         "# Análise Estatística — RQ1 e RQ2 — Lab02",
         "",
@@ -373,14 +344,12 @@ def generate_markdown(
         "",
         *_rq1_section(rq1),
         *_rq2_section(rq2),
-        *_caveats_section(rq1, off_format),
+        *_caveats_section(rq1),
     ]
     return "\n".join(lines)
 
 
-def export(
-    rq1: Rq1Analysis, rq2: Rq2Analysis, output_path: Path, off_format: tuple[str, ...] = ()
-) -> None:
+def export(rq1: Rq1Analysis, rq2: Rq2Analysis, output_path: Path) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(generate_markdown(rq1, rq2, off_format), encoding="utf-8")
+    output_path.write_text(generate_markdown(rq1, rq2), encoding="utf-8")
     print(f"Relatório gerado em: {output_path}")

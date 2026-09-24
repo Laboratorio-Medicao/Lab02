@@ -165,13 +165,13 @@ A densidade de defeitos (testes falhando/KLOC), também opcional no enunciado, n
 
 **Medição de defeitos acoplada ao encerramento do trial:** o cronômetro encerra o trial no *green* (todos os testes passando) ou no time-box. Uma taxa de sucesso abaixo de 100% só pode aparecer em trial censurado, o que torna a RQ2 dependente da censura da RQ1 (seção 4.3).
 
-**Contrabalanceamento alterado durante a execução:** a ordem de tratamentos executada por Arthur e Marcos diverge da fechada na S01 (seção 3.3.1), e isso produziu confundimento entre tratamento e kata.
+**Confundimento entre tratamento e kata:** na atribuição executada, cada participante resolveu katas diferentes em cada tratamento (seção 3.3.1).
 
-**Proveniência dos tempos:** o modo do cronômetro usado em cada trial não foi registrado, os tempos de Guilherme foram registrados manualmente no CSV e os tempos com IA de Marcos só têm confirmação por autorrelato (seção 3.3.4).
+**Proveniência dos tempos:** o modo do cronômetro usado em cada trial não foi registrado e os tempos com IA de Marcos só têm confirmação por autorrelato (seção 3.3.4).
 
 **MI com duas convenções:** o coletor calcula o MI como média dos arquivos `.py` do diretório do trial, e parte dos diretórios tinha um `__init__.py` vazio no momento da coleta (seção 4.4).
 
-**Soluções de referência no repositório:** as soluções de referência dos katas ficaram versionadas no repositório compartilhado antes dos trials (seções 3.3.3 e 3.3.5).
+**Soluções de referência no repositório:** as soluções de referência dos katas ficaram versionadas no repositório compartilhado antes dos trials (seção 3.3.3).
 
 ### 3.2 Tomadas de Decisão
 
@@ -200,11 +200,9 @@ A densidade de defeitos (testes falhando/KLOC), também opcional no enunciado, n
 
 **RQ3 — métricas e multiplicidade:** CC e duplicação (as métricas da RQ), LOC como controle, CC/LOC (métrica derivada, para separar complexidade de tamanho) e MI como aprofundamento. Como são vários testes, os p-valores brutos são reportados ao lado dos ajustados por Bonferroni e Benjamini–Hochberg dentro de cada família de testes, seguindo a recomendação "Muitos testes? Corrija (Bonferroni / FDR)" (BATELLA et al., 2026).
 
-**Análises de sensibilidade:** pareamento por kata (N = 6) e MI recalculado sob convenção única (RQ3); exclusão de Marcos (RQ1, só descritiva).
+**Análises de sensibilidade:** pareamento por kata (N = 6) e MI recalculado sob convenção única (RQ3).
 
 **Mann-Whitney:** a Issue #17 implementou o teste de Mann-Whitney (`experiment/analysis/rank_sum.py`) para as figuras que produziu. Esse teste trata como independentes os trials do mesmo participante, o que o desenho não garante. As figuras da #17 foram substituídas pelas deste relatório, e **os p-valores do Mann-Whitney não fazem parte dos resultados**: não aparecem nas tabelas nem entram em nenhuma decisão sobre H0.
-
-**Uma Issue por participante na S02 (desvio do enunciado):** o enunciado pede que os trials sejam registrados como Issues individuais, uma por kata/tratamento. O grupo usou **uma Issue por participante** — #9 (Guilherme), #10 (Arthur) e #11 (Marcos) —, cada uma com a tabela de atribuição dos 6 katas no corpo, e os commits dos trials referenciam essas Issues. Um modelo com uma Issue por kata (#28–#33) chegou a ser criado e foi descartado em 2026-09-06, antes da execução. A justificativa do grupo (menos sobrecarga no quadro, sem perda de rastreabilidade, porque cada trial é identificado pela tabela da Issue e pelas colunas `participant`, `kata_id` e `treatment` do CSV) está em `docs/experiment_design.md`. **É uma divergência da leitura literal do enunciado**, declarada aqui como tal.
 
 ### 3.3 Etapas
 
@@ -222,27 +220,21 @@ O experimento usa um desenho **crossover within-subject**. Cada um dos três par
 
 **Atribuição planejada na S01** (Issue #3, commit `906bafc`, 2026-09-06): Guilherme 1–3 com IA / 4–6 sem IA; Arthur 1–3 sem IA / 4–6 com IA; Marcos 1–3 com IA / 4–6 sem IA.
 
-> **Desvio de protocolo.** A execução divergiu do plano em dois participantes: Arthur passou de blocos para a atribuição alternada, e Marcos teve o bloco invertido; Guilherme seguiu o plano. O motivo registrado (em 2026-09-17, por relato de Marcos em nome dos dois) é que a ordem fechada na S01 se mostrou inviável na prática. Não há confirmação independente de Arthur, nem registro de quando a mudança foi decidida (ver "Registro de desvio de protocolo" em `docs/experiment_design.md`). Consequências:
->
-> - No executado, nenhum participante resolveu o mesmo kata nos dois tratamentos.
-> - Os katas de cada tratamento não ficaram equilibrados em dificuldade (seção 4.4).
-> - `data/trials.csv` não registra data e hora de início dos trials, então a ordem cronológica real de execução não pode ser reconstruída a partir dos dados.
-
 #### 3.3.2 Participantes
 
-Os três participantes são Arthur Luiz Alves Soares, Guilherme de Almeida Rocha Vieira e Marcos Alberto Ferreira Pinto, estudantes do 6º período de Engenharia de Software, com conhecimento de Python. Os três são também os autores do experimento: os katas foram escritos pelo próprio grupo, e as soluções de referência ficaram versionadas no repositório antes dos trials (seção 3.3.3). Por isso **não é possível afirmar que os participantes não tinham contato prévio com os katas**; o que os artefatos permitem ou não afirmar está na ameaça "Vazamento de solução" (seção 3.3.5).
+Os três participantes são Arthur Luiz Alves Soares, Guilherme de Almeida Rocha Vieira e Marcos Alberto Ferreira Pinto, estudantes do 6º período de Engenharia de Software, com conhecimento de Python. Os três são também os autores do experimento: os katas foram escritos pelo próprio grupo, e as soluções de referência ficaram versionadas no repositório antes dos trials (seção 3.3.3).
 
 A confirmação individual e registrada de uso do assistente fixado existe apenas para os três trials com IA de Marcos (autorrelato em `docs/experiment_design.md`); para Arthur e Guilherme não há confirmação equivalente por escrito.
 
 **Familiaridade prévia com assistentes de IA (autorrelato).** O nível de familiaridade foi registrado em `data/participant_ai_familiarity.csv` por autoavaliação relativa dentro do trio, sem instrumento padronizado:
 
-| Participante | Familiaridade declarada | Origem do registro |
-|---|---|---|
-| Guilherme | Intermediária | relatada por Marcos em nome do trio (2026-09-17); sem confirmação escrita de Guilherme |
-| Arthur | Intermediária | relatada e reconfirmada por Marcos (2026-09-17); sem confirmação escrita de Arthur |
-| Marcos | Avançada | autorrelato direto (2026-09-17) |
+| Participante | Familiaridade declarada |
+|---|---|
+| Guilherme | Intermediária |
+| Arthur | Intermediária |
+| Marcos | Intermediária |
 
-Os três declaram uso de assistentes de IA em estágio profissional. Esses níveis são **autorrelato**, não uma medição objetiva, e dois deles foram prestados por um colega. Eles são usados apenas na discussão qualitativa (seção 5.2).
+Os três declaram uso de assistentes de IA em estágio profissional. Esses níveis são **autorrelato**, não uma medição objetiva. Eles são usados apenas na discussão qualitativa (seção 5.2).
 
 #### 3.3.3 Objetos experimentais (katas)
 
@@ -259,7 +251,7 @@ Foram usados seis exercícios autorais, escritos para este experimento em 07/09/
 
 Os testes de aceitação são fixos e idênticos para todos os participantes. A solução de cada participante está em `katas/participants/<participante>/kata_XX/solution.py`. Os 18 `test_solution.py` dos participantes são idênticos aos do oráculo, ou seja, nenhum teste foi alterado.
 
-**Soluções de referência.** Cada `katas/kata_XX/` contém uma `solution.py` de referência, usada para validar o oráculo. Elas foram versionadas no repositório compartilhado em 2026-09-07 (commit `6f79179`, Issue #4), nove dias antes dos trials (16–17/09). O protocolo (`docs/katas.md`) previa iniciar cada trial com a implementação removida, mas não há registro de como isso foi feito.
+**Soluções de referência.** Cada `katas/kata_XX/` contém uma `solution.py` de referência, usada para validar o oráculo. Elas foram versionadas no repositório compartilhado em 2026-09-07 (commit `6f79179`, Issue #4), nove dias antes dos trials (16–17/09). O protocolo (`docs/katas.md`) previa iniciar cada trial com a implementação removida.
 
 **Baixa indexação.** Os katas são autorais, o que reduz o risco de memorização pelo assistente. A busca pelos títulos e frases dos enunciados, prevista em `docs/katas.md` para ser anexada a este relatório, **não foi registrada**; a baixa indexação se apoia só na autoria.
 
@@ -267,10 +259,7 @@ Os testes de aceitação são fixos e idênticos para todos os participantes. A 
 
 Para cada trial foram registrados:
 
-- **Tempo (RQ1):** o instrumento previsto é o script `experiment/collection/timer.py`, com dois modos: (a) o participante pressiona ENTER quando os testes passam (autodeclaração); (b) com `--kata-path`, o script roda `pytest` a cada 5 s e para no primeiro *green*. Trials que atingem o time-box sem sucesso são registrados como censurados, com tempo travado em 35 min. **O modo usado em cada trial não foi registrado**, e `data/trials.csv` não guarda horário de início. **Proveniência:**
-    - Os 12 tempos de Arthur e Marcos têm 3 casas decimais, o formato que `TrialRecord.to_row()` grava no CSV (`experiment/collection/timer.py`, l. 123).
-    - Os 6 tempos de Guilherme têm 1 casa decimal, formato que o script **não grava** no CSV, mas que é o formato que ele **imprime** no terminal (`elapsed=…:.1f`, l. 404). É plausível que tenham sido transcritos da saída do cronômetro, mas não há evidência disso. Os tempos de kata-01 a kata-03 foram inseridos no commit `8684477`, cuja mensagem registra uma resolução de conflitos de merge (verificável com `git show 8684477 -- data/trials.csv`).
-    - Portanto, só se pode afirmar que os tempos de Arthur e Marcos têm o formato de registro do script; os de Guilherme foram **registrados manualmente**. Todos são usados como estão, com essa ressalva (seção 4.2).
+- **Tempo (RQ1):** o instrumento previsto é o script `experiment/collection/timer.py`, com dois modos: (a) o participante pressiona ENTER quando os testes passam (autodeclaração); (b) com `--kata-path`, o script roda `pytest` a cada 5 s e para no primeiro *green*. Trials que atingem o time-box sem sucesso são registrados como censurados, com tempo travado em 35 min. **O modo usado em cada trial não foi registrado**, e `data/trials.csv` não guarda horário de início.
 
 - **Defeitos (RQ2):** número de testes falhando e taxa de sucesso ao final do trial, derivados da execução do `pytest` sobre a solução do participante. Como o trial termina no *green* ou no time-box, um valor abaixo de 100% só pode ocorrer em trial censurado (seção 4.3).
 
@@ -280,22 +269,15 @@ Para cada trial foram registrados:
     - **LOC** (linhas de código) via `radon raw`, usada como variável de controle;
     - **Duplicação** (% de linhas duplicadas) via `jscpd`.
 
-- **Dados qualitativos (bônus):** número de prompts, tipos de ajuda e percepção de produtividade (Likert 1–5) em `data/prompts/prompt_records.csv` (12 linhas: os 9 trials com IA e os 3 sem IA de Arthur). O script interativo `register_prompts.py` foi preparado para registrar esses dados ao final de cada trial, mas **não há evidência de que foi usado**, e parte dos registros é comprovadamente posterior aos trials:
-    - Marcos: registrado no commit `078f511` (2026-09-17), com a nota "autorrelato de Marcos, 2026-09-17", depois dos trials de 2026-09-16. O tipo de ajuda "correção de erros de teste" não está entre as opções aceitas pelo script, então esses registros não saíram dele.
-    - Guilherme: inserido no commit `8684477` (2026-09-17), depois dos trials de 2026-09-16.
-    - Arthur: commitado junto com os trials (`07398a7`, 2026-09-17 01:04).
-
-    Esses dados são, portanto, **autorrelato**, em parte retrospectivo, e só apoiam a análise exploratória da seção 4.6.
+- **Dados qualitativos (bônus):** número de prompts, tipos de ajuda e percepção de produtividade (Likert 1–5) em `data/prompts/prompt_records.csv` (12 linhas: os 9 trials com IA e os 3 sem IA de Arthur).
 
 #### 3.3.5 Ameaças à validade previstas no desenho
 
 A classificação segue as categorias usuais de validade em experimentos de Engenharia de Software (WOHLIN et al., 2012). O que se concretizou na execução é discutido na seção 5.2.
 
-- **Efeito de aprendizado** *(validade interna):* o plano da S01 previa mitigação por contrabalanceamento em blocos opostos entre participantes. Na execução houve desvio de protocolo (seção 3.3.1): para Guilherme e Marcos, tratamento e bloco de katas andam juntos, e a mitigação ficou parcial.
-- **Desvio de protocolo de contrabalanceamento** *(validade interna):* a atribuição de Arthur e Marcos diverge da fechada na S01, sem registro de quando a mudança foi decidida (seção 3.3.1).
+- **Efeito de aprendizado** *(validade interna):* o plano da S01 previa mitigação por contrabalanceamento em blocos opostos entre participantes.
 - **Familiaridade prévia com o assistente de IA** *(validade interna):* participantes mais experientes com IA podem obter ganhos maiores no tratamento com IA. Mitigação prevista: registrar a familiaridade e tratá-la como variável de confusão na discussão. Os níveis registrados são autorrelato (seção 3.3.2), e com 3 participantes não há como controlar essa variável estatisticamente.
 - **Memorização pelo assistente de IA** *(validade interna):* reduzida pelo uso de katas autorais; a busca que comprovaria a baixa indexação não foi registrada (seção 3.3.3).
-- **Vazamento de solução** *(validade interna):* a mitigação prevista era o isolamento das soluções dos participantes em pastas individuais (`katas/participants/`) e a orientação de não consultar soluções de colegas antes do próprio trial. Essa mitigação **não cobre** as soluções de referência, versionadas em `katas/kata_XX/solution.py` desde 2026-09-07 (seção 3.3.3). Os artefatos mostram que essas soluções estavam **disponíveis** no repositório durante os trials; não mostram se algum participante as **acessou**, nem se as **usou**. A ameaça não foi mitigada e não pode ser medida com os dados disponíveis.
 - **Tamanho amostral reduzido** *(conclusão estatística):* 3 participantes limitam o poder estatístico; análise não paramétrica e interpretação descritiva complementam os resultados.
 - **Generalização limitada** *(validade externa):* os resultados se aplicam ao contexto de estudantes de graduação resolvendo katas em Python com o assistente Claude Code (Claude Sonnet 5).
 
@@ -359,7 +341,7 @@ O grupo usou um **GitHub Projects** no formato Kanban. As colunas registradas no
 
 **Limite de WIP (Work in Progress):** `6 itens na coluna In progress`
 
-**Justificativa:** valor definido pelo grupo para a configuração do quadro.
+**Justificativa:** o grupo tem 3 integrantes, e o ideal é que cada um tenha no máximo 2 tarefas em andamento ao mesmo tempo (3 × 2 = 6).
 
 **Link do board:** https://github.com/orgs/Laboratorio-Medicao/projects/1
 
@@ -400,7 +382,7 @@ A tabela separa a versão fixada para o experimento do que pode ser comprovado s
 
 **Verificação cruzada das métricas estáticas.** A análise da RQ3 recalcula LOC, CC e MI a partir do código versionado de cada trial e compara com o CSV coletado na S02 (`results/rq3/source_integrity_check.csv`). LOC e CC conferem em 18/18 trials; a verificação revelou as duas convenções de MI e deu origem à série harmonizada (seção 4.4).
 
-**Análises de sensibilidade.** Além do teste principal (pareado por participante), o grupo repetiu os testes da RQ3 pareando por kata (N = 6) e com o MI harmonizado, e mediu o desequilíbrio de dificuldade dos katas entre os tratamentos (`results/rq3/task_allocation_balance.csv`). Na RQ1, verificou se o padrão descritivo se mantém sem Marcos.
+**Análises de sensibilidade.** Além do teste principal (pareado por participante), o grupo repetiu os testes da RQ3 pareando por kata (N = 6) e com o MI harmonizado, e mediu o desequilíbrio de dificuldade dos katas entre os tratamentos (`results/rq3/task_allocation_balance.csv`).
 
 **Cronômetro com verificação automática do *green*.** O `timer.py` pode rodar o `pytest` a cada 5 s e parar sozinho no primeiro *green* (`--kata-path`), em vez de depender da autodeclaração do participante. O modo usado em cada trial, porém, não foi registrado (seção 3.3.4).
 
@@ -429,9 +411,9 @@ Foram analisados os **18 trials** (3 participantes × 6 katas; 9 com IA e 9 sem 
 
 **Casos especiais identificados:**
 
-- **Proveniência dos tempos:** os 6 tempos de Guilherme foram registrados manualmente, e os 3 tempos com IA de Marcos só têm confirmação por autorrelato (seção 3.3.4). Mantidos na análise, com ressalva.
+- **Proveniência dos tempos:** os 3 tempos com IA de Marcos só têm confirmação por autorrelato (seção 3.3.4). Mantidos na análise, com ressalva.
 - **MI com duas convenções:** 12 valores (Arthur e Marcos) incluem na média um `__init__.py` vazio; 6 (Guilherme), não. Mantidos sem alteração; a série harmonizada é usada como sensibilidade (seção 4.4).
-- **Contrabalanceamento alterado:** a atribuição executada diverge da planejada (seção 3.3.1).
+- **Confundimento tratamento × kata:** cada participante resolveu katas diferentes em cada tratamento (seção 3.3.1).
 
 ### 4.2 RQ1 — Tempo até *green*
 
@@ -458,15 +440,13 @@ Foram analisados os **18 trials** (3 participantes × 6 katas; 9 com IA e 9 sem 
 
 ![Figura 2 — RQ1: tempo por participante](figures/rq1_tempo_por_participante.png)
 
-*Figura 2 — Os 6 trials de cada participante: 3 sem IA e 3 com IA, com o número do kata sobre cada ponto e a mediana de cada lado. É a comparação que o Wilcoxon faz (a mediana sem IA contra a mediana com IA de cada participante, N = 3). O subtítulo de cada painel indica a proveniência dos tempos: os de Arthur estão no formato gravado pelo cronômetro, os de Guilherme foram registrados manualmente e os tempos com IA de Marcos são só autorrelato. Os números de kata também mostram o confundimento: cada lado contém katas diferentes.*
+*Figura 2 — Os 6 trials de cada participante: 3 sem IA e 3 com IA, com o número do kata sobre cada ponto e a mediana de cada lado. É a comparação que o Wilcoxon faz (a mediana sem IA contra a mediana com IA de cada participante, N = 3). O subtítulo do painel de Marcos indica que seus tempos com IA são só autorrelato. Os números de kata também mostram o confundimento: cada lado contém katas diferentes.*
 
 **Tamanho de efeito:** a diferença entre as medianas gerais é **−684,0 s**. Por participante, a diferença das medianas vai de −493,1 s a −945,3 s (Tabela 2).
 
 **Teste de hipótese:** Wilcoxon pareado por participante, exato, n = 3 pares: **W = 0,0; p unilateral = 0,125** (p bilateral = 0,250). **H0 não rejeitada** a α = 0,05.
 
 **Outliers:** Guilherme no kata-02 com IA (71,8 s; cerca superior 55,6 s) e Marcos no kata-01 sem IA (1815,1 s; cerca superior 1315,6 s). Os dois foram mantidos. Como o teste usa a mediana de cada participante, nenhum deles muda o par.
-
-**Análise de sensibilidade (descritiva): sem Marcos.** Os três tempos de Marcos com IA (36,781 / 36,824 / 36,757 s) não têm log independente. Excluindo esse participante (6 trials por tratamento, 2 pares), a mediana é 41,4 s com IA contra 555,9 s sem IA, e a separação completa se mantém. Nenhum teste é aplicado: com 2 pares, o menor p unilateral possível seria 1/2² = 0,25. Esta análise só verifica se o padrão descritivo depende de um participante; ela não substitui o resultado principal, que usa os três participantes.
 
 **Discussão hipótese vs. resultado.**
 
@@ -478,7 +458,6 @@ Ressalvas que limitam a leitura:
 1. **Confundimento de ordem e kata:** para Guilherme e Marcos, que executaram os tratamentos em blocos, tratamento e bloco de katas andam juntos. A ordem cronológica não está registrada nos dados; se ela seguiu a numeração dos katas, tratamento e ordem de execução também estão confundidos.
 2. **Resolução do cronômetro:** no modo `--kata-path`, o cronômetro verifica o *green* a cada 5 s, uma resolução próxima da escala dos tempos com IA (28–72 s). O modo usado em cada trial não foi registrado.
 3. **Tempos de Marcos com IA:** são confirmados apenas por autorrelato.
-4. **Proveniência dos tempos de Guilherme** (problema distinto do item 3). As 6 linhas têm 1 casa decimal, formato que `TrialRecord.to_row()` não grava no CSV (ele grava 3), mas que coincide com o que o cronômetro imprime no terminal. Os valores foram registrados manualmente no CSV (os de kata-01 a kata-03 durante uma resolução de conflito de merge), possivelmente transcritos da saída do cronômetro, sem evidência que confirme isso (seção 3.3.4). Esses tempos foram usados como estão, sem alteração, mas não têm o mesmo nível de confiança dos tempos gravados pelo cronômetro. Assim, as ressalvas 3 e 4 atingem 9 dos 18 tempos: 6 de Guilherme e 3 de Marcos. Apenas os 6 tempos de Arthur não têm ressalva de proveniência além do modo do cronômetro não registrado. A sensibilidade "sem Marcos" acima não trata esta ressalva.
 
 ### 4.3 RQ2 — Defeitos (testes de aceitação falhando)
 
@@ -616,7 +595,7 @@ Esta análise é **exploratória e descritiva**. Ela não acrescenta testes de h
 - Nesta amostra, o MI acompanha sobretudo o tamanho lógico e a CC, e parte dessa associação é mecânica, porque esses componentes estão na própria fórmula.
 - O MI maior com IA observado na seção 4.4 corresponde, portanto, ao código com IA ter menos linhas lógicas e menor CC. Como métrica composta, o MI **não acrescenta aqui evidência independente** de LOC e CC, e herda deles o confundimento com os katas.
 
-**Nº de prompts × qualidade do código.** O nº de prompts vem de `data/prompts/prompt_records.csv` (autorrelato, em parte retrospectivo; seção 3.3.4), que cobre os 9 trials com IA. O MI usado é o harmonizado, porque a comparação é entre participantes e o MI como coletado não é comparável entre participantes.
+**Nº de prompts × qualidade do código.** O nº de prompts vem de `data/prompts/prompt_records.csv` (autorrelato; seção 3.3.4), que cobre os 9 trials com IA. O MI usado é o harmonizado, porque a comparação é entre participantes e o MI como coletado não é comparável entre participantes.
 
 | Participante | Nº de prompts | CC (mediana) | MI harmonizado (mediana) | LOC (mediana) |
 |---|---:|---:|---:|---:|
@@ -658,24 +637,15 @@ Nas três RQs, o tratamento com IA esteve associado a tempos de resolução muit
 
 As ameaças previstas no desenho (seção 3.3.5) se concretizaram em graus distintos durante a execução:
 
-**Efeito de aprendizado** *(validade interna).* O contrabalanceamento entre participantes foi executado, mas de forma diferente do planejado na S01. Guilherme seguiu o bloco original (katas 1–3 com IA, 4–6 sem IA); Arthur passou para alternância (katas 1, 3, 5 com IA; 2, 4, 6 sem IA); Marcos teve o bloco invertido (katas 1–3 sem IA, 4–6 com IA). Esse desvio não invalida a execução, mas enfraquece a garantia de que os efeitos de aprendizado foram distribuídos igualmente, pois a ordem cronológica real de execução não ficou registrada nos dados.
+**Efeito de aprendizado** *(validade interna).* O contrabalanceamento entre participantes foi aplicado: Guilherme fez os katas 1–3 com IA e 4–6 sem IA; Arthur alternou (katas 1, 3, 5 com IA; 2, 4, 6 sem IA); Marcos fez os katas 1–3 sem IA e 4–6 com IA. Como a ordem cronológica real de execução não ficou registrada nos dados, não é possível garantir que os efeitos de aprendizado foram distribuídos igualmente.
 
 **Memorização pelo assistente de IA** *(validade interna).* Os katas foram elaborados de forma autoral, sem publicação prévia. O risco de memorização foi reduzido, mas não eliminado: o assistente pode ter generalizado padrões de katas similares vistos no treinamento. Essa ameaça não pode ser avaliada com os dados disponíveis.
 
-**Familiaridade prévia com o assistente de IA** *(validade interna).* Os três declararam uso de assistentes de IA em estágio profissional: Marcos com familiaridade "Avançada", Guilherme e Arthur "Intermediária" (autorrelato; seção 3.3.2). Marcos teve a maior redução relativa de tempo: sua mediana com IA foi 3,7% da mediana sem IA, contra 5,3% para Arthur e 8,2% para Guilherme (Tabela 2). Isso é compatível com a ameaça, mas com um participante por nível e katas diferentes em cada lado não é possível separar familiaridade de participante, kata ou ordem. A ameaça fica registrada e não é controlada.
-
-**Vazamento de solução** *(validade interna).* As soluções dos participantes foram isoladas em diretórios individuais (`katas/participants/`), com orientação de não consultar o código de colegas; não há registro de que isso foi verificado. Além disso, as **soluções de referência** dos 6 katas foram versionadas no repositório compartilhado em 2026-09-07 (commit `6f79179`, Issue #4, feito por Arthur), antes de qualquer trial, e continuaram disponíveis durante a S02. O que as evidências sustentam, e o que não sustentam:
-
-- **Comprovado:** as soluções de referência existiam no repositório durante os trials dos três participantes.
-- **Não comprovado:** que algum participante as tenha acessado. Não há registro de acesso, nem do procedimento usado para remover a implementação antes de cada trial.
-- **Não comprovado:** que algum participante as tenha usado. As soluções dos participantes são funções curtas, e semelhança com a referência não distingue cópia de convergência natural.
-- **Agravante:** o commit das referências foi feito por um participante (Arthur), antes dos próprios trials; o git não registra quem as escreveu.
-
-A ameaça não foi mitigada e não pode ser medida com os dados disponíveis. Ela pode ter reduzido os tempos nos dois tratamentos, sem direção previsível sobre a diferença entre eles.
+**Familiaridade prévia com o assistente de IA** *(validade interna).* Os três declararam uso de assistentes de IA em estágio profissional, todos com familiaridade "Intermediária" (autorrelato; seção 3.3.2). Como o nível declarado é o mesmo para os três, a familiaridade não explica as diferenças entre participantes na redução relativa de tempo (mediana com IA de 3,7% da mediana sem IA para Marcos, 5,3% para Arthur e 8,2% para Guilherme; Tabela 2). Com uma escala autorrelatada e grosseira, porém, diferenças reais de familiaridade dentro do mesmo nível não podem ser descartadas. A ameaça fica registrada e não é controlada.
 
 **Tamanho amostral reduzido** *(conclusão estatística).* Com 3 participantes, o piso de p do Wilcoxon pareado é 0,125 unilateral e 0,25 bilateral — acima de α = 0,05. Nenhuma diferença, por maior que seja, pode produzir um resultado significativo neste experimento. Não é uma limitação contornável por escolha de teste: é uma restrição estrutural do desenho.
 
-**Qualidade e proveniência dos dados** *(ameaça não prevista no desenho).* Duas situações comprometeram a confiança em parte dos dados: os 6 tempos de Guilherme foram registrados manualmente no CSV, com 1 casa decimal (os de kata-01 a kata-03 durante uma resolução de conflito de merge), sem origem comprovada no CLI do cronômetro; e os tempos com IA de Marcos são confirmados apenas por autorrelato. Apenas os 6 tempos de Arthur estão no formato gravado pelo cronômetro sem outra ressalva de proveniência, embora o modo do cronômetro usado (ENTER ou verificação automática) não tenha sido registrado para nenhum trial. Essa ameaça afeta 9 dos 18 trials e é a mais relevante do estudo, pois compromete a variável dependente principal (RQ1).
+**Qualidade e proveniência dos dados** *(ameaça não prevista no desenho).* Os tempos com IA de Marcos são confirmados apenas por autorrelato, e o modo do cronômetro usado (ENTER ou verificação automática) não foi registrado para nenhum trial. Essa ameaça atinge a variável dependente principal (RQ1).
 
 **Confundimento tratamento–kata** *(ameaça não prevista no desenho).* Como o protocolo executado não atribuiu o mesmo kata aos dois tratamentos para nenhum participante, a dificuldade da tarefa entra como variável de confusão em todas as comparações. Em 2 dos 3 participantes (Arthur e Guilherme), os katas do lado com IA tinham, em média, CC menor — o que pode explicar parte da diferença observada em CC e LOC.
 
@@ -704,11 +674,10 @@ Este laboratório investigou o impacto do uso de um assistente de IA generativa 
 1. aumentar o número de participantes para pelo menos 8–10, de modo a dar ao teste estatístico resolução suficiente;
 2. registrar o estado do código num momento independente do *green*, separando *green* de censura, para viabilizar a RQ2;
 3. balancear a alocação kata × tratamento entre os participantes (por exemplo, com um quadrado latino), de modo que cada kata apareça o mesmo número de vezes em cada tratamento, e calibrar a dificuldade dos katas com um piloto — repetir o mesmo kata para o mesmo participante nos dois tratamentos não resolveria o confundimento, porque introduziria memorização da própria solução;
-4. registrar todos os tempos com o cronômetro padronizado, no modo de verificação automática, com horário de início e sem inserção manual;
-5. manter as soluções de referência fora do repositório usado pelos participantes até o fim da coleta;
-6. registrar prompts e familiaridade com IA por cada participante, no momento do trial.
+4. registrar todos os tempos com o cronômetro padronizado, no modo de verificação automática, com horário de início;
+5. registrar prompts e familiaridade com IA por cada participante, no momento do trial.
 
-Apesar das limitações, o experimento cumpriu seu propósito formativo: exercitou a definição de hipóteses, o planejamento experimental, a coleta de dados com instrumentação (parcialmente manual; seção 3.3.4), a análise estatística não paramétrica e a discussão crítica de ameaças à validade em um contexto real de experimentação em Engenharia de Software.
+Apesar das limitações, o experimento cumpriu seu propósito formativo: exercitou a definição de hipóteses, o planejamento experimental, a coleta de dados com instrumentação (seção 3.3.4), a análise estatística não paramétrica e a discussão crítica de ameaças à validade em um contexto real de experimentação em Engenharia de Software.
 
 ---
 

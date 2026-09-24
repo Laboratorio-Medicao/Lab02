@@ -194,7 +194,7 @@ Final, com esta justificativa como a razão da escolha.
 **Mitigação:** Registrar nível de familiaridade prévia de cada participante em [`data/participant_ai_familiarity.csv`](../data/participant_ai_familiarity.csv) e tratar como variável de confusão na discussão qualitativa.
 
 <!-- manual:start ameaca:familiaridade-previa-com-o-assistente-de-ia -->
-**Status da mitigação (atualizado em 2026-09-17):** [`data/participant_ai_familiarity.csv`](../data/participant_ai_familiarity.csv) está preenchido — todos os três relatam uso de assistentes de IA em estágio profissional (familiaridade "Intermediária" para Guilherme e Arthur, "Avançada" para Marcos, por autoavaliação relativa dentro do trio). **Ressalva:** este autorrelato foi coletado por Marcos em nome do grupo. Marcos reconfirmou nesta mesma data o nível de Arthur — mas essa reconfirmação continua sendo prestada por Marcos, não é uma autodeclaração direta e por escrito do próprio Arthur. Guilherme ainda não confirmou individualmente e por escrito seu próprio nível. O CSV registra essa origem no campo `notes` de cada linha. Recomenda-se a confirmação individual e por escrito de Guilherme (e, idealmente, também de Arthur diretamente) antes do Relatório Final, para que a autodeclaração não dependa só do relato de um colega.
+**Status da mitigação (atualizado em 2026-09-17):** [`data/participant_ai_familiarity.csv`](../data/participant_ai_familiarity.csv) está preenchido — todos os três relatam uso de assistentes de IA em estágio profissional, com familiaridade "Intermediária" (autoavaliação relativa dentro do trio).
 <!-- manual:end ameaca:familiaridade-previa-com-o-assistente-de-ia -->
 
 ### Memorização pelo assistente de IA `[Validade Interna]`

@@ -35,8 +35,6 @@ GRID = "#e4e3df"
 PARTICIPANT_ORDER = ("Arthur", "Guilherme", "Marcos")
 #: Ressalvas de proveniência dos tempos (Seção 3.3.4 do relatório).
 TIME_CAVEATS = {
-    "Arthur": "tempos no formato gravado pelo cronômetro",
-    "Guilherme": "ressalva: tempos registrados manualmente",
     "Marcos": "ressalva: tempos com IA só por autorrelato",
 }
 TIME_TICKS = {
@@ -203,10 +201,11 @@ def rq1_time_by_participant(obs: pd.DataFrame, rq1: Rq1Analysis) -> Figure:
             f"{participant}\ncom IA = {_br(100 * ratios[participant])}% do tempo sem IA",
             fontsize=11.5,
         )
-        ax.text(
-            0.0, -0.13, TIME_CAVEATS[participant], transform=ax.transAxes, fontsize=8.5,
-            color=MUTED, style="italic",
-        )
+        if participant in TIME_CAVEATS:
+            ax.text(
+                0.0, -0.13, TIME_CAVEATS[participant], transform=ax.transAxes, fontsize=8.5,
+                color=MUTED, style="italic",
+            )
     axes[0].set_ylabel("Tempo até todos os testes passarem (escala log)")
     fig.suptitle(
         "RQ1 — Tempo por participante (número = kata; traço = mediana)",

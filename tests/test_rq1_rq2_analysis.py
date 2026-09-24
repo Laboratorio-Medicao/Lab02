@@ -312,16 +312,6 @@ class TestAnalyses:
         assert rq1.test.p_one_sided == pytest.approx(0.125)
         assert all(c.difference < 0 for c in rq1.by_participant)
 
-    def test_leave_one_out_excludes_participant(self):
-        records = _design_records(offsets={"Marcos": 1000.0})
-
-        rq1 = analyze_rq1(records, leave_out="Marcos")
-
-        assert rq1.leave_out_by_treatment[WITH_AI].n == 6
-        assert rq1.leave_out_by_treatment[WITH_AI].median == 40.0
-        assert rq1.leave_out_fully_separated
-        assert not rq1.fully_separated
-
     def test_by_kata_has_both_treatments_for_every_kata(self):
         rq1 = analyze_rq1(_design_records())
         assert len(rq1.by_kata) == len(KATAS)

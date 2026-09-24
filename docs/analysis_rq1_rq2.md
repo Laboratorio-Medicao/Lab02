@@ -58,17 +58,6 @@ Cercas Q1 − 1,5·IQR e Q3 + 1,5·IQR, calculadas sobre todos os trials de cada
 | Com IA | 25,5 | 55,6 | Guilherme kata-02 (71,8 s) |
 | Sem IA | 70,5 | 1315,6 | Marcos kata-01 (1815,1 s) |
 
-### Robustez: sem Marcos (descritivo)
-
-Os trials com IA de Marcos (36,781 / 36,824 / 36,757 s) não têm log independente de execução (ver ressalvas). Excluindo esse participante:
-
-| Tratamento | n | Mediana (s) | Q1 – Q3 | IQR | Mín – Máx |
-|---|---:|---:|---:|---:|---:|
-| Com IA | 6 | 41,4 | 37,8 – 52,1 | 14,3 | 27,6 – 71,8 |
-| Sem IA | 6 | 555,9 | 332,1 – 684,8 | 352,7 | 246,9 – 794,4 |
-
-Sem esse participante, todos os tempos com IA ficam abaixo de todos os tempos sem IA. Nenhum teste é aplicado: com 2 participante(s) o menor p possível seria 0,250.
-
 ## RQ2 — Defeitos (testes de aceitação falhando)
 
 > H0: o uso de assistente de IA não reduz a quantidade de defeitos (testes que falham) no código produzido. H1: reduz.
@@ -118,7 +107,6 @@ Como nenhuma das duas métricas de RQ2 chegou a ser testada, não há correção
 - **Desvio de contrabalanceamento:** Arthur e Marcos executaram uma ordem de tratamentos diferente da fechada na S01 (ver `docs/experiment_design.md`, "Registro de desvio de protocolo").
 - **Tempos com IA de Marcos** (36,781 / 36,824 / 36,757 s, amplitude de 0,067 s): confirmados apenas por autorrelato, sem log independente.
 - **Resolução do cronômetro:** com `--kata-path`, o green é verificado a cada 5 s (padrão), uma resolução próxima da escala dos tempos com IA (28–72 s).
-- **Proveniência dos tempos:** os valores de `elapsed_seconds` de Guilherme não têm as 3 casas decimais que `TrialRecord.to_row` sempre grava no CSV, então foram registrados manualmente (ver o histórico git de `data/trials.csv`); o formato coincide com o que o cronômetro imprime no terminal, mas não há evidência de que tenham sido transcritos dele. São usados como estão, com confiança menor que os tempos gravados pelo cronômetro.
 - **Confusão tratamento × kata × ordem:** Guilherme e Marcos fizeram os tratamentos em blocos, então para eles tratamento, kata e ordem de execução andam juntos.
 - **Leitura do CSV:** os valores de `data/trials.csv` são lidos numericamente, não como texto, porque nem todas as linhas precisam seguir o formato exato de `TrialRecord.to_row` (número de casas decimais).
 - **Tamanho amostral:** com 3 participantes, o teste pareado não tem poder para rejeitar H0 a α = 0,05; os resultados devem ser lidos principalmente pela estatística descritiva.

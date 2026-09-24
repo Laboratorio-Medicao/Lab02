@@ -432,8 +432,6 @@ class Rq1Analysis:
     fully_separated: bool
     test: PairedTestResult
     leave_out_participant: str
-    leave_out_by_treatment: dict[Treatment, Summary]
-    leave_out_fully_separated: bool
     leave_out_with_ai_times: tuple[float, ...]
 
 
@@ -453,7 +451,6 @@ def analyze_rq1(
     records: Sequence[TrialRecord], leave_out: str = LEAVE_OUT_PARTICIPANT
 ) -> Rq1Analysis:
     by_participant = compare_by_participant(records, elapsed_seconds)
-    remaining = [r for r in records if r.participant != leave_out]
     return Rq1Analysis(
         by_treatment=summarize_by_treatment(records, elapsed_seconds),
         censored_by_treatment={
@@ -466,8 +463,6 @@ def analyze_rq1(
         # H1 (RQ1): com IA leva menos tempo.
         test=participant_wilcoxon(by_participant, alternative="less"),
         leave_out_participant=leave_out,
-        leave_out_by_treatment=summarize_by_treatment(remaining, elapsed_seconds),
-        leave_out_fully_separated=fully_separated(remaining, elapsed_seconds),
         leave_out_with_ai_times=tuple(
             r.elapsed_seconds
             for r in records
