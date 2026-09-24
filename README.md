@@ -105,6 +105,21 @@ aplica o teste de Wilcoxon pareado por participante e gera
 [`docs/analysis_rq1_rq2.md`](docs/analysis_rq1_rq2.md) com p-valores, conclusão
 sobre H0, outliers, trials censurados e ressalvas.
 
+**Gráficos comparativos com IA × sem IA** ([Issue #17](../../issues/17)):
+
+```bash
+python generate_figures.py
+```
+
+Consolida com pandas `data/trials.csv` e `data/static_metrics.csv` (já
+validados) numa tabela com uma linha por trial e gera em
+[`docs/figures/`](docs/figures/) os boxplots de RQ1 (tempo), RQ2 (taxa de
+sucesso e testes falhando) e RQ3 (CC, MI, LOC e duplicação), em PNG (300 dpi) e
+PDF. Cada painel anota a mediana de cada tratamento, o p do Wilcoxon pareado
+por participante (reaproveitado da análise da #15) e o do Mann-Whitney como
+complemento exploratório. A saída é determinística: regenerar as figuras não
+gera diff.
+
 ## Reprodutibilidade
 
 - As dependências e versões exatas estão fixadas em [`requirements.txt`](requirements.txt).

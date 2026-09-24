@@ -82,7 +82,7 @@ Para cada trial são registrados:
 
 ### 2.5 Análise estatística
 
-As métricas RQ1 e RQ2 serão analisadas com o **teste de Wilcoxon pareado** (within-subject), adequado ao tamanho amostral reduzido e à ausência de garantia de normalidade. Para RQ3, serão reportadas mediana e IQR de CC, MI e duplicação para as duas condições. Dado o tamanho amostral de 3 participantes × 6 katas = 18 trials, os resultados serão interpretados com cautela quanto à generalização.
+As métricas RQ1 e RQ2 serão analisadas com o **teste de Wilcoxon pareado** (within-subject), adequado ao tamanho amostral reduzido e à ausência de garantia de normalidade. Para RQ3, serão reportadas mediana e IQR de CC, MI e duplicação para as duas condições; o Wilcoxon pareado (bilateral) também é aplicado a essas métricas, mas apenas como análise **exploratória** — desvio em relação ao plano original, feito para que os gráficos das três RQs tragam a mesma anotação. LOC é variável de controle e aparece nos gráficos apenas como referência. Como complemento exploratório em todas as RQs, os gráficos trazem também o teste de Mann-Whitney sobre os 9 trials de cada tratamento, que ignora a dependência entre trials do mesmo participante. Dado o tamanho amostral de 3 participantes × 6 katas = 18 trials, os resultados serão interpretados com cautela quanto à generalização.
 
 ### 2.6 Ameaças à validade
 
@@ -96,7 +96,28 @@ As métricas RQ1 e RQ2 serão analisadas com o **teste de Wilcoxon pareado** (wi
 
 ## 3. Resultados
 
-*(a preencher após a execução completa dos trials — Sprint S02)*
+### 3.1 Gráficos comparativos
+
+Figuras geradas por `python generate_figures.py` (versões vetoriais em PDF em `docs/figures/`). Em todos os painéis:
+
+- cada ponto é um trial, e o formato do marcador identifica o participante;
+- as linhas cinza ligam o valor de cada participante sem IA ao valor com IA — o mesmo valor usado no teste pareado (mediana dos trials; média na RQ2);
+- o número em negrito ao lado de cada caixa é a mediana dos 9 trials do tratamento;
+- abaixo de cada painel ficam o p do Wilcoxon pareado por participante e o do Mann-Whitney (MW) exploratório. Com 3 participantes, o menor p possível do Wilcoxon é 0,125 (unilateral) ou 0,250 (bilateral), maior que α = 0,05: o teste não tem poder para rejeitar H0, qualquer que seja o efeito. O MW compara os 9 trials de cada tratamento, mas trata como independentes trials do mesmo participante, então seu p não sustenta conclusão sobre H0.
+
+![RQ1 — tempo até green por tratamento](figures/rq1_tempo.png)
+
+*Figura 1 — RQ1: tempo até todos os testes passarem (escala logarítmica). A linha tracejada marca o time-box de 35 min; nenhum trial foi censurado. Wilcoxon pareado unilateral (H1: com IA < sem IA).*
+
+![RQ2 — taxa de sucesso e testes falhando por tratamento](figures/rq2_defeitos.png)
+
+*Figura 2 — RQ2: taxa de sucesso e testes falhando ao final do trial. Todos os 18 trials terminaram com 100% dos testes passando, então não há variação a testar (efeito de teto — ver `docs/analysis_rq1_rq2.md`).*
+
+![RQ3 — CC, MI, LOC e duplicação por tratamento](figures/rq3_estrutura.png)
+
+*Figura 3 — RQ3: complexidade ciclomática média, índice de manutenibilidade, LOC (variável de controle) e duplicação. Wilcoxon pareado bilateral, exploratório. O MW de LOC (p ≈ 0,011) contrasta com o pareado (p = 0,250), mas não é evidência de efeito, porque os trials não são independentes. A duplicação foi 0% em todos os trials.*
+
+*(Análise textual dos resultados a completar — Sprint S03.)*
 
 ---
 
