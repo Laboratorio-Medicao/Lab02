@@ -4,6 +4,12 @@
 
 Analisar o uso de assistentes de IA generativa na resolução de tarefas de programação, com o propósito de comparar seu efeito frente à codificação manual, com respeito a tempo de resolução, qualidade funcional (defeitos) e qualidade estrutural do código produzido, do ponto de vista do grupo pesquisador, no contexto de katas de dificuldade equivalente resolvidos por estudantes de graduação sob condições controladas (crossover within-subject, time-boxed).
 
+## Questões de Pesquisa
+
+- **RQ1.** Qual o impacto do uso de assistente de IA no tempo necessário para resolver uma tarefa de programação?
+- **RQ2.** Como o uso de assistente de IA afeta a taxa de sucesso nos testes de aceitação do código produzido?
+- **RQ3.** Como o uso de assistente de IA afeta a estrutura do código produzido?
+
 ## Hipóteses
 
 ### RQ1
