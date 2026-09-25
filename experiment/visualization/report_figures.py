@@ -120,12 +120,13 @@ def _box_with_points(
 
 
 def _label_outlier(
-    ax: Axes, x_of: dict[tuple[str, float], float], treatment: str, value: float, text: str
+    ax: Axes, x_of: dict[tuple[str, float], float], treatment: str, value: float, text: str,
+    dy: float = 0,
 ) -> None:
-    """Rótulo à esquerda do ponto, ligado a ele por um traço curto."""
+    """Rótulo à esquerda do ponto, ligado a ele por um traço curto (dy desloca na vertical)."""
     x = x_of[(treatment, round(float(value), 9))]
     ax.annotate(
-        text, (x, value), xytext=(-14, 0), textcoords="offset points",
+        text, (x, value), xytext=(-14, dy), textcoords="offset points",
         ha="right", va="center", fontsize=9, color=MUTED,
         arrowprops={"arrowstyle": "-", "color": MUTED, "lw": 0.7, "shrinkB": 4},
     )
@@ -155,7 +156,7 @@ def _save(fig: Figure, out_dir: Path, name: str) -> list[Path]:
 
 def rq1_time_by_treatment(obs: pd.DataFrame, rq1: Rq1Analysis) -> Figure:
     """Gráfico 1 — tamanho da diferença entre os tratamentos e dispersão de cada um."""
-    fig, ax = plt.subplots(figsize=(6.4, 5.6))
+    fig, ax = plt.subplots(figsize=(10.5, 5.0))
     values = {t: obs.loc[obs["treatment"] == t, "elapsed_seconds"] for t in TREATMENTS}
     x_of = _box_with_points(ax, values, digits=1)
     _time_axis(ax)
@@ -165,6 +166,8 @@ def rq1_time_by_treatment(obs: pd.DataFrame, rq1: Rq1Analysis) -> Figure:
             _label_outlier(
                 ax, x_of, treatment.value, trial.elapsed_seconds,
                 f"{trial.participant} {trial.kata_id}\n{_br(trial.elapsed_seconds)} s (outlier)",
+                # Perto do time-box, o rótulo desce para não cruzar a linha tracejada.
+                dy=-12 if trial.elapsed_seconds > 0.7 * TIME_BOX_SECONDS else 0,
             )
     ax.set_ylabel("Tempo até todos os testes passarem (escala log)")
     ax.set_title("RQ1 — Tempo até green por tratamento")
@@ -177,7 +180,7 @@ def rq1_time_by_treatment(obs: pd.DataFrame, rq1: Rq1Analysis) -> Figure:
 def rq1_time_by_participant(obs: pd.DataFrame, rq1: Rq1Analysis) -> Figure:
     """Gráfico 2 — a diferença dentro de cada pessoa (unidade do Wilcoxon) e os katas de cada lado."""
     ratios = {c.participant: c.with_ai.median / c.without_ai.median for c in rq1.by_participant}
-    fig, axes = plt.subplots(1, 3, figsize=(11, 5.2), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(10.5, 5.2), sharey=True)
     for ax, participant in zip(axes, PARTICIPANT_ORDER):
         rows = obs[obs["participant"] == participant]
         for position, treatment in enumerate(TREATMENTS):
@@ -229,7 +232,7 @@ def rq2_trial_outcomes(obs: pd.DataFrame) -> Figure:
     Mostra, trial a trial, que a métrica não variou e em qual tratamento cada kata foi feito.
     """
     katas = sorted(obs["kata_id"].unique())
-    fig, ax = plt.subplots(figsize=(9.4, 4.4))
+    fig, ax = plt.subplots(figsize=(10.5, 4.6))
     for row, participant in enumerate(PARTICIPANT_ORDER):
         for col, kata in enumerate(katas):
             trial = obs[(obs["participant"] == participant) & (obs["kata_id"] == kata)].iloc[0]
@@ -347,7 +350,7 @@ def _participant_medians(obs: pd.DataFrame, column: str) -> pd.DataFrame:
 def rq3_pairs(results: Rq3Results) -> Figure:
     """Gráfico 6 — a comparação que o Wilcoxon faz (N = 3) para LOC e CC."""
     obs = results.observations
-    fig, axes = plt.subplots(1, 2, figsize=(10, 4.8))
+    fig, axes = plt.subplots(1, 2, figsize=(10.5, 5.0))
     for ax, (column, title, digits) in zip(
         axes,
         (("loc", "LOC (linhas)", 0), ("cyclomatic_complexity_avg", "CC", 0)),
@@ -364,32 +367,67 @@ def rq3_pairs(results: Rq3Results) -> Figure:
     return fig
 
 
+#: Área da bolha (pt²) por segundo até o green: a área é proporcional ao tempo.
+BUBBLE_AREA_PER_SECOND = 1.1
+BUBBLE_LEGEND_SECONDS = {30: "30 s", 300: "5 min", 1800: "30 min"}
+
+
 def rq3_cc_vs_loc(results: Rq3Results) -> Figure:
-    """Gráfico 7 — relação entre tamanho e complexidade."""
-    obs = results.observations
-    fig, ax = plt.subplots(figsize=(7.2, 5.4))
-    seen: dict[tuple[float, float], int] = {}
-    for treatment in TREATMENTS:
-        side = obs[obs["treatment"] == treatment]
-        for _, trial in side.iterrows():
-            key = (trial["loc"], trial["cyclomatic_complexity_avg"])
-            nudge = 0.35 * seen.get(key, 0)
-            seen[key] = seen.get(key, 0) + 1
-            ax.scatter(
-                trial["loc"] + nudge, trial["cyclomatic_complexity_avg"], s=60,
-                color=COLORS[treatment], edgecolor="white", zorder=3,
-            )
+    """Gráfico 7 — bolhas: tamanho (LOC) × complexidade (CC), com o tempo até green como área."""
+    obs = results.observations.copy()
+    obs["area"] = obs["elapsed_seconds"] * BUBBLE_AREA_PER_SECOND
+    fig, ax = plt.subplots(figsize=(10.5, 5.4))
+    # Das maiores para as menores: em (9, 4) a bolha pequena com IA fica por cima da grande sem IA.
+    for _, trial in obs.sort_values("area", ascending=False).iterrows():
+        ax.scatter(
+            trial["loc"], trial["cyclomatic_complexity_avg"], s=trial["area"],
+            color=COLORS[trial["treatment"]], alpha=0.55, edgecolor="white", linewidth=1, zorder=3,
+        )
+    placed: list[tuple[float, float]] = []
+    for _, trial in obs.sort_values(["loc", "cyclomatic_complexity_avg"]).iterrows():
+        x, y = trial["loc"], trial["cyclomatic_complexity_avg"]
+        radius = math.sqrt(trial["area"] / math.pi)
+        # Rótulo à direita da bolha; acima dela se há outra bolha logo à direita;
+        # se outro rótulo já está perto, sobe um pouco.
+        neighbour_right = ((obs["loc"] > x) & (obs["loc"] <= x + 2)
+                           & ((obs["cyclomatic_complexity_avg"] - y).abs() < 0.6)).any()
+        dy = 9 if any(abs(x - px) < 2.5 and abs(y - py) < 0.6 for px, py in placed) else 0
+        placed.append((x, y))
+        ax.annotate(
+            f"{trial['participant'][0]}{trial['kata_id'].removeprefix('kata-')}", (x, y),
+            xytext=(0, radius + 3) if neighbour_right else (radius + 3, dy), textcoords="offset points",
+            ha="center" if neighbour_right else "left", va="bottom" if neighbour_right else "center",
+            fontsize=8.5, color=INK, zorder=4,
+        )
     rho = obs["loc"].corr(obs["cyclomatic_complexity_avg"], method="spearman")
-    ax.text(0.02, 0.96, f"Spearman ρ = {_br(rho, 2)}", transform=ax.transAxes, va="top", fontsize=10.5)
-    ax.legend(
-        handles=[Patch(color=COLORS[t], label=LABELS[t]) for t in TREATMENTS],
-        loc="lower right", frameon=False,
+    ax.text(0.01, 0.97, f"Spearman ρ (LOC × CC) = {_br(rho, 2)}", transform=ax.transAxes, va="top", fontsize=10.5)
+    color_legend = ax.legend(
+        handles=[Patch(color=COLORS[t], alpha=0.7, label=LABELS[t]) for t in TREATMENTS],
+        loc="lower left", bbox_to_anchor=(1.01, 0.0), frameon=False,
     )
+    ax.add_artist(color_legend)
+    ax.legend(
+        handles=[
+            ax.scatter([], [], s=seconds * BUBBLE_AREA_PER_SECOND, color=MUTED, alpha=0.35, edgecolor="white")
+            for seconds in BUBBLE_LEGEND_SECONDS
+        ],
+        labels=list(BUBBLE_LEGEND_SECONDS.values()), title="Tempo até green\n(área da bolha)",
+        loc="upper left", bbox_to_anchor=(1.01, 1.0), frameon=False, labelspacing=2.2,
+        borderpad=1.2, handletextpad=1.6,
+        scatterpoints=1, title_fontsize=9.5, fontsize=9.5,
+    )
+    ax.set_xlim(4, 44)
+    ax.set_ylim(2.8, 15.8)
+    ax.yaxis.set_major_locator(MaxNLocator(integer=True))
     ax.grid(axis="x", visible=True)
     ax.set_xlabel("LOC (linhas)")
     ax.set_ylabel("CC (complexidade ciclomática)")
-    ax.set_title("RQ3 — CC × LOC nos 18 trials")
-    _footer(fig, "Cada ponto é um trial · pontos coincidentes deslocados levemente na horizontal")
+    ax.set_title("RQ3 — LOC × CC × tempo até green nos 18 trials")
+    _footer(
+        fig,
+        "Cada bolha é um trial (inicial do participante + kata) · área proporcional ao tempo até green (RQ1) · "
+        "em (9, 4) há duas bolhas: G05 sem IA e M05 com IA",
+    )
     fig.tight_layout(rect=(0, 0.03, 1, 1))
     return fig
 
@@ -497,7 +535,7 @@ def bonus_mi_components(components: pd.DataFrame) -> Figure:
         ("cc_total", "CC (complexidade ciclomática)"),
         ("halstead_volume", "Volume de Halstead"),
     )
-    fig, axes = plt.subplots(1, 3, figsize=(12, 4.6), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(10.5, 4.6), sharey=True)
     for ax, (column, xlabel) in zip(axes, panels):
         # Pontos coincidentes (ex.: Arthur kata-06 sem IA e Marcos kata-06 com IA)
         # são deslocados na horizontal para que nenhum fique escondido.
@@ -601,6 +639,12 @@ def _trial_metrics(components: pd.DataFrame, observations: pd.DataFrame) -> pd.D
     return observations.merge(components[[*TRIAL_KEYS, "lloc", "halstead_volume"]], on=TRIAL_KEYS)
 
 
+def _side_panel(fig: Figure, x: float, top: float, title: str, rows: list[str]) -> None:
+    """Bloco de texto à direita da figura: título em negrito e uma linha por item."""
+    fig.text(x, top, title, fontsize=11, fontweight="bold", color=INK, va="top")
+    fig.text(x, top - 0.07, "\n".join(rows), fontsize=9.5, color=INK, va="top", linespacing=1.55)
+
+
 def bonus_radar_profile(components: pd.DataFrame, observations: pd.DataFrame) -> Figure:
     """Perfil multimétrico de cada tratamento: mediana de cada métrica em % da maior das duas."""
     merged = _trial_metrics(components, observations)
@@ -610,7 +654,8 @@ def bonus_radar_profile(components: pd.DataFrame, observations: pd.DataFrame) ->
 
     angles = [2 * math.pi * i / len(RADAR_AXES) for i in range(len(RADAR_AXES))]
     closed = angles + angles[:1]
-    fig, ax = plt.subplots(figsize=(7.6, 7.4), subplot_kw={"projection": "polar"})
+    fig = plt.figure(figsize=(10.5, 5.4))
+    ax = fig.add_axes((0.06, 0.1, 0.44, 0.74), projection="polar")
     ax.set_theta_offset(math.pi / 2)
     ax.set_theta_direction(-1)
     for treatment in (WITHOUT_AI, WITH_AI):
@@ -622,28 +667,35 @@ def bonus_radar_profile(components: pd.DataFrame, observations: pd.DataFrame) ->
         f"{label}\n{_br(medians.loc[WITHOUT_AI, column], digits)} × {_br(medians.loc[WITH_AI, column], digits)}"
         for column, label, digits in RADAR_AXES
     ]
-    ax.set_xticks(angles, labels, fontsize=10)
-    ax.tick_params(axis="x", pad=16)
+    ax.set_xticks(angles, labels, fontsize=9.5)
+    ax.tick_params(axis="x", pad=12)
     ax.set_ylim(0, 105)
     ax.set_yticks([25, 50, 75, 100], ["25%", "50%", "75%", "100%"], fontsize=8, color=MUTED)
     ax.set_rlabel_position(180 / len(RADAR_AXES))
     ax.grid(color=GRID)
     ax.spines["polar"].set_color(MUTED)
-    ax.legend(
-        handles=[Patch(color=COLORS[t], label=LABELS[t]) for t in (WITHOUT_AI, WITH_AI)],
-        loc="upper center", bbox_to_anchor=(0.5, -0.1), ncol=2, frameon=False,
-    )
-    ax.set_title(
+    fig.suptitle(
         "Bônus — Perfil multimétrico por tratamento (mediana, % da maior das duas)",
-        loc="center", pad=34,
+        x=0.01, ha="left", fontweight="bold", fontsize=12.5,
     )
-    _footer(
-        fig,
-        "Rótulo de cada eixo: mediana sem IA × com IA · MI: maior = mais manutenível; demais: maior = mais tempo,\n"
-        "mais código ou mais complexidade · taxa de sucesso (100% × 100%) e duplicação (0% × 0%) ficam fora: não variaram.\n"
-        "Descritivo, sem teste · cada lado contém katas diferentes · os eixos não são independentes (o MI é calculado de LLOC, CC e Halstead).",
+    fig.legend(
+        handles=[Patch(color=COLORS[t], label=LABELS[t]) for t in (WITHOUT_AI, WITH_AI)],
+        loc="upper left", bbox_to_anchor=(0.6, 0.86), ncol=2, frameon=False, fontsize=10.5,
     )
-    fig.tight_layout(rect=(0, 0.09, 1, 1))
+    with_ai_share = shares.loc[WITH_AI]
+    rows = [
+        f"{label.replace(chr(10), ' ').removesuffix(' (s)')}: {_br(with_ai_share[column], 1)}%"
+        for column, label, _ in RADAR_AXES
+    ]
+    _side_panel(fig, 0.6, 0.74, "Com IA, em % do sem IA", rows)
+    fig.text(
+        0.6, 0.2,
+        "Rótulo de cada eixo: mediana sem IA × com IA.\n"
+        "MI: maior = melhor; demais: maior = mais tempo,\n"
+        "código ou complexidade. Descritivo, sem teste;\n"
+        "ressalvas na Seção 5.1 do relatório.",
+        fontsize=9, color=MUTED, style="italic", va="top", linespacing=1.5,
+    )
     return fig
 
 
@@ -654,7 +706,9 @@ def bonus_correlation_heatmap(components: pd.DataFrame, observations: pd.DataFra
     rho = merged[columns].corr(method="spearman")
     labels = [SHORT_LABELS[c].replace("\n", " ") for c in columns]
 
-    fig, ax = plt.subplots(figsize=(8, 6.4))
+    fig = plt.figure(figsize=(10.5, 5.4))
+    ax = fig.add_axes((0.15, 0.2, 0.42, 0.66))
+    cax = fig.add_axes((0.59, 0.2, 0.014, 0.66))
     cmap = plt.get_cmap("RdBu_r")
     size = len(columns) - 1
     # Só o triângulo inferior, sem a diagonal (ρ = 1 de cada métrica consigo mesma).
@@ -666,7 +720,7 @@ def bonus_correlation_heatmap(components: pd.DataFrame, observations: pd.DataFra
                 edgecolor="white", linewidth=2,
             ))
             ax.text(
-                j, i, _br(value, 2), ha="center", va="center", fontsize=10,
+                j, i, _br(value, 2), ha="center", va="center", fontsize=9.5,
                 color="white" if abs(value) >= 0.6 else INK, fontweight="bold" if abs(value) >= 0.6 else None,
             )
     ax.set_xlim(-0.5, size - 0.5)
@@ -678,16 +732,28 @@ def bonus_correlation_heatmap(components: pd.DataFrame, observations: pd.DataFra
     for spine in ax.spines.values():
         spine.set_visible(False)
     mappable = plt.cm.ScalarMappable(cmap=cmap, norm=matplotlib.colors.Normalize(-1, 1))
-    bar = fig.colorbar(mappable, ax=ax, fraction=0.04, pad=0.02)
+    bar = fig.colorbar(mappable, cax=cax)
     bar.set_label("ρ de Spearman")
     bar.outline.set_visible(False)
-    ax.set_title("Bônus — Correlação entre as métricas (Spearman, 18 trials)")
-    _footer(
-        fig,
-        "Descritivo, sem p-valor · os 18 trials misturam os dois tratamentos: parte das correlações vem da diferença entre eles\n"
-        "(ex.: tempo × LOC) · parte é mecânica: o MI é calculado a partir de LLOC, CC e volume de Halstead.",
+    fig.suptitle(
+        "Bônus — Correlação entre as métricas (Spearman, 18 trials)",
+        x=0.01, ha="left", fontweight="bold", fontsize=12.5,
     )
-    fig.tight_layout(rect=(0, 0.06, 1, 1))
+    _side_panel(fig, 0.7, 0.86, "Como ler", [
+        "Vermelho = positiva; azul = negativa.",
+        "Negrito: |ρ| ≥ 0,6.",
+        "",
+        "Os 18 trials misturam os dois",
+        "tratamentos: parte das correlações",
+        "vem da diferença entre eles",
+        "(ex.: tempo × LOC).",
+        "",
+        "Parte é mecânica: o MI é calculado",
+        "a partir de LLOC, CC e volume",
+        "de Halstead.",
+        "",
+        "Descritivo, sem p-valor.",
+    ])
     return fig
 
 

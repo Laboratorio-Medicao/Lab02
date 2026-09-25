@@ -172,7 +172,7 @@ análises já validadas (#15 e #16). Cada figura responde a uma única pergunta:
 | `rq3_loc_cc_por_tratamento` | LOC e CC diferem entre os tratamentos? |
 | `rq3_loc_cc_por_participante` | Os três pares (unidade do Wilcoxon) vão na mesma direção? |
 | `rq3_mi_duas_series` | O MI mudou, nas duas séries (como coletado e harmonizado)? |
-| `rq3_cc_vs_loc` | A complexidade acompanha o tamanho? |
+| `rq3_cc_vs_loc` | A complexidade acompanha o tamanho? (bolhas: LOC × CC, área = tempo até green) |
 | `rq3_cc_normalizada` | A CC por linha difere, e quanto isso depende da contagem de linhas? |
 
 Os p-valores ficam nas tabelas do relatório, não nas figuras. A saída é

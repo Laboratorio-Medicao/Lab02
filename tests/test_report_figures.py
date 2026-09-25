@@ -50,3 +50,8 @@ def test_save_is_deterministic(figures, tmp_path):
     second = save_all(build_all(analyze_rq1(load_trials()), analyse()), tmp_path / "b")
     for a, b in zip(first, second):
         assert a.read_bytes() == b.read_bytes(), a.name
+
+
+def test_bubble_chart_labels_every_trial(figures):
+    labels = [t.get_text() for t in figures["rq3_cc_vs_loc"].axes[0].texts if len(t.get_text()) == 3]
+    assert len(labels) == 18 and {"M01", "G05", "M05"} <= set(labels)

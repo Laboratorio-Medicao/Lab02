@@ -349,7 +349,7 @@ O grupo usou um **GitHub Projects** no formato Kanban. As colunas registradas no
 
 **Print do board:**
 
-![Kanban — Sprint 3 (estado final)](figures/kanban-sprint3.png)
+<p align="center"><img src="figures/kanban-sprint3.png" alt="Kanban — Sprint 3 (estado final)" width="800"></p>
 
 *Figura — Board do GitHub Projects filtrado por `label:lab02` ao final da Sprint 3. Todas as 34 issues estão na coluna Done.*
 
@@ -430,7 +430,7 @@ Foram analisados os **18 trials** (3 participantes × 6 katas; 9 com IA e 9 sem 
 | Com IA | 9 | 37,6 | 36,8 – 44,3 | 7,5 | 27,6 – 71,8 | 0 |
 | Sem IA | 9 | 721,6 | 537,4 – 848,7 | 311,3 | 246,9 – 1815,1 | 0 |
 
-![Figura 1 — RQ1: tempo até green por tratamento](figures/rq1_tempo_por_tratamento.png)
+<p align="center"><img src="figures/rq1_tempo_por_tratamento.png" alt="Figura 1 — RQ1: tempo até green por tratamento" width="800"></p>
 
 *Figura 1 — Tempo até todos os testes passarem, por tratamento (9 trials cada). A caixa marca o IQR e o traço a mediana (37,6 s e 721,6 s). Cada ponto é um trial. O eixo é logarítmico, com marcas em segundos e minutos, porque os tempos dos dois tratamentos diferem em uma a duas ordens de grandeza. A linha tracejada marca o time-box de 35 min (nenhum trial foi censurado). Os dois outliers de Tukey estão rotulados e foram mantidos.*
 
@@ -442,7 +442,7 @@ Foram analisados os **18 trials** (3 participantes × 6 katas; 9 com IA e 9 sem 
 | Arthur | 27,6 / 38,4 / 54,7 | 246,9 / 721,6 / 794,4 | −683,2 | 5,3% |
 | Marcos | 36,8 / 36,8 / 36,8 | 848,7 / 982,1 / 1815,1 | −945,3 | 3,7% |
 
-![Figura 2 — RQ1: tempo por participante](figures/rq1_tempo_por_participante.png)
+<p align="center"><img src="figures/rq1_tempo_por_participante.png" alt="Figura 2 — RQ1: tempo por participante" width="800"></p>
 
 *Figura 2 — Os 6 trials de cada participante: 3 sem IA e 3 com IA, com o número do kata sobre cada ponto e a mediana de cada lado. É a comparação que o Wilcoxon faz (a mediana sem IA contra a mediana com IA de cada participante, N = 3). O subtítulo do painel de Marcos indica que seus tempos com IA são só autorrelato. Os números de kata também mostram o confundimento: cada lado contém katas diferentes.*
 
@@ -478,7 +478,7 @@ Por participante, a média da taxa de sucesso foi de 100% e a média de testes f
 
 **Teste de hipótese:** Wilcoxon pareado por participante (n = 3) **não aplicável** às duas métricas. Todas as diferenças pareadas são exatamente zero, então não há p-valor a reportar e nenhuma correção de multiplicidade se aplica. H0 não é rejeitada, mas não por um resultado do teste: não houve diferença a testar.
 
-![Figura 3 — RQ2: testes passando em cada trial](figures/rq2_desfecho_trials.png)
+<p align="center"><img src="figures/rq2_desfecho_trials.png" alt="Figura 3 — RQ2: testes passando em cada trial" width="800"></p>
 
 *Figura 3 — Heatmap participante × kata com os 18 trials: cada célula mostra os testes de aceitação passando sobre o total do kata (5 a 7), e a cor indica o tratamento. Todas as células estão em 100%, sem nenhum teste falhando e nenhum trial censurado. A grade mostra, trial a trial, o mecanismo que impede a RQ2 de ser respondida: a taxa de sucesso só poderia ficar abaixo de 100% num trial encerrado pelo time-box. Ela não mede defeitos e não indica ausência de defeitos. A grade também mostra em qual tratamento cada participante resolveu cada kata (seção 3.3.1).*
 
@@ -503,11 +503,11 @@ As métricas foram coletadas na S02 com Radon 6.0.1 (CC, MI e LOC) e jscpd 4.0.5
 
 *Diferença = mediana com IA − mediana sem IA, sobre os 9 trials de cada tratamento. W, p e r_rb vêm do Wilcoxon pareado por participante (N = 3 pares). r_rb é a correlação bisserial de postos pareada: com 3 pares, ±1,00 significa apenas que os três pares foram na mesma direção. Na CC, as diferenças pareadas (Arthur −3, Guilherme −2, Marcos −2) têm empates em módulo, e o p "exato" é aproximado nesse caso; como os três sinais são iguais, o valor 0,25 não se altera. ¹ As duas linhas de MI usam convenções de cálculo diferentes; ver "Índice de manutenibilidade" abaixo.*
 
-![Figura 4 — RQ3: LOC e CC por tratamento](figures/rq3_loc_cc_por_tratamento.png)
+<p align="center"><img src="figures/rq3_loc_cc_por_tratamento.png" alt="Figura 4 — RQ3: LOC e CC por tratamento" width="800"></p>
 
 *Figura 4 — Tamanho (LOC) e complexidade ciclomática (CC) por tratamento, com um painel por métrica. A caixa marca o IQR, o traço a mediana (LOC 21 × 14; CC 8 × 5), e cada ponto é um trial. O outlier de LOC (Marcos kata-04 com IA, 25 linhas) está rotulado e foi mantido. A LOC é o `loc` bruto do Radon.*
 
-![Figura 5 — RQ3: LOC e CC por participante](figures/rq3_loc_cc_por_participante.png)
+<p align="center"><img src="figures/rq3_loc_cc_por_participante.png" alt="Figura 5 — RQ3: LOC e CC por participante" width="800"></p>
 
 *Figura 5 — A comparação que o Wilcoxon faz (N = 3): uma linha por participante, da mediana sem IA à mediana com IA. Os três pares vão na mesma direção em LOC e em CC, mas cada lado contém katas diferentes. Essa unanimidade, sozinha, não é evidência de efeito (ver "Confundimento" abaixo).*
 
@@ -518,17 +518,17 @@ As métricas foram coletadas na S02 com Radon 6.0.1 (CC, MI e LOC) e jscpd 4.0.5
 
 **Interpretação:** as duas séries apontam na mesma direção nos três pares (MI maior com IA, r_rb = +1,00, p = 0,25). A diferença de nível entre elas vem da convenção de cálculo, não dos dados. Detalhes em [`data_quality_report.md`](../results/rq3/data_quality_report.md).
 
-![Figura 6 — RQ3: MI por participante nas duas séries](figures/rq3_mi_duas_series.png)
+<p align="center"><img src="figures/rq3_mi_duas_series.png" alt="Figura 6 — RQ3: MI por participante nas duas séries" width="800"></p>
 
 *Figura 6 — MI por participante (mediana dos 3 trials de cada lado), nas duas séries: como coletado (principal, à esquerda) e harmonizado (sensibilidade, à direita). Nas duas, o MI foi maior com IA nos três participantes. Os níveis diferem entre os painéis pela convenção de cálculo; no painel da esquerda, o nível mais baixo de Guilherme vem dessa convenção. No painel da direita, os pontos sem IA de Arthur (58,85) e Marcos (58,88) quase coincidem. Por isso o MI é mostrado pareado, e não como distribuição conjunta dos 18 trials.*
 
 **Normalização por LOC.** CC e LOC têm correlação moderada nos 18 trials (Spearman ρ = 0,63). Por isso foi calculada a razão CC/LOC, para separar "mais complexo porque é maior" de "mais complexo por linha". A CC/LOC é uma **métrica derivada** das duas anteriores, e não uma terceira evidência independente. Ela é sensível à definição de LOC: o `loc` bruto do Radon conta linhas em branco e comentários. Com as linhas de código-fonte sem essas linhas (SLOC, coluna `sloc_recomputed` de `source_integrity_check.csv`), as medianas de CC/SLOC ficam em 0,429 (sem IA) e 0,500 (com IA). A diferença cai de 0,162 para 0,071, menos da metade. O MI não foi normalizado, porque já incorpora linhas de código na fórmula. A duplicação/LOC é zero por construção.
 
-![Figura 7 — RQ3: CC × LOC](figures/rq3_cc_vs_loc.png)
+<p align="center"><img src="figures/rq3_cc_vs_loc.png" alt="Figura 7 — RQ3: LOC × CC × tempo até green (bolhas)" width="800"></p>
 
-*Figura 7 — CC contra LOC nos 18 trials (Spearman ρ = 0,63). A complexidade tende a acompanhar o tamanho, e os trials com IA ficam na região de menos linhas. É uma associação entre trials, não um efeito do tratamento.*
+*Figura 7 — Gráfico de bolhas com os 18 trials: LOC no eixo x, CC no eixo y e o tempo até green (RQ1) como área da bolha. O rótulo é a inicial do participante mais o kata. A complexidade tende a acompanhar o tamanho (Spearman ρ = 0,63), e os trials com IA, de bolhas pequenas, ficam na região de menos linhas; a exceção é M04 (25 linhas, CC 10). É uma associação entre trials, não um efeito do tratamento. Em (9, 4) há duas bolhas sobrepostas: G05 sem IA e M05 com IA.*
 
-![Figura 8 — RQ3: complexidade ciclomática normalizada por LOC](figures/rq3_cc_normalizada.png)
+<p align="center"><img src="figures/rq3_cc_normalizada.png" alt="Figura 8 — RQ3: complexidade ciclomática normalizada por LOC" width="800"></p>
 
 *Figura 8 — Complexidade ciclomática normalizada por LOC, uma métrica derivada de CC e LOC, com duas definições de linha. À esquerda, CC/LOC com o `loc` bruto (medianas 0,282 × 0,444); à direita, CC/SLOC, só com linhas de código (0,429 × 0,500). A diferença entre os tratamentos cai de 0,162 para 0,071 quando as linhas em branco e os comentários saem do denominador. O outlier (Guilherme kata-03 com IA, 0,857) está rotulado e foi mantido.*
 
@@ -599,7 +599,7 @@ As Figuras 9 e 10 usam as mesmas sete métricas, sempre na mesma ordem: tempo at
 
 O radar sobrepõe o perfil de cada tratamento: cada eixo é uma métrica, e o valor de cada tratamento é a sua mediana em % da maior das duas medianas. Numa figura só, ele resume o padrão das seções 4.2 e 4.4: o polígono com IA fica dentro do polígono sem IA em tempo, tamanho (LOC e LLOC), volume de Halstead e CC, e só o ultrapassa em CC/LOC e MI.
 
-![Figura 9 — Bônus: perfil multimétrico por tratamento](figures/bonus_radar_perfil.png)
+<p align="center"><img src="figures/bonus_radar_perfil.png" alt="Figura 9 — Bônus: perfil multimétrico por tratamento" width="800"></p>
 
 *Figura 9 — Radar com a mediana de cada métrica por tratamento, em % da maior das duas. O rótulo de cada eixo traz as medianas sem IA × com IA. Com IA, o tempo fica em 5,2% do tempo sem IA, e LOC, LLOC, volume de Halstead e CC ficam entre 62,5% e 76,7%. CC/LOC e MI são as únicas métricas maiores com IA; sem IA, elas ficam em 63,5% e 92,3%.*
 
@@ -613,7 +613,7 @@ A leitura tem três cuidados:
 
 Antes de somar evidências de várias métricas, é preciso saber se elas medem coisas diferentes. O heatmap mostra o ρ de Spearman entre cada par de métricas nos 18 trials. Como os 18 trials misturam os dois tratamentos, cada correlação forte foi conferida também dentro de cada tratamento (9 trials cada): uma correlação que só aparece na mistura vem da diferença entre os tratamentos, e não de uma relação entre as métricas.
 
-![Figura 10 — Bônus: correlação entre as métricas](figures/bonus_correlacao.png)
+<p align="center"><img src="figures/bonus_correlacao.png" alt="Figura 10 — Bônus: correlação entre as métricas" width="800"></p>
 
 *Figura 10 — ρ de Spearman entre as sete métricas, nos 18 trials (triângulo inferior, sem a diagonal). Vermelho = correlação positiva; azul = negativa; valores em negrito têm |ρ| ≥ 0,6.*
 
@@ -639,7 +639,7 @@ O Radon calcula o MI a partir de quatro componentes: volume de Halstead (V), com
 - Nesta amostra, o MI acompanha sobretudo o tamanho lógico e a CC, e parte dessa associação é mecânica, porque esses componentes estão na própria fórmula.
 - O MI maior com IA observado na seção 4.4 corresponde, portanto, ao código com IA ter menos linhas lógicas e menor CC. Como métrica composta, o MI **não acrescenta aqui evidência independente** de LOC e CC, e herda deles o confundimento com os katas.
 
-![Figura 11 — Bônus: MI harmonizado contra os componentes da fórmula](figures/bonus_mi_componentes.png)
+<p align="center"><img src="figures/bonus_mi_componentes.png" alt="Figura 11 — Bônus: MI harmonizado contra os componentes da fórmula" width="800"></p>
 
 *Figura 11 — MI harmonizado contra LLOC, CC e volume de Halstead, nos 18 trials, com o ρ de Spearman descritivo em cada painel. Os pontos com IA ficam na região de menos linhas e menor CC, e por isso com MI mais alto. Arthur kata-06 (sem IA) e Marcos kata-06 (com IA) têm valores idênticos nos três componentes; os dois pontos foram deslocados levemente na horizontal para ficarem visíveis.*
 
@@ -661,7 +661,7 @@ Nos 9 trials com IA, o ρ de Spearman entre o nº de prompts e cada métrica foi
 
 **Os dados coletados não permitem avaliar se o nº de prompts está associado à qualidade do código.**
 
-![Figura 12 — Bônus: nº de prompts × CC e MI](figures/bonus_prompts_qualidade.png)
+<p align="center"><img src="figures/bonus_prompts_qualidade.png" alt="Figura 12 — Bônus: nº de prompts × CC e MI" width="800"></p>
 
 *Figura 12 — CC e MI harmonizado dos 9 trials com IA, agrupados pelo nº de prompts. O rótulo de cada ponto é a inicial do participante mais o kata. O eixo mostra quem está em cada coluna: a comparação entre colunas também é entre participantes e katas diferentes, e não mede o efeito dos prompts.*
 
