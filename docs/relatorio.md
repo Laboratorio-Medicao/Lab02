@@ -78,9 +78,9 @@ O experimento segue o modelo **Goal-Question-Metric** (BASILI; CALDIERA; ROMBACH
 graph TD
     G["<b>Goal (G1)</b><br/>Analisar o uso de assistentes de IA generativa na resolução de tarefas de programação<br/>com o propósito de comparar seu efeito frente à codificação manual<br/>com respeito a tempo, defeitos e estrutura do código<br/>do ponto de vista do grupo pesquisador<br/>no contexto de katas resolvidos por estudantes (crossover, time-boxed)"]
 
-    G --> Q1["Question RQ1<br/>O assistente de IA reduz o tempo de resolução?"]
-    G --> Q2["Question RQ2<br/>O assistente de IA reduz os defeitos (testes falhando)?"]
-    G --> Q3["Question RQ3<br/>O assistente de IA altera a complexidade ciclomática ou a duplicação?"]
+    G --> Q1["Question RQ1<br/>Qual o impacto do uso de assistente de IA<br/>no tempo necessário para resolver uma tarefa?"]
+    G --> Q2["Question RQ2<br/>Como o uso de assistente de IA afeta a taxa de sucesso<br/>nos testes de aceitação?"]
+    G --> Q3["Question RQ3<br/>Como o uso de assistente de IA afeta<br/>a estrutura do código produzido?"]
 
     Q1 --> M1["Metric<br/>Tempo até green (s)<br/>censurado em 2100 s"]
     Q2 --> M2a["Metric<br/>Taxa de sucesso (%)"]
@@ -110,13 +110,15 @@ Goal (G1): Analisar o uso de assistentes de IA generativa na resolução de
   no contexto de katas de dificuldade equivalente resolvidos por estudantes
     de graduação (crossover within-subject, time-boxed)
 
-├─ Question RQ1 — O assistente de IA reduz o tempo de resolução?
+├─ Question RQ1 — Qual o impacto do uso de assistente de IA no tempo
+│    necessário para resolver uma tarefa de programação?
 │    └─ Metric: Tempo até green (s), censurado em 2100 s
-├─ Question RQ2 — O assistente de IA reduz os defeitos (testes falhando)?
+├─ Question RQ2 — Como o uso de assistente de IA afeta a taxa de sucesso
+│    nos testes de aceitação do código produzido?
 │    ├─ Metric: Taxa de sucesso (% de testes passando)
 │    └─ Metric: Nº de testes falhando (complementar)
-└─ Question RQ3 — O assistente de IA altera a complexidade ciclomática
-     ou a duplicação?
+└─ Question RQ3 — Como o uso de assistente de IA afeta a estrutura do
+     código produzido?
      ├─ Metric: CC média por função (Radon cc)
      ├─ Metric: Duplicação (% de linhas duplicadas, jscpd)
      ├─ Metric de controle: LOC (Radon raw)
