@@ -150,7 +150,9 @@ nos componentes da fórmula do Radon (volume de Halstead, CC, LLOC e
 comentários), recalculados do código versionado, e cruza o nº de prompts
 (`data/prompts/prompt_records.csv`) com CC, MI harmonizado e LOC nos trials com
 IA. A saída vai para `results/mi_prompts/` (`mi_prompts_summary.md` e CSVs); as
-figuras `bonus_*` saem de `python generate_figures.py`.
+figuras `bonus_*` saem de `python generate_figures.py`: radar do perfil
+multimétrico (`bonus_radar_perfil`), heatmap de correlação entre as métricas
+(`bonus_correlacao`), componentes do MI e nº de prompts. Ficam na seção 5 do relatório.
 
 **Figuras do relatório** ([Issue #17](../../issues/17)):
 
@@ -166,7 +168,7 @@ análises já validadas (#15 e #16). Cada figura responde a uma única pergunta:
 |---|---|
 | `rq1_tempo_por_tratamento` | Quão diferentes são os tempos entre os tratamentos? |
 | `rq1_tempo_por_participante` | A diferença aparece dentro de cada pessoa? Quais katas ficaram em cada lado? |
-| `rq2_desfecho_trials` | Por que a métrica de testes falhando não pôde variar? |
+| `rq2_desfecho_trials` | Por que a métrica de testes falhando não pôde variar? (heatmap participante × kata) |
 | `rq3_loc_cc_por_tratamento` | LOC e CC diferem entre os tratamentos? |
 | `rq3_loc_cc_por_participante` | Os três pares (unidade do Wilcoxon) vão na mesma direção? |
 | `rq3_mi_duas_series` | O MI mudou, nas duas séries (como coletado e harmonizado)? |

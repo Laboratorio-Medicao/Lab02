@@ -14,9 +14,10 @@ OUTPUT_DIR = Path("docs/figures")
 
 
 def main():
-    figures = build_all(analyze_rq1(load_trials()), analyse())
+    results = analyse()
+    figures = build_all(analyze_rq1(load_trials()), results)
     bonus = mi_prompts.analyse()
-    figures |= build_bonus(bonus.components, bonus.prompts_quality)
+    figures |= build_bonus(bonus.components, bonus.prompts_quality, results.observations)
     for path in save_all(figures, OUTPUT_DIR):
         print(f"Figura gerada em: {path}")
 

@@ -23,7 +23,7 @@ Este laboratório conduz um experimento controlado para investigar se o uso de u
 - **RQ2.** Como o uso de assistente de IA afeta a taxa de sucesso nos testes de aceitação do código produzido? *(métricas: taxa de sucesso nos testes de aceitação e número de testes falhando ao final do trial)*
 - **RQ3.** Como o uso de assistente de IA afeta a estrutura do código produzido? *(métricas: complexidade ciclomática média — CC — e percentual de linhas duplicadas, com LOC como métrica de controle e índice de manutenibilidade — MI — como aprofundamento)*
 
-Como aprofundamento opcional, o grupo também registrou o número de prompts usados nos trials com IA e decompôs o MI nos componentes da sua fórmula (seções 3.6 e 4.6).
+Como aprofundamento opcional, o grupo também registrou o número de prompts usados nos trials com IA e decompôs o MI nos componentes da sua fórmula (seções 3.6 e 5).
 
 ### Hipóteses
 
@@ -236,7 +236,7 @@ A confirmação individual e registrada de uso do assistente fixado existe apena
 | Arthur | Intermediária |
 | Marcos | Intermediária |
 
-Os três declaram uso de assistentes de IA em estágio profissional. Esses níveis são **autorrelato**, não uma medição objetiva. Eles são usados apenas na discussão qualitativa (seção 5.2).
+Os três declaram uso de assistentes de IA em estágio profissional. Esses níveis são **autorrelato**, não uma medição objetiva. Eles são usados apenas na discussão qualitativa (seção 6.2).
 
 #### 3.3.3 Objetos experimentais (katas)
 
@@ -275,7 +275,7 @@ Para cada trial foram registrados:
 
 #### 3.3.5 Ameaças à validade previstas no desenho
 
-A classificação segue as categorias usuais de validade em experimentos de Engenharia de Software (WOHLIN et al., 2012). O que se concretizou na execução é discutido na seção 5.2.
+A classificação segue as categorias usuais de validade em experimentos de Engenharia de Software (WOHLIN et al., 2012). O que se concretizou na execução é discutido na seção 6.2.
 
 - **Efeito de aprendizado** *(validade interna):* o plano da S01 previa mitigação por contrabalanceamento em blocos opostos entre participantes.
 - **Familiaridade prévia com o assistente de IA** *(validade interna):* participantes mais experientes com IA podem obter ganhos maiores no tratamento com IA. Mitigação prevista: registrar a familiaridade e tratá-la como variável de confusão na discussão. Os níveis registrados são autorrelato (seção 3.3.2), e com 3 participantes não há como controlar essa variável estatisticamente.
@@ -390,13 +390,13 @@ A tabela separa a versão fixada para o experimento do que pode ser comprovado s
 
 **Cronômetro com verificação automática do *green*.** O `timer.py` pode rodar o `pytest` a cada 5 s e parar sozinho no primeiro *green* (`--kata-path`), em vez de depender da autodeclaração do participante. O modo usado em cada trial, porém, não foi registrado (seção 3.3.4).
 
-**Bônus — MI em profundidade e nº de prompts (Issues #12 e #18).** O grupo decompôs o MI nos componentes da fórmula do Radon e cruzou o nº de prompts com CC, MI e LOC nos trials com IA. É uma análise exploratória, sem testes de hipótese (seção 4.6).
+**Bônus — análises exploratórias (Issues #12 e #18).** O grupo comparou o perfil multimétrico dos tratamentos (radar), mediu a redundância entre as métricas (heatmap de correlação), decompôs o MI nos componentes da fórmula do Radon e cruzou o nº de prompts com CC, MI e LOC nos trials com IA. São análises exploratórias, sem testes de hipótese (seção 5).
 
 ---
 
 ## 4. Resultados
 
-Os números das tabelas e dos testes desta seção são calculados pelos scripts da S03 a partir de `data/trials.csv` e `data/static_metrics.csv`, sem valores fixos no código: `python analyze_rq1_rq2.py` (RQ1 e RQ2, Issue #15, saída completa em [`docs/analysis_rq1_rq2.md`](analysis_rq1_rq2.md)), `python -m experiment.analysis.rq3` (RQ3, Issue #16, saída completa em [`results/rq3/rq3_summary.md`](../results/rq3/rq3_summary.md)) e `python -m experiment.analysis.mi_prompts` (bônus, Issue #18, saída em [`results/mi_prompts/mi_prompts_summary.md`](../results/mi_prompts/mi_prompts_summary.md)). As Figuras 1 a 10 são geradas por `python generate_figures.py` a partir dessas mesmas análises, em PNG e PDF, em `docs/figures/`. Cada figura responde a uma única pergunta e não traz p-valores, que ficam nas tabelas.
+Os números das tabelas e dos testes desta seção são calculados pelos scripts da S03 a partir de `data/trials.csv` e `data/static_metrics.csv`, sem valores fixos no código: `python analyze_rq1_rq2.py` (RQ1 e RQ2, Issue #15, saída completa em [`docs/analysis_rq1_rq2.md`](analysis_rq1_rq2.md)), `python -m experiment.analysis.rq3` (RQ3, Issue #16, saída completa em [`results/rq3/rq3_summary.md`](../results/rq3/rq3_summary.md)) e `python -m experiment.analysis.mi_prompts` (bônus, Issue #18, saída em [`results/mi_prompts/mi_prompts_summary.md`](../results/mi_prompts/mi_prompts_summary.md)). As Figuras 1 a 12 são geradas por `python generate_figures.py` a partir dessas mesmas análises, em PNG e PDF, em `docs/figures/`. Cada figura responde a uma única pergunta e não traz p-valores, que ficam nas tabelas.
 
 ### 4.1 Coleta de Dados
 
@@ -478,9 +478,9 @@ Por participante, a média da taxa de sucesso foi de 100% e a média de testes f
 
 **Teste de hipótese:** Wilcoxon pareado por participante (n = 3) **não aplicável** às duas métricas. Todas as diferenças pareadas são exatamente zero, então não há p-valor a reportar e nenhuma correção de multiplicidade se aplica. H0 não é rejeitada, mas não por um resultado do teste: não houve diferença a testar.
 
-![Figura 3 — RQ2: como os trials terminaram](figures/rq2_desfecho_trials.png)
+![Figura 3 — RQ2: testes passando em cada trial](figures/rq2_desfecho_trials.png)
 
-*Figura 3 — Como os 18 trials terminaram: 9 de 9 no green em cada tratamento, e nenhum no time-box (censurado). A figura mostra o mecanismo que impede a RQ2 de ser respondida: a taxa de sucesso só poderia ficar abaixo de 100% num trial encerrado pelo time-box. Ela não mede defeitos e não indica ausência de defeitos. Os valores da métrica estão na Tabela 3.*
+*Figura 3 — Heatmap participante × kata com os 18 trials: cada célula mostra os testes de aceitação passando sobre o total do kata (5 a 7), e a cor indica o tratamento. Todas as células estão em 100%, sem nenhum teste falhando e nenhum trial censurado. A grade mostra, trial a trial, o mecanismo que impede a RQ2 de ser respondida: a taxa de sucesso só poderia ficar abaixo de 100% num trial encerrado pelo time-box. Ela não mede defeitos e não indica ausência de defeitos. A grade também mostra em qual tratamento cada participante resolveu cada kata (seção 3.3.1).*
 
 **Discussão hipótese vs. resultado.** Os 18 trials terminaram com todos os testes passando, então a RQ2 **não tem variância a comparar**. Isso não é evidência de que os tratamentos produzam a mesma quantidade de defeitos: decorre da forma como o protocolo mede defeitos (**efeito de teto**, uma questão de validade de construto). O trial termina no *green*, isto é, quando todos os testes passam, e por isso uma taxa de sucesso abaixo de 100% só poderia aparecer em um trial censurado. Nenhum trial foi censurado, e com isso a métrica não teve como variar. A RQ2 depende, portanto, da censura da RQ1. Com a métrica coletada, **a RQ2 não pôde ser respondida**. Os dados só permitem dizer que, sob os dois tratamentos, todos os participantes chegaram a uma solução que passa nos testes de aceitação dentro do time-box. Isso não mostra que "não houve defeitos": defeitos fora da cobertura dos testes de aceitação não são medidos.
 
@@ -580,13 +580,53 @@ Esse indicador é derivado das próprias medições e absorve parte de um eventu
 | RQ3 | CC (LOC como controle; CC/LOC derivada; MI como aprofundamento) | CC 5 × 8; LOC 14 × 21; CC/LOC 0,444 × 0,282; MI maior com IA nas duas séries | W = 0,0; p bilateral = 0,25 (piso); nenhum teste significativo após correção | H0 não rejeitada | Descritivamente, código com IA menor, com CC absoluta menor e mais denso por linha; sem significância e com confundimento de kata |
 | RQ3 | Duplicação | 0% × 0% | Não aplicável (diferenças nulas) | Teste não aplicável; H0 não rejeitada | **Não avaliável** com a métrica coletada: nenhuma duplicação detectada, e a métrica não teve como variar |
 
-Em nenhuma RQ foi possível rejeitar H0. Nas três, porém, isso reflete limitações do desenho executado, e não evidência de equivalência entre os tratamentos: 3 pares, com piso de p acima de α; efeito de teto na RQ2; ausência de variância na duplicação; e confundimento entre tratamento e kata. Essas limitações são discutidas na seção 5.
+Em nenhuma RQ foi possível rejeitar H0. Nas três, porém, isso reflete limitações do desenho executado, e não evidência de equivalência entre os tratamentos: 3 pares, com piso de p acima de α; efeito de teto na RQ2; ausência de variância na duplicação; e confundimento entre tratamento e kata. Essas limitações são discutidas na seção 6.
 
-### 4.6 Análise exploratória: MI em profundidade e nº de prompts (bônus, Issue #18)
+## 5. Bônus — Análises exploratórias (diferencial do grupo)
 
-Esta análise é **exploratória e descritiva**. Ela não acrescenta testes de hipótese, porque os testes de MI entre tratamentos já estão na seção 4.4, com correção de multiplicidade.
+Esta seção reúne as análises que vão além do enunciado. Elas são **exploratórias e descritivas**: nenhuma acrescenta teste de hipótese, porque os testes entre tratamentos já estão nas seções 4.2 a 4.4, com correção de multiplicidade. O objetivo é olhar os mesmos 18 trials por ângulos que as análises por RQ não mostram. Cada figura foi escolhida pela pergunta que responde:
 
-**MI em profundidade.** O Radon calcula o MI a partir de quatro componentes: volume de Halstead (V), complexidade ciclomática (G), linhas lógicas (LLOC, L) e % de linhas de comentário (C). Os componentes foram recalculados do `solution.py` de cada trial, na convenção do MI harmonizado. O MI reconstruído a partir deles confere com essa série nos 18 trials.
+| Seção | Pergunta | Visualização |
+|---|---|---|
+| 5.1 | Qual é o perfil de cada tratamento, somando todas as métricas? | Radar (Figura 9) |
+| 5.2 | As métricas medem coisas diferentes, ou são redundantes? | Heatmap de correlação (Figura 10) |
+| 5.3 | O que move o MI nestes dados? | Dispersão por componente (Figura 11) |
+| 5.4 | O nº de prompts está associado à qualidade do código? | Dispersão por nº de prompts (Figura 12) |
+
+As Figuras 9 e 10 usam as mesmas sete métricas, sempre na mesma ordem: tempo até *green* (RQ1), LOC, LLOC, volume de Halstead, CC, CC/LOC e MI harmonizado (RQ3 e componentes do MI). A taxa de sucesso e a duplicação ficam de fora porque não variaram (100% e 0% em todos os trials). O MI usado é o harmonizado, porque a comparação cruza participantes e o MI como coletado não é comparável entre eles (seção 4.4). LLOC e volume de Halstead vêm de `python -m experiment.analysis.mi_prompts` (saída em [`results/mi_prompts/mi_prompts_summary.md`](../results/mi_prompts/mi_prompts_summary.md)); as demais métricas, de `data/trials.csv` e `data/static_metrics.csv`. As medianas do radar e as correlações do heatmap são calculadas por `python generate_figures.py` a partir desses dados.
+
+### 5.1 Perfil multimétrico por tratamento (radar)
+
+O radar sobrepõe o perfil de cada tratamento: cada eixo é uma métrica, e o valor de cada tratamento é a sua mediana em % da maior das duas medianas. Numa figura só, ele resume o padrão das seções 4.2 e 4.4: o polígono com IA fica dentro do polígono sem IA em tempo, tamanho (LOC e LLOC), volume de Halstead e CC, e só o ultrapassa em CC/LOC e MI.
+
+![Figura 9 — Bônus: perfil multimétrico por tratamento](figures/bonus_radar_perfil.png)
+
+*Figura 9 — Radar com a mediana de cada métrica por tratamento, em % da maior das duas. O rótulo de cada eixo traz as medianas sem IA × com IA. Com IA, o tempo fica em 5,2% do tempo sem IA, e LOC, LLOC, volume de Halstead e CC ficam entre 62,5% e 76,7%. CC/LOC e MI são as únicas métricas maiores com IA; sem IA, elas ficam em 63,5% e 92,3%.*
+
+A leitura tem três cuidados:
+
+- A área do polígono não é uma medida de qualidade: ela depende da ordem dos eixos e da normalização, e os eixos não têm o mesmo sentido (no MI, maior é melhor; nos demais, maior significa mais tempo, mais código ou mais complexidade).
+- Os eixos não são independentes (seção 5.2): os sete eixos não são sete evidências.
+- O radar mostra medianas e herda o confundimento com os katas das seções 4.2 e 4.4.
+
+### 5.2 Correlação entre as métricas (heatmap)
+
+Antes de somar evidências de várias métricas, é preciso saber se elas medem coisas diferentes. O heatmap mostra o ρ de Spearman entre cada par de métricas nos 18 trials. Como os 18 trials misturam os dois tratamentos, cada correlação forte foi conferida também dentro de cada tratamento (9 trials cada): uma correlação que só aparece na mistura vem da diferença entre os tratamentos, e não de uma relação entre as métricas.
+
+![Figura 10 — Bônus: correlação entre as métricas](figures/bonus_correlacao.png)
+
+*Figura 10 — ρ de Spearman entre as sete métricas, nos 18 trials (triângulo inferior, sem a diagonal). Vermelho = correlação positiva; azul = negativa; valores em negrito têm |ρ| ≥ 0,6.*
+
+- **LOC e LLOC são redundantes:** ρ = 0,93 nos 18 trials e 0,87 dentro de cada tratamento. Ordenam os trials praticamente da mesma forma.
+- **O MI é quase o espelho do tamanho e da CC:** ρ = −0,91 com LLOC, −0,86 com LOC e −0,85 com CC. A relação com LLOC se mantém dentro de cada tratamento (−0,87 com IA, −0,84 sem IA). Parte dela é mecânica, porque LLOC, CC e volume de Halstead entram na fórmula do MI (seção 5.3). Por isso o MI não é uma evidência independente de LOC e CC.
+- **CC acompanha o tamanho** (ρ = 0,63 com LOC e 0,71 com LLOC), o que sustenta a normalização CC/LOC da seção 4.4. Dentro de cada tratamento a associação com LOC é mais fraca (0,42 com IA, 0,54 sem IA): parte do ρ conjunto vem de o código com IA ser, ao mesmo tempo, menor e menos complexo.
+- **Tempo × tamanho aparece sobretudo na mistura dos tratamentos.** Nos 18 trials, o tempo tem ρ = 0,61 com LOC. Com IA, essa correlação desaparece (−0,03); sem IA, fica em 0,51. A correlação conjunta vem em boa parte de os trials com IA serem, ao mesmo tempo, mais rápidos e menores. Ela não mostra que "código maior leva mais tempo".
+
+Os valores são descritivos, sem p-valor. Os 18 trials não são independentes (6 por participante, 3 em cada tratamento), e as correlações dentro de cada tratamento têm só 9 trials.
+
+### 5.3 MI em profundidade
+
+O Radon calcula o MI a partir de quatro componentes: volume de Halstead (V), complexidade ciclomática (G), linhas lógicas (LLOC, L) e % de linhas de comentário (C). Os componentes foram recalculados do `solution.py` de cada trial, na convenção do MI harmonizado. O MI reconstruído a partir deles confere com essa série nos 18 trials.
 
 | Componente | Sem IA — mediana (IQR) | Com IA — mediana (IQR) | ρ de Spearman com o MI (18 trials) |
 |---|---:|---:|---:|
@@ -599,7 +639,13 @@ Esta análise é **exploratória e descritiva**. Ela não acrescenta testes de h
 - Nesta amostra, o MI acompanha sobretudo o tamanho lógico e a CC, e parte dessa associação é mecânica, porque esses componentes estão na própria fórmula.
 - O MI maior com IA observado na seção 4.4 corresponde, portanto, ao código com IA ter menos linhas lógicas e menor CC. Como métrica composta, o MI **não acrescenta aqui evidência independente** de LOC e CC, e herda deles o confundimento com os katas.
 
-**Nº de prompts × qualidade do código.** O nº de prompts vem de `data/prompts/prompt_records.csv` (autorrelato; seção 3.3.4), que cobre os 9 trials com IA. O MI usado é o harmonizado, porque a comparação é entre participantes e o MI como coletado não é comparável entre participantes.
+![Figura 11 — Bônus: MI harmonizado contra os componentes da fórmula](figures/bonus_mi_componentes.png)
+
+*Figura 11 — MI harmonizado contra LLOC, CC e volume de Halstead, nos 18 trials, com o ρ de Spearman descritivo em cada painel. Os pontos com IA ficam na região de menos linhas e menor CC, e por isso com MI mais alto. Arthur kata-06 (sem IA) e Marcos kata-06 (com IA) têm valores idênticos nos três componentes; os dois pontos foram deslocados levemente na horizontal para ficarem visíveis.*
+
+### 5.4 Nº de prompts × qualidade do código
+
+O nº de prompts vem de `data/prompts/prompt_records.csv` (autorrelato; seção 3.3.4), que cobre os 9 trials com IA. O MI usado é o harmonizado, porque a comparação é entre participantes e o MI como coletado não é comparável entre participantes.
 
 | Participante | Nº de prompts | CC (mediana) | MI harmonizado (mediana) | LOC (mediana) |
 |---|---:|---:|---:|---:|
@@ -615,19 +661,15 @@ Nos 9 trials com IA, o ρ de Spearman entre o nº de prompts e cada métrica foi
 
 **Os dados coletados não permitem avaliar se o nº de prompts está associado à qualidade do código.**
 
-![Figura 9 — Bônus: MI harmonizado contra os componentes da fórmula](figures/bonus_mi_componentes.png)
+![Figura 12 — Bônus: nº de prompts × CC e MI](figures/bonus_prompts_qualidade.png)
 
-*Figura 9 — MI harmonizado contra LLOC, CC e volume de Halstead, nos 18 trials, com o ρ de Spearman descritivo em cada painel. Os pontos com IA ficam na região de menos linhas e menor CC, e por isso com MI mais alto. Arthur kata-06 (sem IA) e Marcos kata-06 (com IA) têm valores idênticos nos três componentes; os dois pontos foram deslocados levemente na horizontal para ficarem visíveis.*
-
-![Figura 10 — Bônus: nº de prompts × CC e MI](figures/bonus_prompts_qualidade.png)
-
-*Figura 10 — CC e MI harmonizado dos 9 trials com IA, agrupados pelo nº de prompts. O rótulo de cada ponto é a inicial do participante mais o kata. O eixo mostra quem está em cada coluna: a comparação entre colunas também é entre participantes e katas diferentes, e não mede o efeito dos prompts.*
+*Figura 12 — CC e MI harmonizado dos 9 trials com IA, agrupados pelo nº de prompts. O rótulo de cada ponto é a inicial do participante mais o kata. O eixo mostra quem está em cada coluna: a comparação entre colunas também é entre participantes e katas diferentes, e não mede o efeito dos prompts.*
 
 ---
 
-## 5. Discussão
+## 6. Discussão
 
-### 5.1 Interpretação integrada dos resultados
+### 6.1 Interpretação integrada dos resultados
 
 Nas três RQs, o tratamento com IA esteve associado a tempos de resolução muito menores e a código mais compacto e com menor complexidade ciclomática absoluta; as taxas de sucesso foram idênticas (100%) nos dois tratamentos, por construção do protocolo. Em nenhuma RQ foi possível rejeitar H0 estatisticamente. Essa combinação — efeito descritivo grande, inferência não significativa — não é contraditória: decorre de limitações do desenho executado, discutidas a seguir.
 
@@ -637,7 +679,7 @@ Nas três RQs, o tratamento com IA esteve associado a tempos de resolução muit
 
 **RQ3 — Estrutura do código.** Os três indicadores descritivos (LOC menor, CC absoluta menor, MI maior com IA) repetiram-se nos três participantes. O resultado mais delicado é a CC/LOC: embora o código com IA tenha sido menor e menos complexo em termos absolutos, a razão CC por linha foi maior (0,444 contra 0,282 com LOC bruto; 0,500 contra 0,429 com SLOC). Isso sugere que o assistente produziu código mais denso — mais lógica por linha — e não necessariamente mais simples. A interpretação é inconclusiva, contudo, porque o confundimento entre tratamento e kata (cada participante resolveu katas diferentes em cada tratamento) impede isolar o efeito do assistente do efeito da dificuldade da tarefa. A duplicação zero em todos os trials decorre da estrutura da coleta (uma função por arquivo, limiares de 5 linhas e 20 tokens), e não de uma característica demonstrada do código produzido.
 
-### 5.2 Ameaças à validade observadas na execução
+### 6.2 Ameaças à validade observadas na execução
 
 As ameaças previstas no desenho (seção 3.3.5) se concretizaram em graus distintos durante a execução:
 
@@ -653,7 +695,7 @@ As ameaças previstas no desenho (seção 3.3.5) se concretizaram em graus disti
 
 **Confundimento tratamento–kata** *(ameaça não prevista no desenho).* Como o protocolo executado não atribuiu o mesmo kata aos dois tratamentos para nenhum participante, a dificuldade da tarefa entra como variável de confusão em todas as comparações. Em 2 dos 3 participantes (Arthur e Guilherme), os katas do lado com IA tinham, em média, CC menor — o que pode explicar parte da diferença observada em CC e LOC.
 
-### 5.3 Relação com a literatura e limitações de generalização
+### 6.3 Relação com a literatura e limitações de generalização
 
 Os resultados descritivos da RQ1 são coerentes com estudos que reportam ganhos de produtividade com assistentes de IA em tarefas de programação controladas. Peng et al. (2023) reportaram 55,8% de redução no tempo de conclusão de uma tarefa de implementação de servidor HTTP com GitHub Copilot. O efeito observado neste estudo foi proporcionalmente maior, o que pode refletir a natureza dos katas — tarefas curtas, com solução única e testes de aceitação claros, em que o assistente pode gerar a solução quase diretamente a partir do enunciado.
 
@@ -661,7 +703,7 @@ A generalização é limitada por três fatores: (1) os participantes são estud
 
 ---
 
-## 6. Conclusão
+## 7. Conclusão
 
 Este laboratório investigou o impacto do uso de um assistente de IA generativa (Claude Sonnet 5 via Claude Code) na resolução de katas de programação em Python, por meio de um experimento controlado *crossover within-subject* com três participantes, seis katas autorais e 18 trials.
 
@@ -685,7 +727,7 @@ Apesar das limitações, o experimento cumpriu seu propósito formativo: exercit
 
 ---
 
-## 7. Referências
+## 8. Referências
 
 BASILI, V. R.; CALDIERA, G.; ROMBACH, H. D. **The Goal Question Metric Approach**. Encyclopedia of Software Engineering. Wiley, 1994.
 

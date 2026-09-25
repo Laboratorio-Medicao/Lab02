@@ -36,7 +36,8 @@ def test_rq1_medians_match_the_analysis(figures):
 def test_rq2_figure_does_not_claim_absence_of_defects(figures):
     footer = " ".join(_texts(figures["rq2_desfecho_trials"]))
     assert "não indica ausência de defeitos" in footer
-    assert "0 no time-box\n(censurados)" in _texts(figures["rq2_desfecho_trials"])
+    texts = _texts(figures["rq2_desfecho_trials"])
+    assert sum(text in {"5/5", "6/6", "7/7"} for text in texts) == 18
 
 
 def test_rq3_normalized_panels_show_both_denominators(figures):

@@ -8,6 +8,7 @@ from experiment.analysis.metrics import Metric
 from experiment.analysis.mi_prompts import analyse, spearman_table
 from experiment.analysis.mi_prompts_report import generate_markdown
 from experiment.analysis.rq3 import HARMONIZED_MI_KEY
+from experiment.analysis.rq3 import analyse as analyse_rq3
 from experiment.visualization.report_figures import BONUS_FIGURE_NAMES, build_bonus
 
 
@@ -48,6 +49,23 @@ def test_report_is_descriptive_and_does_not_conclude_about_prompts(results):
 
 
 def test_bonus_figures_build(results):
-    figures = build_bonus(results.components, results.prompts_quality)
+    figures = build_bonus(results.components, results.prompts_quality, analyse_rq3().observations)
     assert list(figures) == list(BONUS_FIGURE_NAMES)
+    plt.close("all")
+
+
+def test_radar_labels_show_both_medians(results):
+    radar = build_bonus(results.components, results.prompts_quality, analyse_rq3().observations)[
+        "bonus_radar_perfil"
+    ]
+    labels = [tick.get_text() for tick in radar.axes[0].get_xticklabels()]
+    assert "Tempo até green (s)\n721,6 × 37,6" in labels
+    assert "MI harmonizado\n58,85 × 63,75" in labels
+    plt.close("all")
+
+
+def test_correlation_heatmap(results):
+    figures = build_bonus(results.components, results.prompts_quality, analyse_rq3().observations)
+    heatmap = [t.get_text() for t in figures["bonus_correlacao"].axes[0].texts]
+    assert "0,93" in heatmap and "-0,91" in heatmap and "1,00" not in heatmap
     plt.close("all")

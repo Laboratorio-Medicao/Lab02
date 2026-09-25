@@ -8,6 +8,7 @@ do relatório.
 
 from __future__ import annotations
 
+import math
 from pathlib import Path
 
 import matplotlib
@@ -18,7 +19,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 import pandas as pd  # noqa: E402
 from matplotlib.axes import Axes  # noqa: E402
 from matplotlib.figure import Figure  # noqa: E402
-from matplotlib.patches import Patch  # noqa: E402
+from matplotlib.patches import Patch, Rectangle  # noqa: E402
 from matplotlib.ticker import MaxNLocator  # noqa: E402
 
 from experiment.analysis.rq1_rq2 import TIME_BOX_SECONDS, Rq1Analysis  # noqa: E402
@@ -222,38 +223,52 @@ def rq1_time_by_participant(obs: pd.DataFrame, rq1: Rq1Analysis) -> Figure:
 
 
 def rq2_trial_outcomes(obs: pd.DataFrame) -> Figure:
-    """Gráfico 3 — como os trials terminaram, isto é, por que a métrica de RQ2 não pôde variar."""
-    fig, ax = plt.subplots(figsize=(8.6, 3.4))
-    per_treatment = int(obs.groupby("treatment").size().max())
-    for row, treatment in enumerate(TREATMENTS):
-        side = obs[obs["treatment"] == treatment]
-        green = int((~side["censored"]).sum())
-        censored = int(side["censored"].sum())
-        ax.barh(row, green, color=COLORS[treatment], alpha=0.9, height=0.55, zorder=3)
-        ax.barh(row, censored, left=green, color="white", edgecolor=MUTED, hatch="//", height=0.55, zorder=3)
-        ax.text(
-            green / 2, row, f"{green} de {len(side)} terminaram no green", ha="center", va="center",
-            color="white", fontweight="bold", fontsize=10.5, zorder=4,
-        )
-        ax.text(
-            len(side) + 0.15, row, f"{censored} no time-box\n(censurados)", va="center",
-            fontsize=9.5, color=MUTED,
-        )
-    ax.set_yticks(range(len(TREATMENTS)), [LABELS[t] for t in TREATMENTS])
-    for tick, treatment in zip(ax.get_yticklabels(), TREATMENTS):
-        tick.set_color(COLORS[treatment])
-        tick.set_fontweight("bold")
-    ax.invert_yaxis()
-    ax.set_xlim(0, per_treatment + 1.9)
-    ax.set_xticks(range(0, per_treatment + 1, 3))
-    ax.set_xlabel("Trials")
-    ax.grid(axis="y", visible=False)
-    ax.grid(axis="x", visible=True)
-    ax.set_title("RQ2 — Como os trials terminaram (base da métrica de testes falhando)")
+    """Gráfico 3 — heatmap participante × kata: testes passando em cada um dos 18 trials.
+
+    A cor da célula é o tratamento; o texto, os testes passando sobre o total do kata.
+    Mostra, trial a trial, que a métrica não variou e em qual tratamento cada kata foi feito.
+    """
+    katas = sorted(obs["kata_id"].unique())
+    fig, ax = plt.subplots(figsize=(9.4, 4.4))
+    for row, participant in enumerate(PARTICIPANT_ORDER):
+        for col, kata in enumerate(katas):
+            trial = obs[(obs["participant"] == participant) & (obs["kata_id"] == kata)].iloc[0]
+            color = COLORS[trial["treatment"]]
+            ax.add_patch(Rectangle(
+                (col - 0.5, row - 0.5), 1, 1, facecolor=color, alpha=0.22,
+                edgecolor="white", linewidth=3, zorder=1,
+            ))
+            ax.text(
+                col, row - 0.08, f"{int(trial['tests_passing'])}/{int(trial['tests_total'])}",
+                ha="center", va="center", fontsize=13, fontweight="bold", color=INK, zorder=2,
+            )
+            ax.text(
+                col, row + 0.24, f"{LABELS[trial['treatment']]} · {_br(trial['success_rate_percent'], 0)}%",
+                ha="center", va="center", fontsize=8.5, color=color, fontweight="bold", zorder=2,
+            )
+    ax.set_xlim(-0.5, len(katas) - 0.5)
+    ax.set_ylim(len(PARTICIPANT_ORDER) - 0.5, -0.5)
+    ax.set_xticks(range(len(katas)), katas)
+    ax.set_yticks(range(len(PARTICIPANT_ORDER)), PARTICIPANT_ORDER)
+    ax.tick_params(length=0)
+    ax.xaxis.tick_top()
+    ax.grid(False)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    failing = int(obs["tests_failing"].sum())
+    censored = int(obs["censored"].sum())
+    ax.set_title(
+        f"RQ2 — Testes de aceitação passando em cada trial ({failing} falhando, {censored} censurados)",
+        pad=28,
+    )
+    ax.legend(
+        handles=[Patch(color=COLORS[t], alpha=0.35, label=LABELS[t]) for t in (WITHOUT_AI, WITH_AI)],
+        loc="upper center", bbox_to_anchor=(0.5, -0.02), ncol=2, frameon=False,
+    )
     _footer(
         fig,
-        "A taxa de sucesso só ficaria abaixo de 100% num trial encerrado pelo time-box. Nenhum foi:\n"
-        "a métrica não teve como variar — a RQ2 não é respondível com ela, e isso não indica ausência de defeitos.",
+        "Célula = testes passando / total do kata · cor = tratamento. A taxa de sucesso só ficaria abaixo de 100% num trial\n"
+        "encerrado pelo time-box. Nenhum foi: a métrica não teve como variar, e isso não indica ausência de defeitos.",
     )
     fig.tight_layout(rect=(0, 0.1, 1, 1))
     return fig
@@ -563,9 +578,134 @@ def bonus_prompts_quality(prompts_quality: pd.DataFrame) -> Figure:
     return fig
 
 
-BONUS_FIGURE_NAMES = ("bonus_mi_componentes", "bonus_prompts_qualidade")
+#: Métricas dos gráficos multimétricos: (coluna, rótulo, casas decimais). Ordem fixa:
+#: tempo, tamanho, complexidade e, por último, o MI, que é composto dos anteriores.
+RADAR_AXES = (
+    ("elapsed_seconds", "Tempo até green (s)", 1),
+    ("loc", "LOC", 0),
+    ("lloc", "LLOC", 0),
+    ("halstead_volume", "Volume de\nHalstead", 1),
+    ("cyclomatic_complexity_avg", "CC", 0),
+    ("cc_per_loc", "CC/LOC", 3),
+    ("maintainability_index_harmonized", "MI harmonizado", 2),
+)
+SHORT_LABELS = {
+    "elapsed_seconds": "Tempo", "loc": "LOC", "lloc": "LLOC", "halstead_volume": "Volume\nHalstead",
+    "cyclomatic_complexity_avg": "CC", "cc_per_loc": "CC/LOC", "maintainability_index_harmonized": "MI\nharmonizado",
+}
+TRIAL_KEYS = ["participant", "kata_id", "treatment"]
 
 
-def build_bonus(components: pd.DataFrame, prompts_quality: pd.DataFrame) -> dict[str, Figure]:
-    figures = (bonus_mi_components(components), bonus_prompts_quality(prompts_quality))
+def _trial_metrics(components: pd.DataFrame, observations: pd.DataFrame) -> pd.DataFrame:
+    """Uma linha por trial com todas as métricas dos gráficos multimétricos."""
+    return observations.merge(components[[*TRIAL_KEYS, "lloc", "halstead_volume"]], on=TRIAL_KEYS)
+
+
+def bonus_radar_profile(components: pd.DataFrame, observations: pd.DataFrame) -> Figure:
+    """Perfil multimétrico de cada tratamento: mediana de cada métrica em % da maior das duas."""
+    merged = _trial_metrics(components, observations)
+    columns = [column for column, _, _ in RADAR_AXES]
+    medians = merged.groupby("treatment")[columns].median()
+    shares = 100 * medians / medians.max()
+
+    angles = [2 * math.pi * i / len(RADAR_AXES) for i in range(len(RADAR_AXES))]
+    closed = angles + angles[:1]
+    fig, ax = plt.subplots(figsize=(7.6, 7.4), subplot_kw={"projection": "polar"})
+    ax.set_theta_offset(math.pi / 2)
+    ax.set_theta_direction(-1)
+    for treatment in (WITHOUT_AI, WITH_AI):
+        values = shares.loc[treatment].tolist()
+        ax.plot(closed, values + values[:1], color=COLORS[treatment], linewidth=2, zorder=3)
+        ax.fill(closed, values + values[:1], color=COLORS[treatment], alpha=0.16, zorder=2)
+        ax.scatter(angles, values, s=34, color=COLORS[treatment], edgecolor="white", zorder=4)
+    labels = [
+        f"{label}\n{_br(medians.loc[WITHOUT_AI, column], digits)} × {_br(medians.loc[WITH_AI, column], digits)}"
+        for column, label, digits in RADAR_AXES
+    ]
+    ax.set_xticks(angles, labels, fontsize=10)
+    ax.tick_params(axis="x", pad=16)
+    ax.set_ylim(0, 105)
+    ax.set_yticks([25, 50, 75, 100], ["25%", "50%", "75%", "100%"], fontsize=8, color=MUTED)
+    ax.set_rlabel_position(180 / len(RADAR_AXES))
+    ax.grid(color=GRID)
+    ax.spines["polar"].set_color(MUTED)
+    ax.legend(
+        handles=[Patch(color=COLORS[t], label=LABELS[t]) for t in (WITHOUT_AI, WITH_AI)],
+        loc="upper center", bbox_to_anchor=(0.5, -0.1), ncol=2, frameon=False,
+    )
+    ax.set_title(
+        "Bônus — Perfil multimétrico por tratamento (mediana, % da maior das duas)",
+        loc="center", pad=34,
+    )
+    _footer(
+        fig,
+        "Rótulo de cada eixo: mediana sem IA × com IA · MI: maior = mais manutenível; demais: maior = mais tempo,\n"
+        "mais código ou mais complexidade · taxa de sucesso (100% × 100%) e duplicação (0% × 0%) ficam fora: não variaram.\n"
+        "Descritivo, sem teste · cada lado contém katas diferentes · os eixos não são independentes (o MI é calculado de LLOC, CC e Halstead).",
+    )
+    fig.tight_layout(rect=(0, 0.09, 1, 1))
+    return fig
+
+
+def bonus_correlation_heatmap(components: pd.DataFrame, observations: pd.DataFrame) -> Figure:
+    """Heatmap de correlação de Spearman entre as métricas, nos 18 trials (triângulo inferior)."""
+    merged = _trial_metrics(components, observations)
+    columns = [column for column, _, _ in RADAR_AXES]
+    rho = merged[columns].corr(method="spearman")
+    labels = [SHORT_LABELS[c].replace("\n", " ") for c in columns]
+
+    fig, ax = plt.subplots(figsize=(8, 6.4))
+    cmap = plt.get_cmap("RdBu_r")
+    size = len(columns) - 1
+    # Só o triângulo inferior, sem a diagonal (ρ = 1 de cada métrica consigo mesma).
+    for i in range(size):
+        for j in range(i + 1):
+            value = rho.iloc[i + 1, j]
+            ax.add_patch(Rectangle(
+                (j - 0.5, i - 0.5), 1, 1, facecolor=cmap((value + 1) / 2),
+                edgecolor="white", linewidth=2,
+            ))
+            ax.text(
+                j, i, _br(value, 2), ha="center", va="center", fontsize=10,
+                color="white" if abs(value) >= 0.6 else INK, fontweight="bold" if abs(value) >= 0.6 else None,
+            )
+    ax.set_xlim(-0.5, size - 0.5)
+    ax.set_ylim(size - 0.5, -0.5)
+    ax.set_xticks(range(size), labels[:-1], rotation=30, ha="right")
+    ax.set_yticks(range(size), labels[1:])
+    ax.tick_params(length=0)
+    ax.grid(False)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    mappable = plt.cm.ScalarMappable(cmap=cmap, norm=matplotlib.colors.Normalize(-1, 1))
+    bar = fig.colorbar(mappable, ax=ax, fraction=0.04, pad=0.02)
+    bar.set_label("ρ de Spearman")
+    bar.outline.set_visible(False)
+    ax.set_title("Bônus — Correlação entre as métricas (Spearman, 18 trials)")
+    _footer(
+        fig,
+        "Descritivo, sem p-valor · os 18 trials misturam os dois tratamentos: parte das correlações vem da diferença entre eles\n"
+        "(ex.: tempo × LOC) · parte é mecânica: o MI é calculado a partir de LLOC, CC e volume de Halstead.",
+    )
+    fig.tight_layout(rect=(0, 0.06, 1, 1))
+    return fig
+
+
+BONUS_FIGURE_NAMES = (
+    "bonus_radar_perfil",
+    "bonus_correlacao",
+    "bonus_mi_componentes",
+    "bonus_prompts_qualidade",
+)
+
+
+def build_bonus(
+    components: pd.DataFrame, prompts_quality: pd.DataFrame, observations: pd.DataFrame
+) -> dict[str, Figure]:
+    figures = (
+        bonus_radar_profile(components, observations),
+        bonus_correlation_heatmap(components, observations),
+        bonus_mi_components(components),
+        bonus_prompts_quality(prompts_quality),
+    )
     return dict(zip(BONUS_FIGURE_NAMES, figures))
